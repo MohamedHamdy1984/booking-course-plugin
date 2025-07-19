@@ -1,0 +1,347 @@
+/* Hamdy Plugin Admin Styles */
+
+/* Dashboard Stats */
+.hamdy-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.hamdy-stat-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.hamdy-stat-card h3 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.hamdy-stat-number {
+    font-size: 32px;
+    font-weight: bold;
+    color: #0073aa;
+    line-height: 1;
+}
+
+/* Status indicators */
+.hamdy-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.hamdy-status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.hamdy-status-inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.hamdy-status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.hamdy-status-confirmed {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.hamdy-status-completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.hamdy-status-cancelled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Empty state */
+.hamdy-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.hamdy-empty-state h2 {
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.hamdy-empty-state p {
+    color: #999;
+    margin-bottom: 20px;
+}
+
+/* Teachers Management */
+.hamdy-teacher-form .form-table th {
+    width: 150px;
+    vertical-align: top;
+    padding-top: 15px;
+}
+
+.hamdy-avatar-placeholder {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #666;
+}
+
+/* Availability Grid */
+.hamdy-availability-grid {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.hamdy-availability-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background: #ddd;
+}
+
+.hamdy-day-column {
+    background: #fff;
+    padding: 10px;
+}
+
+.hamdy-day-column h4 {
+    margin: 0 0 10px 0;
+    font-size: 12px;
+    text-align: center;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.hamdy-time-slot {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 11px;
+    cursor: pointer;
+    padding: 2px 0;
+}
+
+.hamdy-time-slot input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+.hamdy-time-slot:hover {
+    background: #f5f5f5;
+}
+
+/* Schedule Overview */
+.hamdy-schedule-tabs .nav-tab-wrapper {
+    margin-bottom: 0;
+}
+
+.hamdy-tab-panel {
+    display: none;
+    padding: 20px 0;
+}
+
+.hamdy-tab-panel.active {
+    display: block;
+}
+
+.hamdy-schedule-grid {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 1px;
+    background: #ddd;
+    border: 1px solid #ddd;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.hamdy-day-header {
+    background: #f1f1f1;
+    padding: 10px;
+    font-weight: bold;
+    text-align: center;
+    border-right: 1px solid #ddd;
+}
+
+.hamdy-day-slots {
+    display: grid;
+    grid-template-columns: repeat(24, 1fr);
+    gap: 1px;
+    background: #ddd;
+}
+
+.hamdy-time-slot {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    cursor: pointer;
+    position: relative;
+}
+
+.hamdy-time-slot.available {
+    background: #4CAF50;
+    color: white;
+}
+
+.hamdy-time-slot.unavailable {
+    background: #f5f5f5;
+    color: #999;
+}
+
+.hamdy-time-slot:hover {
+    opacity: 0.8;
+}
+
+.hamdy-legend {
+    margin: 20px 0;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.hamdy-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.hamdy-legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+}
+
+.hamdy-hours-header {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 1px;
+    margin-bottom: 1px;
+}
+
+.hamdy-hours-labels {
+    display: grid;
+    grid-template-columns: repeat(24, 1fr);
+    gap: 1px;
+    background: #ddd;
+}
+
+.hamdy-hour-label {
+    width: 30px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    background: #f9f9f9;
+    color: #666;
+}
+
+/* Recent bookings */
+.hamdy-recent-bookings {
+    margin-top: 30px;
+}
+
+.hamdy-recent-bookings h2 {
+    margin-bottom: 15px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hamdy-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .hamdy-availability-days {
+        grid-template-columns: 1fr;
+    }
+    
+    .hamdy-schedule-grid {
+        font-size: 8px;
+    }
+    
+    .hamdy-time-slot {
+        width: 20px;
+        height: 20px;
+        font-size: 8px;
+    }
+}
+
+/* Loading states */
+.hamdy-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.hamdy-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #0073aa;
+    border-radius: 50%;
+    animation: hamdy-spin 1s linear infinite;
+}
+
+@keyframes hamdy-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Notifications */
+.hamdy-notice {
+    padding: 10px 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+    border-left: 4px solid;
+}
+
+.hamdy-notice-success {
+    background: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+}
+
+.hamdy-notice-error {
+    background: #f8d7da;
+    border-color: #dc3545;
+    color: #721c24;
+}
+
+.hamdy-notice-warning {
+    background: #fff3cd;
+    border-color: #ffc107;
+    color: #856404;
+}
+
+.hamdy-notice-info {
+    background: #d1ecf1;
+    border-color: #17a2b8;
+    color: #0c5460;
+}
