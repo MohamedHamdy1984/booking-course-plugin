@@ -121,16 +121,30 @@ class Hamdy_Teacher {
      * Helper: Extract gender from gender_age_group
      */
     private static function get_gender_from_group($group) {
-        if (strpos($group, 'man') !== false) return 'man';
-        if (strpos($group, 'woman') !== false) return 'woman';
-        return 'both';
+        switch ($group) {
+            case 'man':
+                return 'man';
+            case 'woman':
+                return 'woman';
+            case 'child':
+                return 'both'; // Children can be taught by both genders
+            default:
+                return 'both';
+        }
     }
     
     /**
      * Helper: Extract age group from gender_age_group
      */
     private static function get_age_group_from_group($group) {
-        if (strpos($group, 'child') !== false) return 'children';
-        return 'adults';
+        switch ($group) {
+            case 'child':
+                return 'children';
+            case 'man':
+            case 'woman':
+                return 'adults';
+            default:
+                return 'both';
+        }
     }
 }

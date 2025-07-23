@@ -8,6 +8,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+
+
 class Hamdy_WooCommerce {
     
     public function __construct() {

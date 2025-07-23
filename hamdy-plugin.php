@@ -93,21 +93,7 @@ class Hamdy_Plugin
         }
     }
 
-
-    /**
-     * Initialize the plugin
-     */
-    public function init()
-    {
-        // Load required files
-        $this->load_dependencies();
-
-        // Initialize components
-        $this->init_admin();
-        $this->init_public();
-        $this->init_woocommerce();
-    }
-
+    
     /**
      * Load plugin textdomain
      */
@@ -140,6 +126,22 @@ class Hamdy_Plugin
     }
 
     /**
+     * Initialize the plugin
+     */
+    public function init()
+    {
+        // Load required files
+        $this->load_dependencies();
+
+        // Initialize components
+        $this->init_admin();
+        $this->init_public();
+        $this->init_woocommerce();
+    }
+
+
+
+    /**
      * Load dependencies
      */
     private function load_dependencies()
@@ -158,10 +160,8 @@ class Hamdy_Plugin
         }
 
         // Public includes
-        if (!is_admin()) {
-            require_once HAMDY_PLUGIN_PATH . 'public/class-hamdy-public.php';
-            require_once HAMDY_PLUGIN_PATH . 'public/class-hamdy-checkout.php';
-        }
+        require_once HAMDY_PLUGIN_PATH . 'public/class-hamdy-public.php';
+        require_once HAMDY_PLUGIN_PATH . 'public/class-hamdy-checkout.php';
     }
 
     /**
@@ -182,6 +182,11 @@ class Hamdy_Plugin
         if (!is_admin() && class_exists('Hamdy_Public')) {
             new Hamdy_Public();
         }
+
+        // Initialize checkout functionality for AJAX handling
+        if (class_exists('Hamdy_Checkout')) {
+            new Hamdy_Checkout();
+        }
     }
 
     /**
@@ -189,7 +194,8 @@ class Hamdy_Plugin
      */
     private function init_woocommerce()
     {
-        if (class_exists('Hamdy_WooCommerce')) {
+        // Initialize WooCommerce integration for both admin and frontend
+        if (class_exists('WooCommerce') && class_exists('Hamdy_WooCommerce')) {
             new Hamdy_WooCommerce();
         }
     }

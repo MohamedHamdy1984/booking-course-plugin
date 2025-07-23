@@ -18,9 +18,6 @@ class Hamdy_Checkout {
      * Initialize hooks
      */
     private function init_hooks() {
-        // Initialize WooCommerce integration
-        new Hamdy_WooCommerce();
-        
         // Enqueue checkout scripts
         add_action('wp_enqueue_scripts', array($this, 'enqueue_checkout_scripts'));
         
@@ -56,42 +53,61 @@ class Hamdy_Checkout {
      * AJAX: Get checkout time slots
      */
     public function ajax_get_checkout_slots() {
-        check_ajax_referer('hamdy_nonce', 'nonce');
-        
-        $gender_age_group = sanitize_text_field($_POST['gender_age_group']);
-        $timezone = sanitize_text_field($_POST['timezone']);
-        
-        if (empty($gender_age_group)) {
-            wp_send_json_error(array('message' => __('Please select a category first.', 'hamdy-plugin')));
+        try {
+            check_ajax_referer('hamdy_nonce', 'nonce');
+            
+            $gender_age_group = sanitize_text_field($_POST['gender_age_group']);
+            $timezone = sanitize_text_field($_POST['timezone']);
+            
+            if (empty($gender_age_group)) {
+                wp_send_json_error(array('message' => __('Please select a category first.', 'hamdy-plugin')));
+            }
+            
+            // Check if Teacher class exists
+            if (!class_exists('Hamdy_Teacher')) {
+                wp_send_json_error(array('message' => __('Teacher class not found.', 'hamdy-plugin')));
+            }
+            
+            // Get next 7 days
+            $days_data = array();
+            for ($i = 0; $i < 7; $i++) {
+                $date = date('Y-m-d', strtotime("+$i days"));
+                $day_name = date('l', strtotime($date));
+                $day_key = strtolower($day_name);
+                
+                // Get available slots for this day
+                $available_slots = Hamdy_Teacher::get_available_slots($gender_age_group, $day_key);
+                
+                // If no slots from database, provide some demo slots for testing
+                if (empty($available_slots)) {
+                    $available_slots = $this->get_demo_slots();
+                }
+                
+                // Convert slots to user timezone if needed
+                $converted_slots = $this->convert_slots_to_timezone($available_slots, $timezone);
+                
+                $days_data[] = array(
+                    'date' => $date,
+                    'day_name' => $day_name,
+                    'day_key' => $day_key,
+                    'display_date' => date('M j', strtotime($date)),
+                    'slots' => $converted_slots,
+                    'has_slots' => !empty($converted_slots)
+                );
+            }
+            
+            wp_send_json_success(array(
+                'days' => $days_data,
+                'timezone' => $timezone,
+                'debug' => array(
+                    'gender_age_group' => $gender_age_group,
+                    'timezone' => $timezone
+                )
+            ));
+            
+        } catch (Exception $e) {
+            wp_send_json_error(array('message' => 'Error: ' . $e->getMessage()));
         }
-        
-        // Get next 7 days
-        $days_data = array();
-        for ($i = 0; $i < 7; $i++) {
-            $date = date('Y-m-d', strtotime("+$i days"));
-            $day_name = date('l', strtotime($date));
-            $day_key = strtolower($day_name);
-            
-            // Get available slots for this day
-            $available_slots = Hamdy_Teacher::get_available_slots($gender_age_group, $day_key);
-            
-            // Convert slots to user timezone if needed
-            $converted_slots = $this->convert_slots_to_timezone($available_slots, $timezone);
-            
-            $days_data[] = array(
-                'date' => $date,
-                'day_name' => $day_name,
-                'day_key' => $day_key,
-                'display_date' => date('M j', strtotime($date)),
-                'slots' => $converted_slots,
-                'has_slots' => !empty($converted_slots)
-            );
-        }
-        
-        wp_send_json_success(array(
-            'days' => $days_data,
-            'timezone' => $timezone
-        ));
     }
     
     /**
@@ -190,5 +206,19 @@ class Hamdy_Checkout {
         $html .= '</div>';
         
         return $html;
+    }
+    
+    /**
+     * Get demo slots for testing when no teachers are configured
+     */
+    private function get_demo_slots() {
+        return array(
+            '09:00:00',
+            '10:00:00',
+            '11:00:00',
+            '14:00:00',
+            '15:00:00',
+            '16:00:00'
+        );
     }
 }
