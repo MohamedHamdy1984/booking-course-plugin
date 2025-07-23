@@ -28,8 +28,12 @@ jQuery(document).ready(function($) {
         var timezone = $timezoneField.val();
         var category = $categoryField.val();
         
-        if (!timezone || !category) {
+        if (!category) {
             $slotsWrapper.html('<p>' + hamdy_checkout_ajax.strings.select_category + '</p>');
+            return;
+        }
+        if (!timezone) {
+            $slotsWrapper.html('<p>' + hamdy_checkout_ajax.strings.select_timezone + '</p>');
             return;
         }
         

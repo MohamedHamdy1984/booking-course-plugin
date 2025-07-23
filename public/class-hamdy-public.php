@@ -19,7 +19,7 @@ class Hamdy_Public {
      */
     private function init_hooks() {
         // Initialize checkout functionality
-        new Hamdy_Checkout();
+        // new Hamdy_Checkout();
         
         // AJAX handlers for public
         add_action('wp_ajax_hamdy_get_available_slots', array($this, 'ajax_get_available_slots'));
@@ -40,8 +40,9 @@ class Hamdy_Public {
         $selected_date = sanitize_text_field($_POST['selected_date']);
         
         if (empty($gender_age_group)) {
-            wp_send_json_error(array('message' => __('Please select a category first.', 'hamdy-plugin')));
+            wp_send_json_error(array('message' => __('Please select a category.', 'hamdy-plugin')));
         }
+        
         
         // Get day of week from selected date
         $day_of_week = strtolower(date('l', strtotime($selected_date)));

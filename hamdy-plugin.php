@@ -93,7 +93,7 @@ class Hamdy_Plugin
         }
     }
 
-    
+
     /**
      * Load plugin textdomain
      */
@@ -337,13 +337,3 @@ register_uninstall_hook(__FILE__, 'hamdy_plugin_uninstall');
 add_action('plugins_loaded', array('Hamdy_Plugin', 'get_instance'));
 
 
-// add_action('woocommerce_product_options_general_product_data', function() {
-//     echo '<div class="options_group">';
-//     woocommerce_wp_checkbox(array(
-//         'id' => '_hamdy_bookable',
-//         'label' => __('Enable Booking', 'hamdy-plugin'),
-//         'description' => __('Enable booking fields on checkout for this product.', 'hamdy-plugin'),
-//         'desc_tip' => true,
-//     ));
-//     echo '</div>';
-// }, 99);
