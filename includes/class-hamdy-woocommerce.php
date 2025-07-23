@@ -32,6 +32,10 @@ class Hamdy_WooCommerce {
         
         // Add order meta to emails
         add_action('woocommerce_email_order_meta', array($this, 'add_order_meta_to_email'), 10, 3);
+        
+        // Product admin settings
+        add_action('woocommerce_product_options_general_product_data', array($this, 'add_product_booking_field'));
+        add_action('woocommerce_process_product_meta', array($this, 'save_product_booking_field'));
     }
     
     /**
@@ -241,5 +245,32 @@ class Hamdy_WooCommerce {
         );
         
         return apply_filters('hamdy_timezone_options', $timezones);
+    }
+    
+    /**
+     * Add booking field to product admin
+     */
+    public function add_product_booking_field() {
+        global $post;
+        
+        echo '<div class="options_group">';
+        
+        woocommerce_wp_checkbox(array(
+            'id' => '_hamdy_bookable',
+            'label' => __('Enable Booking', 'hamdy-plugin'),
+            'description' => __('Check this box to enable booking fields on checkout for this product.', 'hamdy-plugin'),
+            'desc_tip' => true,
+            'value' => get_post_meta($post->ID, '_hamdy_bookable', true)
+        ));
+        
+        echo '</div>';
+    }
+    
+    /**
+     * Save product booking field
+     */
+    public function save_product_booking_field($post_id) {
+        $bookable = isset($_POST['_hamdy_bookable']) ? 'yes' : 'no';
+        update_post_meta($post_id, '_hamdy_bookable', $bookable);
     }
 }

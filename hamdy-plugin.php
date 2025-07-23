@@ -73,7 +73,26 @@ class Hamdy_Plugin
         // Enqueue scripts and styles
         add_action('wp_enqueue_scripts', array($this, 'enqueue_public_assets'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
+
+        //  WooCommerce HPOS compatibility
+        add_action('before_woocommerce_init', array($this, 'declare_hpos_compatibility'));
     }
+
+
+    /**
+     * Declare HPOS compatibility with WooCommerce
+     */
+    public function declare_hpos_compatibility()
+    {
+        if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
+            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
+                'custom_order_tables',
+                __FILE__,
+                true
+            );
+        }
+    }
+
 
     /**
      * Initialize the plugin
@@ -86,6 +105,7 @@ class Hamdy_Plugin
         // Initialize components
         $this->init_admin();
         $this->init_public();
+        $this->init_woocommerce();
     }
 
     /**
@@ -165,6 +185,17 @@ class Hamdy_Plugin
     }
 
     /**
+     * Initialize WooCommerce functionality
+     */
+    private function init_woocommerce()
+    {
+        if (class_exists('Hamdy_WooCommerce')) {
+            new Hamdy_WooCommerce();
+        }
+    }
+
+
+    /**
      * Enqueue public assets
      */
     public function enqueue_public_assets()
@@ -235,25 +266,6 @@ class Hamdy_Plugin
                 'error' => __('An error occurred. Please try again.', 'hamdy-plugin'),
             )
         ));
-
-        if ($hook === 'toplevel_page_hamdy_teachers') {
-
-            // Enqueue specific styles and scripts for Teachers page
-            wp_enqueue_style(
-                'hamdy-admin-teachers-style',
-                HAMDY_PLUGIN_URL . 'assets/css/admin-teachers.css',
-                array(),
-                HAMDY_PLUGIN_VERSION
-            );
-            
-            wp_enqueue_script(
-                'hamdy-admin-teachers-script',
-                HAMDY_PLUGIN_URL . 'assets/js/admin-teachers.js',
-                array('jquery'),
-                HAMDY_PLUGIN_VERSION,
-                true
-            );
-        }
     }
 }
 
@@ -317,3 +329,15 @@ register_uninstall_hook(__FILE__, 'hamdy_plugin_uninstall');
 
 // Initialize the plugin
 add_action('plugins_loaded', array('Hamdy_Plugin', 'get_instance'));
+
+
+// add_action('woocommerce_product_options_general_product_data', function() {
+//     echo '<div class="options_group">';
+//     woocommerce_wp_checkbox(array(
+//         'id' => '_hamdy_bookable',
+//         'label' => __('Enable Booking', 'hamdy-plugin'),
+//         'description' => __('Enable booking fields on checkout for this product.', 'hamdy-plugin'),
+//         'desc_tip' => true,
+//     ));
+//     echo '</div>';
+// }, 99);
