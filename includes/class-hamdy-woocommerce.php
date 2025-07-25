@@ -96,19 +96,30 @@ class Hamdy_WooCommerce
             'options' => $this->get_timezone_options()
         ), $checkout->get_value('hamdy_timezone'));
 
-        // Gender/Age group field
-        woocommerce_form_field('hamdy_gender_age_group', array(
+        // Gender field
+        woocommerce_form_field('hamdy_gender', array(
             'type' => 'select',
             'class' => array('hamdy-field-wide'),
-            'label' => __('Select your category', 'hamdy-plugin'),
+            'label' => __('Select your gender', 'hamdy-plugin'),
             'required' => true,
             'options' => array(
                 '' => __('Choose an option', 'hamdy-plugin'),
-                'man' => __('Man', 'hamdy-plugin'),
-                'woman' => __('Woman', 'hamdy-plugin'),
-                'child' => __('Child', 'hamdy-plugin')
+                'male' => __('Male', 'hamdy-plugin'),
+                'female' => __('Female', 'hamdy-plugin')
             )
-        ), $checkout->get_value('hamdy_gender_age_group'));
+        ), $checkout->get_value('hamdy_gender'));
+
+        // Age field
+        woocommerce_form_field('hamdy_age', array(
+            'type' => 'number',
+            'class' => array('hamdy-field-wide'),
+            'label' => __('Your age', 'hamdy-plugin'),
+            'required' => true,
+            'custom_attributes' => array(
+                'min' => 1,
+                'max' => 120
+            )
+        ), $checkout->get_value('hamdy_age'));
 
         // Time slots container
         echo '<div id="hamdy_time_slots_container">';
@@ -132,8 +143,12 @@ class Hamdy_WooCommerce
             wc_add_notice(__('Please select your timezone.', 'hamdy-plugin'), 'error');
         }
 
-        if (empty($_POST['hamdy_gender_age_group'])) {
-            wc_add_notice(__('Please select your category.', 'hamdy-plugin'), 'error');
+        if (empty($_POST['hamdy_gender'])) {
+            wc_add_notice(__('Please select your gender.', 'hamdy-plugin'), 'error');
+        }
+
+        if (empty($_POST['hamdy_age']) || !is_numeric($_POST['hamdy_age']) || $_POST['hamdy_age'] < 1 || $_POST['hamdy_age'] > 120) {
+            wc_add_notice(__('Please enter a valid age (1-120).', 'hamdy-plugin'), 'error');
         }
 
         if (empty($_POST['hamdy_selected_slots'])) {
@@ -154,8 +169,12 @@ class Hamdy_WooCommerce
             update_post_meta($order_id, '_hamdy_timezone', sanitize_text_field($_POST['hamdy_timezone']));
         }
 
-        if (!empty($_POST['hamdy_gender_age_group'])) {
-            update_post_meta($order_id, '_hamdy_gender_age_group', sanitize_text_field($_POST['hamdy_gender_age_group']));
+        if (!empty($_POST['hamdy_gender'])) {
+            update_post_meta($order_id, '_hamdy_gender', sanitize_text_field($_POST['hamdy_gender']));
+        }
+
+        if (!empty($_POST['hamdy_age'])) {
+            update_post_meta($order_id, '_hamdy_age', intval($_POST['hamdy_age']));
         }
 
         if (!empty($_POST['hamdy_selected_slots'])) {
@@ -168,7 +187,8 @@ class Hamdy_WooCommerce
                 'order_id' => $order_id,
                 'customer_id' => $order->get_customer_id(),
                 'timezone' => sanitize_text_field($_POST['hamdy_timezone']),
-                'gender_age_group' => sanitize_text_field($_POST['hamdy_gender_age_group']),
+                'customer_gender' => sanitize_text_field($_POST['hamdy_gender']),
+                'customer_age' => intval($_POST['hamdy_age']),
                 'selected_slots' => $selected_slots,
                 'booking_date' => current_time('Y-m-d'),
                 'booking_time' => current_time('H:i:s'),
@@ -186,18 +206,23 @@ class Hamdy_WooCommerce
     public function display_admin_order_meta($order)
     {
         $timezone = get_post_meta($order->get_id(), '_hamdy_timezone', true);
-        $gender_age_group = get_post_meta($order->get_id(), '_hamdy_gender_age_group', true);
+        $gender = get_post_meta($order->get_id(), '_hamdy_gender', true);
+        $age = get_post_meta($order->get_id(), '_hamdy_age', true);
         $selected_slots = get_post_meta($order->get_id(), '_hamdy_selected_slots', true);
 
-        if ($timezone || $gender_age_group || $selected_slots) {
+        if ($timezone || $gender || $age || $selected_slots) {
             echo '<h3>' . __('Booking Details', 'hamdy-plugin') . '</h3>';
 
             if ($timezone) {
                 echo '<p><strong>' . __('Timezone:', 'hamdy-plugin') . '</strong> ' . esc_html($timezone) . '</p>';
             }
 
-            if ($gender_age_group) {
-                echo '<p><strong>' . __('Category:', 'hamdy-plugin') . '</strong> ' . esc_html($gender_age_group) . '</p>';
+            if ($gender) {
+                echo '<p><strong>' . __('Gender:', 'hamdy-plugin') . '</strong> ' . esc_html(ucfirst($gender)) . '</p>';
+            }
+
+            if ($age) {
+                echo '<p><strong>' . __('Age:', 'hamdy-plugin') . '</strong> ' . esc_html($age) . '</p>';
             }
 
             if ($selected_slots) {
@@ -217,14 +242,16 @@ class Hamdy_WooCommerce
     public function add_order_meta_to_email($order, $sent_to_admin, $plain_text)
     {
         $timezone = get_post_meta($order->get_id(), '_hamdy_timezone', true);
-        $gender_age_group = get_post_meta($order->get_id(), '_hamdy_gender_age_group', true);
+        $gender = get_post_meta($order->get_id(), '_hamdy_gender', true);
+        $age = get_post_meta($order->get_id(), '_hamdy_age', true);
         $selected_slots = get_post_meta($order->get_id(), '_hamdy_selected_slots', true);
 
-        if ($timezone || $gender_age_group || $selected_slots) {
+        if ($timezone || $gender || $age || $selected_slots) {
             if ($plain_text) {
                 echo "\n" . __('Booking Details:', 'hamdy-plugin') . "\n";
                 if ($timezone) echo __('Timezone:', 'hamdy-plugin') . ' ' . $timezone . "\n";
-                if ($gender_age_group) echo __('Category:', 'hamdy-plugin') . ' ' . $gender_age_group . "\n";
+                if ($gender) echo __('Gender:', 'hamdy-plugin') . ' ' . ucfirst($gender) . "\n";
+                if ($age) echo __('Age:', 'hamdy-plugin') . ' ' . $age . "\n";
                 if ($selected_slots) {
                     echo __('Selected Time Slots:', 'hamdy-plugin') . "\n";
                     foreach ($selected_slots as $slot) {
@@ -234,7 +261,8 @@ class Hamdy_WooCommerce
             } else {
                 echo '<h3>' . __('Booking Details', 'hamdy-plugin') . '</h3>';
                 if ($timezone) echo '<p><strong>' . __('Timezone:', 'hamdy-plugin') . '</strong> ' . esc_html($timezone) . '</p>';
-                if ($gender_age_group) echo '<p><strong>' . __('Category:', 'hamdy-plugin') . '</strong> ' . esc_html($gender_age_group) . '</p>';
+                if ($gender) echo '<p><strong>' . __('Gender:', 'hamdy-plugin') . '</strong> ' . esc_html(ucfirst($gender)) . '</p>';
+                if ($age) echo '<p><strong>' . __('Age:', 'hamdy-plugin') . '</strong> ' . esc_html($age) . '</p>';
                 if ($selected_slots) {
                     echo '<p><strong>' . __('Selected Time Slots:', 'hamdy-plugin') . '</strong></p>';
                     echo '<ul>';
@@ -269,25 +297,86 @@ class Hamdy_WooCommerce
     /**
      * Get timezone options
      */
-    private function get_timezone_options()
+    public function get_timezone_options()
     {
-        $timezones = array(
-            '' => __('Select timezone', 'hamdy-plugin'),
-            'UTC' => 'UTC',
-            'America/New_York' => 'Eastern Time (ET)',
-            'America/Chicago' => 'Central Time (CT)',
-            'America/Denver' => 'Mountain Time (MT)',
-            'America/Los_Angeles' => 'Pacific Time (PT)',
-            'Europe/London' => 'London (GMT)',
-            'Europe/Paris' => 'Paris (CET)',
-            'Europe/Berlin' => 'Berlin (CET)',
-            'Asia/Tokyo' => 'Tokyo (JST)',
-            'Asia/Shanghai' => 'Shanghai (CST)',
-            'Asia/Dubai' => 'Dubai (GST)',
-            'Africa/Cairo' => 'Cairo (EET)',
-            'Australia/Sydney' => 'Sydney (AEST)'
+        $base_timezones = array(
+            // Americas (UTC-8 to UTC-3)
+            'America/Los_Angeles' => 'Pacific Time (Los Angeles, Vancouver)',
+            'America/Denver' => 'Mountain Time (Denver, Phoenix)',
+            'America/Chicago' => 'Central Time (Chicago, Mexico City)',
+            'America/New_York' => 'Eastern Time (New York, Toronto)',
+            'America/Sao_Paulo' => 'Brasília Time (São Paulo, Rio)',
+            'America/Argentina/Buenos_Aires' => 'Argentina Time (Buenos Aires)',
+            
+            // Europe & Africa (UTC+0 to UTC+3)
+            'UTC' => 'UTC (Coordinated Universal Time)',
+            'Europe/London' => 'Greenwich Mean Time (London, Dublin)',
+            'Africa/Casablanca' => 'Western European Time (Casablanca)',
+            'Europe/Paris' => 'Central European Time (Paris, Madrid)',
+            'Europe/Berlin' => 'Central European Time (Berlin, Rome)',
+            'Africa/Lagos' => 'West Africa Time (Lagos, Accra)',
+            'Africa/Johannesburg' => 'South Africa Standard Time (Johannesburg)',
+            'Africa/Cairo' => 'Eastern European Time (Cairo, Athens)',
+            'Europe/Istanbul' => 'Turkey Time (Istanbul)',
+            'Europe/Moscow' => 'Moscow Time (Moscow)',
+            
+            // Asia (UTC+3:30 to UTC+9)
+            'Asia/Tehran' => 'Iran Standard Time (Tehran)',
+            'Asia/Dubai' => 'Gulf Standard Time (Dubai, Abu Dhabi)',
+            'Asia/Riyadh' => 'Arabia Standard Time (Riyadh, Kuwait)',
+            'Asia/Karachi' => 'Pakistan Standard Time (Karachi, Islamabad)',
+            'Asia/Kolkata' => 'India Standard Time (Mumbai, Delhi)',
+            'Asia/Dhaka' => 'Bangladesh Standard Time (Dhaka)',
+            'Asia/Bangkok' => 'Indochina Time (Bangkok, Ho Chi Minh)',
+            'Asia/Shanghai' => 'China Standard Time (Beijing, Shanghai)',
+            'Asia/Tokyo' => 'Japan Standard Time (Tokyo, Osaka)',
+            'Asia/Seoul' => 'Korea Standard Time (Seoul)',
+            
+            // Australia & Oceania (UTC+8 to UTC+13)
+            'Australia/Perth' => 'Australian Western Time (Perth)',
+            'Australia/Sydney' => 'Australian Eastern Time (Sydney, Melbourne)',
+            'Pacific/Auckland' => 'New Zealand Standard Time (Auckland)',
         );
 
-        return apply_filters('hamdy_timezone_options', $timezones);
+        // Add UTC offset to each timezone and sort by offset
+        $timezones_with_offset = array();
+        $timezone_offsets = array();
+        
+        foreach ($base_timezones as $timezone_id => $timezone_name) {
+            try {
+                $tz = new DateTimeZone($timezone_id);
+                $now = new DateTime('now', $tz);
+                $offset = $now->getOffset();
+                $offset_hours = intval($offset / 3600);
+                $offset_minutes = abs(($offset % 3600) / 60);
+                
+                $offset_string = sprintf('UTC%+d', $offset_hours);
+                if ($offset_minutes > 0) {
+                    $offset_string .= ':' . sprintf('%02d', $offset_minutes);
+                }
+                
+                $display_name = $timezone_name . ' (' . $offset_string . ')';
+                $timezones_with_offset[$timezone_id] = $display_name;
+                $timezone_offsets[$timezone_id] = $offset;
+            } catch (Exception $e) {
+                // If timezone calculation fails, use original name and assume UTC
+                $timezones_with_offset[$timezone_id] = $timezone_name;
+                $timezone_offsets[$timezone_id] = 0;
+            }
+        }
+
+        // Sort by UTC offset (lowest to highest)
+        asort($timezone_offsets);
+        
+        // Create final sorted array
+        $sorted_timezones = array(
+            '' => __('Select timezone', 'hamdy-plugin')
+        );
+        
+        foreach ($timezone_offsets as $timezone_id => $offset) {
+            $sorted_timezones[$timezone_id] = $timezones_with_offset[$timezone_id];
+        }
+
+        return apply_filters('hamdy_timezone_options', $sorted_timezones);
     }
 }

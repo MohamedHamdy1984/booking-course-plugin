@@ -25,14 +25,15 @@ class Hamdy_Booking {
                 'customer_id' => intval($data['customer_id']),
                 'teacher_id' => isset($data['teacher_id']) ? intval($data['teacher_id']) : null,
                 'timezone' => sanitize_text_field($data['timezone']),
-                'gender_age_group' => sanitize_text_field($data['gender_age_group']),
+                'customer_gender' => sanitize_text_field($data['customer_gender']),
+                'customer_age' => intval($data['customer_age']),
                 'selected_slots' => wp_json_encode($data['selected_slots']),
                 'booking_date' => sanitize_text_field($data['booking_date']),
                 'booking_time' => sanitize_text_field($data['booking_time']),
                 'status' => sanitize_text_field($data['status']),
                 'notes' => sanitize_textarea_field($data['notes'])
             ),
-            array('%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s')
+            array('%d', '%d', '%d', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s')
         );
         
         return $result ? $wpdb->insert_id : false;

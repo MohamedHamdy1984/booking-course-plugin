@@ -71,7 +71,7 @@ class Hamdy_Plugin
         add_action('admin_init', array($this, 'check_woocommerce_dependency'));
 
         // Enqueue scripts and styles
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_public_assets'));
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_checkout_scripts'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
 
         //  WooCommerce HPOS compatibility
@@ -135,11 +135,25 @@ class Hamdy_Plugin
 
         // Initialize components
         $this->init_admin();
-        $this->init_public();
+        $this->init_checkout();
         $this->init_woocommerce();
     }
 
 
+    /**
+     * Safely require a PHP file if it exists.
+     *
+     * @param string $file_path Full path to the file.
+     */
+    private function safe_require($file_path)
+    {
+        if (file_exists($file_path)) {
+            require_once $file_path;
+        } else {
+            // Optional: log missing file for debugging
+            error_log("Hamdy Plugin: File not found - " . $file_path);
+        }
+    }
 
     /**
      * Load dependencies
@@ -147,22 +161,22 @@ class Hamdy_Plugin
     private function load_dependencies()
     {
         // Core includes
-        require_once HAMDY_PLUGIN_PATH . 'includes/class-hamdy-database.php';
-        require_once HAMDY_PLUGIN_PATH . 'includes/class-hamdy-teacher.php';
-        require_once HAMDY_PLUGIN_PATH . 'includes/class-hamdy-booking.php';
-        require_once HAMDY_PLUGIN_PATH . 'includes/class-hamdy-woocommerce.php';
+        $this->safe_require(HAMDY_PLUGIN_PATH . 'includes/class-hamdy-database.php');
+        $this->safe_require(HAMDY_PLUGIN_PATH . 'includes/class-hamdy-teacher.php');
+        $this->safe_require(HAMDY_PLUGIN_PATH . 'includes/class-hamdy-booking.php');
+        $this->safe_require(HAMDY_PLUGIN_PATH . 'includes/class-hamdy-woocommerce.php');
 
         // Admin includes
         if (is_admin()) {
-            require_once HAMDY_PLUGIN_PATH . 'admin/class-hamdy-admin.php';
-            require_once HAMDY_PLUGIN_PATH . 'admin/class-hamdy-admin-teachers.php';
-            require_once HAMDY_PLUGIN_PATH . 'admin/class-hamdy-admin-schedule.php';
+            $this->safe_require(HAMDY_PLUGIN_PATH . 'admin/class-hamdy-admin.php');
+            $this->safe_require(HAMDY_PLUGIN_PATH . 'admin/class-hamdy-admin-teachers.php');
+            $this->safe_require(HAMDY_PLUGIN_PATH . 'admin/class-hamdy-admin-schedule.php');
         }
 
         // Public includes
-        require_once HAMDY_PLUGIN_PATH . 'public/class-hamdy-public.php';
-        require_once HAMDY_PLUGIN_PATH . 'public/class-hamdy-checkout.php';
+        $this->safe_require(HAMDY_PLUGIN_PATH . 'public/class-hamdy-checkout.php');
     }
+
 
     /**
      * Initialize admin functionality
@@ -175,14 +189,10 @@ class Hamdy_Plugin
     }
 
     /**
-     * Initialize public functionality
+     * Initialize Checkout functionality
      */
-    private function init_public()
+    private function init_checkout()
     {
-        if (!is_admin() && class_exists('Hamdy_Public')) {
-            new Hamdy_Public();
-        }
-
         // Initialize checkout functionality for AJAX handling
         if (class_exists('Hamdy_Checkout')) {
             new Hamdy_Checkout();
@@ -202,36 +212,27 @@ class Hamdy_Plugin
 
 
     /**
-     * Enqueue public assets
+     * Enqueue checkout scripts
      */
-    public function enqueue_public_assets()
+    public function enqueue_checkout_scripts()
     {
-        // CSS
-        wp_enqueue_style(
-            'hamdy-public-style',
-            HAMDY_PLUGIN_URL . 'assets/css/public.css',
-            array(),
-            HAMDY_PLUGIN_VERSION
-        );
+        if (is_checkout()) {
+            wp_enqueue_script('hamdy-checkout', HAMDY_PLUGIN_URL . 'assets/js/checkout.js', array('jquery'), HAMDY_PLUGIN_VERSION, true);
+            wp_enqueue_style('hamdy-checkout', HAMDY_PLUGIN_URL . 'assets/css/checkout.css', array(), HAMDY_PLUGIN_VERSION);
 
-        // JavaScript
-        wp_enqueue_script(
-            'hamdy-public-script',
-            HAMDY_PLUGIN_URL . 'assets/js/public.js',
-            array('jquery'),
-            HAMDY_PLUGIN_VERSION,
-            true
-        );
-
-        // Localize script
-        wp_localize_script('hamdy-public-script', 'hamdy_ajax', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('hamdy_nonce'),
-            'strings' => array(
-                'loading' => __('Loading...', 'hamdy-plugin'),
-                'error' => __('An error occurred. Please try again.', 'hamdy-plugin'),
-            )
-        ));
+            wp_localize_script('hamdy-checkout', 'hamdy_checkout_ajax', array(
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'nonce' => wp_create_nonce('hamdy_nonce'),
+                'strings' => array(
+                    'loading' => __('Loading available slots...', 'hamdy-plugin'),
+                    'no_slots' => __('No available slots for this selection.', 'hamdy-plugin'),
+                    'select_category' => __('Please select a category first.', 'hamdy-plugin'),
+                    'select_timezone' => __('Please select your timezone first.', 'hamdy-plugin'),
+                    'select_slot' => __('Please select at least one time slot.', 'hamdy-plugin'),
+                    'error' => __('An error occurred. Please try again.', 'hamdy-plugin')
+                )
+            ));
+        }
     }
 
     /**
@@ -335,5 +336,3 @@ register_uninstall_hook(__FILE__, 'hamdy_plugin_uninstall');
 
 // Initialize the plugin
 add_action('plugins_loaded', array('Hamdy_Plugin', 'get_instance'));
-
-

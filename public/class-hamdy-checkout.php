@@ -22,38 +22,12 @@ class Hamdy_Checkout
      */
     private function init_hooks()
     {
-
-        // Enqueue checkout scripts
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_checkout_scripts'));
-
         // AJAX handlers for checkout
         add_action('wp_ajax_hamdy_get_checkout_slots', array($this, 'ajax_get_checkout_slots'));
         add_action('wp_ajax_nopriv_hamdy_get_checkout_slots', array($this, 'ajax_get_checkout_slots'));
     }
 
-    /**
-     * Enqueue checkout scripts
-     */
-    public function enqueue_checkout_scripts()
-    {
-        if (is_checkout()) {
-            wp_enqueue_script('hamdy-checkout', HAMDY_PLUGIN_URL . 'assets/js/checkout.js', array('jquery'), HAMDY_PLUGIN_VERSION, true);
-            wp_enqueue_style('hamdy-checkout', HAMDY_PLUGIN_URL . 'assets/css/checkout.css', array(), HAMDY_PLUGIN_VERSION);
-
-            wp_localize_script('hamdy-checkout', 'hamdy_checkout_ajax', array(
-                'ajax_url' => admin_url('admin-ajax.php'),
-                'nonce' => wp_create_nonce('hamdy_nonce'),
-                'strings' => array(
-                    'loading' => __('Loading available slots...', 'hamdy-plugin'),
-                    'no_slots' => __('No available slots for this selection.', 'hamdy-plugin'),
-                    'select_category' => __('Please select a category first.', 'hamdy-plugin'),
-                    'select_timezone' => __('Please select your timezone first.', 'hamdy-plugin'),
-                    'select_slot' => __('Please select at least one time slot.', 'hamdy-plugin'),
-                    'error' => __('An error occurred. Please try again.', 'hamdy-plugin')
-                )
-            ));
-        }
-    }
+    
 
     /**
      * AJAX: Get checkout time slots
@@ -63,11 +37,11 @@ class Hamdy_Checkout
         try {
             check_ajax_referer('hamdy_nonce', 'nonce');
 
-            $gender_age_group = sanitize_text_field($_POST['gender_age_group']);
+            $gender = sanitize_text_field($_POST['gender']);
             $timezone = sanitize_text_field($_POST['timezone']);
 
-            if (empty($gender_age_group)) {
-                wp_send_json_error(array('message' => __('Please select a category.', 'hamdy-plugin')));
+            if (empty($gender)) {
+                wp_send_json_error(array('message' => __('Please select your gender.', 'hamdy-plugin')));
             }
             if (empty($timezone)) {
                 wp_send_json_error(array('message' => __('Please select a Time Zone.', 'hamdy-plugin')));
@@ -78,26 +52,30 @@ class Hamdy_Checkout
                 wp_send_json_error(array('message' => __('Teacher class not found.', 'hamdy-plugin')));
             }
 
-            // Get next 7 days
+            // Get weekly recurring schedule (Sunday to Saturday)
             $days_data = array();
-            for ($i = 0; $i < 7; $i++) {
-                $date = date('Y-m-d', strtotime("+$i days"));
-                $day_name = date('l', strtotime($date));
-                $day_key = strtolower($day_name);
+            $days_of_week = array(
+                'sunday' => __('Sunday', 'hamdy-plugin'),
+                'monday' => __('Monday', 'hamdy-plugin'),
+                'tuesday' => __('Tuesday', 'hamdy-plugin'),
+                'wednesday' => __('Wednesday', 'hamdy-plugin'),
+                'thursday' => __('Thursday', 'hamdy-plugin'),
+                'friday' => __('Friday', 'hamdy-plugin'),
+                'saturday' => __('Saturday', 'hamdy-plugin')
+            );
 
+            foreach ($days_of_week as $day_key => $day_name) {
                 // Get available slots for this day
-                $available_slots = Hamdy_Teacher::get_available_slots($gender_age_group, $day_key);
+                $available_slots = Hamdy_Teacher::get_available_slots($gender, $day_key);
 
-                // If no slots from database, provide some demo slots for testing
+                // If no slots from database, show empty state
                 if (empty($available_slots)) {
                     $days_data[] = array(
-                        'date' => $date,
                         'day_name' => $day_name,
                         'day_key' => $day_key,
-                        'display_date' => date('M j', strtotime($date)),
                         'slots' => [],
                         'has_slots' => false,
-                        'message' => sprintf(__('No available time slots for - %s', 'hamdy-plugin'), $day_name)
+                        'message' => sprintf(__('No available time slots for %s', 'hamdy-plugin'), $day_name)
                     );
                     continue;
                 }
@@ -106,10 +84,8 @@ class Hamdy_Checkout
                 $converted_slots = $this->convert_slots_to_timezone($available_slots, $timezone);
 
                 $days_data[] = array(
-                    'date' => $date,
                     'day_name' => $day_name,
                     'day_key' => $day_key,
-                    'display_date' => date('M j', strtotime($date)),
                     'slots' => $converted_slots,
                     'has_slots' => !empty($converted_slots)
                 );
@@ -119,7 +95,7 @@ class Hamdy_Checkout
                 'days' => $days_data,
                 'timezone' => $timezone,
                 'debug' => array(
-                    'gender_age_group' => $gender_age_group,
+                    'gender' => $gender,
                     'timezone' => $timezone
                 )
             ));
@@ -140,15 +116,19 @@ class Hamdy_Checkout
         $converted_slots = array();
 
         try {
-            $server_tz = new DateTimeZone('UTC');
+            // Times are stored in UTC in the database
+            $utc_tz = new DateTimeZone('UTC');
             $user_tz = new DateTimeZone($user_timezone);
 
             foreach ($slots as $slot) {
-                $datetime = new DateTime($slot, $server_tz);
+                // Create datetime in UTC (stored format)
+                $datetime = new DateTime($slot, $utc_tz);
+                
+                // Convert to user's timezone
                 $datetime->setTimezone($user_tz);
 
                 $converted_slots[] = array(
-                    'original' => $slot,
+                    'original' => $slot, // Keep original UTC time for form submission
                     'converted' => $datetime->format('H:i'),
                     'display' => $datetime->format('g:i A'),
                     'timezone' => $user_timezone
@@ -180,15 +160,14 @@ class Hamdy_Checkout
 
         $html = '<div class="hamdy-time-slots-container">';
 
-        // Days tabs
+        // Days tabs (weekly recurring)
         $html .= '<div class="hamdy-days-tabs">';
         foreach ($days_data as $index => $day) {
             $active_class = $index === 0 ? ' active' : '';
             $disabled_class = !$day['has_slots'] ? ' disabled' : '';
 
-            $html .= '<button type="button" class="hamdy-day-tab' . $active_class . $disabled_class . '" data-day="' . $day['day_key'] . '" data-date="' . $day['date'] . '">';
+            $html .= '<button type="button" class="hamdy-day-tab' . $active_class . $disabled_class . '" data-day="' . $day['day_key'] . '">';
             $html .= '<span class="day-name">' . $day['day_name'] . '</span>';
-            $html .= '<span class="day-date">' . $day['display_date'] . '</span>';
             $html .= '</button>';
         }
         $html .= '</div>';
@@ -206,7 +185,7 @@ class Hamdy_Checkout
                     $html .= '<label class="hamdy-slot-option">';
                     $html .= '<input type="checkbox" name="hamdy_time_slots[]" value="' . esc_attr(json_encode(array(
                         'day' => $day['day_name'],
-                        'date' => $day['date'],
+                        'day_key' => $day['day_key'],
                         'time' => $slot['original'],
                         'display_time' => $slot['display'],
                         'timezone' => $slot['timezone']

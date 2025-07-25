@@ -46,11 +46,10 @@ class Hamdy_Teacher {
                 'name' => sanitize_text_field($data['name']),
                 'photo' => sanitize_url($data['photo']),
                 'gender' => sanitize_text_field($data['gender']),
-                'age_group' => sanitize_text_field($data['age_group']),
                 'availability' => wp_json_encode($data['availability']),
                 'status' => sanitize_text_field($data['status'])
             ),
-            array('%s', '%s', '%s', '%s', '%s', '%s')
+            array('%s', '%s', '%s', '%s', '%s')
         );
         
         return $result ? $wpdb->insert_id : false;
@@ -70,12 +69,11 @@ class Hamdy_Teacher {
                 'name' => sanitize_text_field($data['name']),
                 'photo' => sanitize_url($data['photo']),
                 'gender' => sanitize_text_field($data['gender']),
-                'age_group' => sanitize_text_field($data['age_group']),
                 'availability' => wp_json_encode($data['availability']),
                 'status' => sanitize_text_field($data['status'])
             ),
             array('id' => $id),
-            array('%s', '%s', '%s', '%s', '%s', '%s'),
+            array('%s', '%s', '%s', '%s', '%s'),
             array('%d')
         );
     }
@@ -93,16 +91,13 @@ class Hamdy_Teacher {
     /**
      * Get available time slots for specific criteria
      */
-    public static function get_available_slots($gender_age_group, $day_of_week) {
+    public static function get_available_slots($customer_gender, $day_of_week) {
         global $wpdb;
         
         $table = $wpdb->prefix . 'hamdy_teachers';
         $teachers = $wpdb->get_results($wpdb->prepare(
-            "SELECT availability FROM $table WHERE status = 'active' AND 
-            (gender = %s OR gender = 'both') AND 
-            (age_group = %s OR age_group = 'both')",
-            self::get_gender_from_group($gender_age_group),
-            self::get_age_group_from_group($gender_age_group)
+            "SELECT availability FROM $table WHERE status = 'active' AND gender = %s",
+            $customer_gender
         ));
         
         $available_slots = array();
@@ -117,34 +112,4 @@ class Hamdy_Teacher {
         return array_unique($available_slots);
     }
     
-    /**
-     * Helper: Extract gender from gender_age_group
-     */
-    private static function get_gender_from_group($group) {
-        switch ($group) {
-            case 'man':
-                return 'man';
-            case 'woman':
-                return 'woman';
-            case 'child':
-                return 'both'; // Children can be taught by both genders
-            default:
-                return 'both';
-        }
-    }
-    
-    /**
-     * Helper: Extract age group from gender_age_group
-     */
-    private static function get_age_group_from_group($group) {
-        switch ($group) {
-            case 'child':
-                return 'children';
-            case 'man':
-            case 'woman':
-                return 'adults';
-            default:
-                return 'both';
-        }
-    }
 }

@@ -40,6 +40,7 @@ class Hamdy_Admin
     {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'admin_init'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
 
         // Initialize sub-admin classes
         $this->teachers_admin = new Hamdy_Admin_Teachers();
@@ -105,6 +106,25 @@ class Hamdy_Admin
     {
         // Register settings if needed
         register_setting('hamdy_settings', 'hamdy_options');
+    }
+
+    /**
+     * Enqueue admin scripts and styles
+     */
+    public function enqueue_admin_scripts($hook)
+    {
+        // Only enqueue on our admin pages
+        if (strpos($hook, 'hamdy-') !== false) {
+            // Enqueue common admin styles
+            wp_enqueue_style('hamdy-admin', HAMDY_PLUGIN_URL . 'assets/css/admin.css', array(), HAMDY_PLUGIN_VERSION);
+            
+            // Enqueue specific scripts based on page
+            if ($hook === 'hamdy-booking_page_hamdy-schedule') {
+                $this->schedule_admin->enqueue_scripts();
+            } elseif ($hook === 'hamdy-booking_page_hamdy-teachers') {
+                $this->teachers_admin->enqueue_scripts();
+            }
+        }
     }
 
     /**
@@ -242,7 +262,8 @@ class Hamdy_Admin
         echo '<tr>';
         echo '<th>' . __('Order ID', 'hamdy-plugin') . '</th>';
         echo '<th>' . __('Customer', 'hamdy-plugin') . '</th>';
-        echo '<th>' . __('Category', 'hamdy-plugin') . '</th>';
+        echo '<th>' . __('Gender', 'hamdy-plugin') . '</th>';
+        echo '<th>' . __('Age', 'hamdy-plugin') . '</th>';
         echo '<th>' . __('Date', 'hamdy-plugin') . '</th>';
         echo '<th>' . __('Status', 'hamdy-plugin') . '</th>';
         echo '</tr>';
@@ -254,7 +275,8 @@ class Hamdy_Admin
             echo '<tr>';
             echo '<td>#' . $booking->order_id . '</td>';
             echo '<td>' . ($customer ? $customer->display_name : __('Guest', 'hamdy-plugin')) . '</td>';
-            echo '<td>' . esc_html($booking->gender_age_group) . '</td>';
+            echo '<td>' . esc_html(ucfirst($booking->customer_gender)) . '</td>';
+            echo '<td>' . esc_html($booking->customer_age) . '</td>';
             echo '<td>' . date('M j, Y', strtotime($booking->booking_date)) . '</td>';
             echo '<td><span class="hamdy-status hamdy-status-' . $booking->status . '">' . ucfirst($booking->status) . '</span></td>';
             echo '</tr>';
@@ -282,7 +304,8 @@ class Hamdy_Admin
         echo '<th>' . __('ID', 'hamdy-plugin') . '</th>';
         echo '<th>' . __('Order ID', 'hamdy-plugin') . '</th>';
         echo '<th>' . __('Customer', 'hamdy-plugin') . '</th>';
-        echo '<th>' . __('Category', 'hamdy-plugin') . '</th>';
+        echo '<th>' . __('Gender', 'hamdy-plugin') . '</th>';
+        echo '<th>' . __('Age', 'hamdy-plugin') . '</th>';
         echo '<th>' . __('Timezone', 'hamdy-plugin') . '</th>';
         echo '<th>' . __('Date', 'hamdy-plugin') . '</th>';
         echo '<th>' . __('Status', 'hamdy-plugin') . '</th>';
@@ -297,7 +320,8 @@ class Hamdy_Admin
             echo '<td>' . $booking->id . '</td>';
             echo '<td>#' . $booking->order_id . '</td>';
             echo '<td>' . ($customer ? $customer->display_name : __('Guest', 'hamdy-plugin')) . '</td>';
-            echo '<td>' . esc_html($booking->gender_age_group) . '</td>';
+            echo '<td>' . esc_html(ucfirst($booking->customer_gender)) . '</td>';
+            echo '<td>' . esc_html($booking->customer_age) . '</td>';
             echo '<td>' . esc_html($booking->timezone) . '</td>';
             echo '<td>' . date('M j, Y', strtotime($booking->booking_date)) . '</td>';
             echo '<td><span class="hamdy-status hamdy-status-' . $booking->status . '">' . ucfirst($booking->status) . '</span></td>';

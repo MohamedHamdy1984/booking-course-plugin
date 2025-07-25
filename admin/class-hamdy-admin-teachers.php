@@ -24,6 +24,23 @@ class Hamdy_Admin_Teachers {
     }
     
     /**
+     * Enqueue scripts and styles for teachers page
+     */
+    public function enqueue_scripts() {
+        // Enqueue admin teachers styles if needed
+        wp_enqueue_style('hamdy-admin-teachers', HAMDY_PLUGIN_URL . 'assets/css/admin-teachers.css', array(), HAMDY_PLUGIN_VERSION);
+        
+        // Enqueue admin teachers JavaScript if needed
+        wp_enqueue_script('hamdy-admin-teachers', HAMDY_PLUGIN_URL . 'assets/js/admin-teachers.js', array('jquery'), HAMDY_PLUGIN_VERSION, true);
+        
+        // Localize script for AJAX
+        wp_localize_script('hamdy-admin-teachers', 'hamdy_admin_ajax', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('hamdy_admin_nonce')
+        ));
+    }
+    
+    /**
      * Display teachers page
      */
     public function display_page() {
@@ -72,7 +89,6 @@ class Hamdy_Admin_Teachers {
                             <th><?php _e('Photo', 'hamdy-plugin'); ?></th>
                             <th><?php _e('Name', 'hamdy-plugin'); ?></th>
                             <th><?php _e('Gender', 'hamdy-plugin'); ?></th>
-                            <th><?php _e('Age Group', 'hamdy-plugin'); ?></th>
                             <th><?php _e('Status', 'hamdy-plugin'); ?></th>
                             <th><?php _e('Actions', 'hamdy-plugin'); ?></th>
                         </tr>
@@ -91,7 +107,6 @@ class Hamdy_Admin_Teachers {
                                 </td>
                                 <td><strong><?php echo esc_html($teacher->name); ?></strong></td>
                                 <td><?php echo ucfirst($teacher->gender); ?></td>
-                                <td><?php echo ucfirst($teacher->age_group); ?></td>
                                 <td>
                                     <span class="hamdy-status hamdy-status-<?php echo $teacher->status; ?>">
                                         <?php echo ucfirst($teacher->status); ?>
@@ -152,22 +167,29 @@ class Hamdy_Admin_Teachers {
                         <td>
                             <select id="teacher_gender" name="teacher_gender" required>
                                 <option value=""><?php _e('Select Gender', 'hamdy-plugin'); ?></option>
-                                <option value="man"><?php _e('Man', 'hamdy-plugin'); ?></option>
-                                <option value="woman"><?php _e('Woman', 'hamdy-plugin'); ?></option>
+                                <option value="male"><?php _e('Male', 'hamdy-plugin'); ?></option>
+                                <option value="female"><?php _e('Female', 'hamdy-plugin'); ?></option>
                             </select>
                         </td>
                     </tr>
                     
+                    
                     <tr>
                         <th scope="row">
-                            <label for="teacher_age_group"><?php _e('Age Group', 'hamdy-plugin'); ?> *</label>
+                            <label for="teacher_timezone"><?php _e('Timezone', 'hamdy-plugin'); ?> *</label>
                         </th>
                         <td>
-                            <select id="teacher_age_group" name="teacher_age_group" required>
-                                <option value=""><?php _e('Select Age Group', 'hamdy-plugin'); ?></option>
-                                <option value="adults"><?php _e('Adults', 'hamdy-plugin'); ?></option>
-                                <option value="children"><?php _e('Children', 'hamdy-plugin'); ?></option>
+                            <select id="teacher_timezone" name="teacher_timezone" required>
+                                <option value=""><?php _e('Select Timezone', 'hamdy-plugin'); ?></option>
+                                <?php
+                                $woocommerce = new Hamdy_WooCommerce();
+                                $timezones = $woocommerce->get_timezone_options();
+                                foreach ($timezones as $value => $label) {
+                                    echo '<option value="' . esc_attr($value) . '">' . esc_html($label) . '</option>';
+                                }
+                                ?>
                             </select>
+                            <p class="description"><?php _e('Select the timezone for this teacher\'s availability schedule.', 'hamdy-plugin'); ?></p>
                         </td>
                     </tr>
                     
@@ -179,7 +201,7 @@ class Hamdy_Admin_Teachers {
                             <div class="hamdy-availability-grid">
                                 <?php $this->display_availability_grid(); ?>
                             </div>
-                            <p class="description"><?php _e('Select the time slots when this teacher is available.', 'hamdy-plugin'); ?></p>
+                            <p class="description"><?php _e('Select the time slots when this teacher is available. Times are in the selected timezone above.', 'hamdy-plugin'); ?></p>
                         </td>
                     </tr>
                     
@@ -220,7 +242,11 @@ class Hamdy_Admin_Teachers {
             return;
         }
         
-        $availability = json_decode($teacher->availability, true) ?: array();
+        $raw_availability = json_decode($teacher->availability, true) ?: array();
+        
+        // Convert UTC availability to display timezone (default to admin's browser timezone)
+        $display_timezone = 'UTC'; // Will be updated by JavaScript auto-detection
+        $availability = $this->convert_availability_from_utc($raw_availability, $display_timezone);
         ?>
         <div class="wrap">
             <h1><?php _e('Edit Teacher', 'hamdy-plugin'); ?></h1>
@@ -260,22 +286,30 @@ class Hamdy_Admin_Teachers {
                         <td>
                             <select id="teacher_gender" name="teacher_gender" required>
                                 <option value=""><?php _e('Select Gender', 'hamdy-plugin'); ?></option>
-                                <option value="man" <?php selected($teacher->gender, 'man'); ?>><?php _e('Man', 'hamdy-plugin'); ?></option>
-                                <option value="woman" <?php selected($teacher->gender, 'woman'); ?>><?php _e('Woman', 'hamdy-plugin'); ?></option>
+                                <option value="male" <?php selected($teacher->gender, 'male'); ?>><?php _e('Male', 'hamdy-plugin'); ?></option>
+                                <option value="female" <?php selected($teacher->gender, 'female'); ?>><?php _e('Female', 'hamdy-plugin'); ?></option>
                             </select>
                         </td>
                     </tr>
                     
+                    
                     <tr>
                         <th scope="row">
-                            <label for="teacher_age_group"><?php _e('Age Group', 'hamdy-plugin'); ?> *</label>
+                            <label for="teacher_timezone"><?php _e('Timezone', 'hamdy-plugin'); ?> *</label>
                         </th>
                         <td>
-                            <select id="teacher_age_group" name="teacher_age_group" required>
-                                <option value=""><?php _e('Select Age Group', 'hamdy-plugin'); ?></option>
-                                <option value="adults" <?php selected($teacher->age_group, 'adults'); ?>><?php _e('Adults', 'hamdy-plugin'); ?></option>
-                                <option value="children" <?php selected($teacher->age_group, 'children'); ?>><?php _e('Children', 'hamdy-plugin'); ?></option>
+                            <select id="teacher_timezone" name="teacher_timezone" required>
+                                <option value=""><?php _e('Select Timezone', 'hamdy-plugin'); ?></option>
+                                <?php
+                                $woocommerce = new Hamdy_WooCommerce();
+                                $timezones = $woocommerce->get_timezone_options();
+                                foreach ($timezones as $value => $label) {
+                                    $selected = ($teacher->timezone === $value) ? 'selected' : '';
+                                    echo '<option value="' . esc_attr($value) . '" ' . $selected . '>' . esc_html($label) . '</option>';
+                                }
+                                ?>
                             </select>
+                            <p class="description"><?php _e('Select the timezone for this teacher\'s availability schedule.', 'hamdy-plugin'); ?></p>
                         </td>
                     </tr>
                     
@@ -287,6 +321,7 @@ class Hamdy_Admin_Teachers {
                             <div class="hamdy-availability-grid">
                                 <?php $this->display_availability_grid($availability); ?>
                             </div>
+                            <p class="description"><?php _e('Select the time slots when this teacher is available. Times are in the selected timezone above.', 'hamdy-plugin'); ?></p>
                         </td>
                     </tr>
                     
@@ -361,12 +396,16 @@ class Hamdy_Admin_Teachers {
             return;
         }
         
+        // Convert availability times from admin's selected timezone to UTC before saving
+        $admin_timezone = sanitize_text_field($_POST['teacher_timezone']);
+        $availability = isset($_POST['availability']) ? $_POST['availability'] : array();
+        $utc_availability = $this->convert_availability_to_utc($availability, $admin_timezone);
+        
         $teacher_data = array(
             'name' => sanitize_text_field($_POST['teacher_name']),
             'photo' => sanitize_url($_POST['teacher_photo']),
             'gender' => sanitize_text_field($_POST['teacher_gender']),
-            'age_group' => sanitize_text_field($_POST['teacher_age_group']),
-            'availability' => isset($_POST['availability']) ? $_POST['availability'] : array(),
+            'availability' => $utc_availability,
             'status' => sanitize_text_field($_POST['teacher_status'])
         );
         
@@ -440,5 +479,77 @@ class Hamdy_Admin_Teachers {
         } else {
             wp_send_json_error(array('message' => __('Teacher not found.', 'hamdy-plugin')));
         }
+    }
+    
+    /**
+     * Convert availability times from admin's timezone to UTC
+     */
+    private function convert_availability_to_utc($availability, $admin_timezone) {
+        if (empty($availability) || empty($admin_timezone)) {
+            return $availability;
+        }
+        
+        $utc_availability = array();
+        
+        try {
+            $admin_tz = new DateTimeZone($admin_timezone);
+            $utc_tz = new DateTimeZone('UTC');
+            
+            foreach ($availability as $day => $slots) {
+                $utc_availability[$day] = array();
+                
+                foreach ($slots as $slot) {
+                    // Create datetime in admin's timezone
+                    $datetime = new DateTime($slot, $admin_tz);
+                    
+                    // Convert to UTC
+                    $datetime->setTimezone($utc_tz);
+                    
+                    $utc_availability[$day][] = $datetime->format('H:i:s');
+                }
+            }
+        } catch (Exception $e) {
+            // If conversion fails, return original availability
+            error_log('Timezone conversion error: ' . $e->getMessage());
+            return $availability;
+        }
+        
+        return $utc_availability;
+    }
+    
+    /**
+     * Convert availability times from UTC to display timezone
+     */
+    private function convert_availability_from_utc($availability, $display_timezone) {
+        if (empty($availability) || empty($display_timezone)) {
+            return $availability;
+        }
+        
+        $display_availability = array();
+        
+        try {
+            $utc_tz = new DateTimeZone('UTC');
+            $display_tz = new DateTimeZone($display_timezone);
+            
+            foreach ($availability as $day => $slots) {
+                $display_availability[$day] = array();
+                
+                foreach ($slots as $slot) {
+                    // Create datetime in UTC
+                    $datetime = new DateTime($slot, $utc_tz);
+                    
+                    // Convert to display timezone
+                    $datetime->setTimezone($display_tz);
+                    
+                    $display_availability[$day][] = $datetime->format('H:i');
+                }
+            }
+        } catch (Exception $e) {
+            // If conversion fails, return original availability
+            error_log('Timezone conversion error: ' . $e->getMessage());
+            return $availability;
+        }
+        
+        return $display_availability;
     }
 }

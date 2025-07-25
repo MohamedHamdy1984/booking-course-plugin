@@ -2,14 +2,17 @@ jQuery(document).ready(function($) {
     'use strict';
     
     var $timezoneField = $('#hamdy_timezone');
-    var $categoryField = $('#hamdy_gender_age_group');
+    var $genderField = $('#hamdy_gender');
     var $slotsWrapper = $('#hamdy_time_slots_wrapper');
     var $slotsContainer = $('#hamdy_time_slots_container');
     
     // Initialize checkout functionality
     function initCheckout() {
+        // Auto-detect and set user timezone
+        autoDetectTimezone();
+        
         // Handle timezone and category changes
-        $timezoneField.add($categoryField).on('change', loadTimeSlots);
+        $timezoneField.add($genderField).on('change', loadTimeSlots);
         
         // Handle day tab clicks
         $(document).on('click', '.hamdy-day-tab:not(.disabled)', function() {
@@ -23,13 +26,99 @@ jQuery(document).ready(function($) {
         });
     }
     
+    // Auto-detect user's timezone and set as default
+    function autoDetectTimezone() {
+        if ($timezoneField.length && !$timezoneField.val()) {
+            try {
+                var userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                
+                // Check if detected timezone exists in dropdown options
+                var $matchingOption = $timezoneField.find('option[value="' + userTimezone + '"]');
+                if ($matchingOption.length) {
+                    $timezoneField.val(userTimezone).trigger('change');
+                } else {
+                    // Try to find a close match or fallback
+                    var fallbackTimezone = getFallbackTimezone(userTimezone);
+                    if (fallbackTimezone) {
+                        $timezoneField.val(fallbackTimezone).trigger('change');
+                    }
+                }
+            } catch (e) {
+                console.log('Timezone auto-detection not supported in this browser');
+            }
+        }
+    }
+    
+    // Get fallback timezone for common cases
+    function getFallbackTimezone(detectedTimezone) {
+        var fallbackMap = {
+            // Americas
+            'America/New_York': 'America/New_York',
+            'America/Chicago': 'America/Chicago',
+            'America/Denver': 'America/Denver',
+            'America/Los_Angeles': 'America/Los_Angeles',
+            'America/Sao_Paulo': 'America/Sao_Paulo',
+            'America/Argentina/Buenos_Aires': 'America/Argentina/Buenos_Aires',
+            
+            // Europe
+            'Europe/London': 'Europe/London',
+            'Europe/Paris': 'Europe/Paris',
+            'Europe/Berlin': 'Europe/Berlin',
+            'Europe/Moscow': 'Europe/Moscow',
+            'Europe/Istanbul': 'Europe/Istanbul',
+            
+            // Asia
+            'Asia/Dubai': 'Asia/Dubai',
+            'Asia/Riyadh': 'Asia/Riyadh',
+            'Asia/Tehran': 'Asia/Tehran',
+            'Asia/Karachi': 'Asia/Karachi',
+            'Asia/Kolkata': 'Asia/Kolkata',
+            'Asia/Dhaka': 'Asia/Dhaka',
+            'Asia/Bangkok': 'Asia/Bangkok',
+            'Asia/Shanghai': 'Asia/Shanghai',
+            'Asia/Tokyo': 'Asia/Tokyo',
+            'Asia/Seoul': 'Asia/Seoul',
+            
+            // Africa
+            'Africa/Cairo': 'Africa/Cairo',
+            'Africa/Johannesburg': 'Africa/Johannesburg',
+            'Africa/Lagos': 'Africa/Lagos',
+            'Africa/Casablanca': 'Africa/Casablanca',
+            
+            // Australia & Oceania
+            'Australia/Sydney': 'Australia/Sydney',
+            'Australia/Perth': 'Australia/Perth',
+            'Pacific/Auckland': 'Pacific/Auckland'
+        };
+        
+        // Direct match
+        if (fallbackMap[detectedTimezone]) {
+            return fallbackMap[detectedTimezone];
+        }
+        
+        // Regional fallbacks
+        if (detectedTimezone.startsWith('America/')) {
+            return 'America/New_York'; // Default to Eastern
+        } else if (detectedTimezone.startsWith('Europe/')) {
+            return 'Europe/London'; // Default to GMT
+        } else if (detectedTimezone.startsWith('Asia/')) {
+            return 'Asia/Dubai'; // Default to Gulf
+        } else if (detectedTimezone.startsWith('Africa/')) {
+            return 'Africa/Cairo'; // Default to Cairo
+        } else if (detectedTimezone.startsWith('Australia/') || detectedTimezone.startsWith('Pacific/')) {
+            return 'Australia/Sydney'; // Default to Sydney
+        }
+        
+        return null; // No fallback found
+    }
+    
     // Load available time slots
     function loadTimeSlots() {
         var timezone = $timezoneField.val();
-        var category = $categoryField.val();
+        var gender = $genderField.val();
         
-        if (!category) {
-            $slotsWrapper.html('<p>' + hamdy_checkout_ajax.strings.select_category + '</p>');
+        if (!gender) {
+            $slotsWrapper.html('<p>' + hamdy_checkout_ajax.strings.select_gender + '</p>');
             return;
         }
         if (!timezone) {
@@ -45,7 +134,7 @@ jQuery(document).ready(function($) {
             data: {
                 action: 'hamdy_get_checkout_slots',
                 nonce: hamdy_checkout_ajax.nonce,
-                gender_age_group: category,
+                gender: gender,
                 timezone: timezone
             },
             success: function(response) {
@@ -76,9 +165,8 @@ jQuery(document).ready(function($) {
             var activeClass = index === 0 ? ' active' : '';
             var disabledClass = !day.has_slots ? ' disabled' : '';
             
-            html += '<button type="button" class="hamdy-day-tab' + activeClass + disabledClass + '" data-day="' + day.day_key + '" data-date="' + day.date + '">';
+            html += '<button type="button" class="hamdy-day-tab' + activeClass + disabledClass + '" data-day="' + day.day_key + '">';
             html += '<span class="day-name">' + day.day_name + '</span>';
-            html += '<span class="day-date">' + day.display_date + '</span>';
             html += '</button>';
         });
         html += '</div>';
@@ -95,7 +183,7 @@ jQuery(document).ready(function($) {
                 $.each(day.slots, function(slotIndex, slot) {
                     var slotData = {
                         day: day.day_name,
-                        date: day.date,
+                        day_key: day.day_key,
                         time: slot.original,
                         display_time: slot.display,
                         timezone: slot.timezone

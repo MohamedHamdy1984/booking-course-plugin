@@ -20,91 +20,7 @@ jQuery(document).ready(function($) {
         $('#' + tab + '-tab').addClass('active');
     });
     
-    // Delete teacher functionality
-    $('.hamdy-delete-teacher').on('click', function(e) {
-        e.preventDefault();
-        
-        if (!confirm(hamdy_admin_ajax.strings.confirm_delete)) {
-            return;
-        }
-        
-        var teacherId = $(this).data('teacher-id');
-        var $row = $(this).closest('tr');
-        
-        $.ajax({
-            url: hamdy_admin_ajax.ajax_url,
-            type: 'POST',
-            data: {
-                action: 'hamdy_delete_teacher',
-                teacher_id: teacherId,
-                nonce: hamdy_admin_ajax.nonce
-            },
-            beforeSend: function() {
-                $row.addClass('hamdy-loading');
-            },
-            success: function(response) {
-                if (response.success) {
-                    $row.fadeOut(300, function() {
-                        $(this).remove();
-                    });
-                    showNotice('success', response.data.message);
-                } else {
-                    showNotice('error', response.data.message);
-                }
-            },
-            error: function() {
-                showNotice('error', hamdy_admin_ajax.strings.error);
-            },
-            complete: function() {
-                $row.removeClass('hamdy-loading');
-            }
-        });
-    });
-    
-    // Teacher form validation
-    $('.hamdy-teacher-form').on('submit', function(e) {
-        var name = $('#teacher_name').val().trim();
-        var gender = $('#teacher_gender').val();
-        var ageGroup = $('#teacher_age_group').val();
-        
-        if (!name) {
-            e.preventDefault();
-            showNotice('error', 'Please enter teacher name.');
-            $('#teacher_name').focus();
-            return false;
-        }
-        
-        if (!gender) {
-            e.preventDefault();
-            showNotice('error', 'Please select teacher gender.');
-            $('#teacher_gender').focus();
-            return false;
-        }
-        
-        if (!ageGroup) {
-            e.preventDefault();
-            showNotice('error', 'Please select age group.');
-            $('#teacher_age_group').focus();
-            return false;
-        }
-        
-        // Check if at least one availability slot is selected
-        var hasAvailability = $('.hamdy-availability-grid input[type="checkbox"]:checked').length > 0;
-        if (!hasAvailability) {
-            e.preventDefault();
-            showNotice('error', 'Please select at least one availability time slot.');
-            return false;
-        }
-    });
-    
-    // Availability grid - select all day functionality
-    $('.hamdy-day-column h4').on('click', function() {
-        var $column = $(this).parent();
-        var $checkboxes = $column.find('input[type="checkbox"]');
-        var allChecked = $checkboxes.length === $checkboxes.filter(':checked').length;
-        
-        $checkboxes.prop('checked', !allChecked);
-    });
+    // General admin functionality only - teacher-specific code moved to admin-teachers.js
     
     // Schedule overview - time slot tooltips
     $('.hamdy-time-slot').on('mouseenter', function() {
@@ -222,40 +138,7 @@ jQuery(document).ready(function($) {
         });
     }
     
-    // Form field dependencies
-    $('#teacher_gender').on('change', function() {
-        var gender = $(this).val();
-        var $ageGroup = $('#teacher_age_group');
-        
-        // Reset age group selection
-        $ageGroup.val('');
-        
-        // You can add logic here to show/hide age group options based on gender
-        // For example, if certain genders can only teach certain age groups
-    });
-    
-    // Real-time availability preview
-    $('.hamdy-availability-grid input[type="checkbox"]').on('change', function() {
-        updateAvailabilityPreview();
-    });
-    
-    function updateAvailabilityPreview() {
-        var selectedSlots = {};
-        
-        $('.hamdy-availability-grid input[type="checkbox"]:checked').each(function() {
-            var name = $(this).attr('name');
-            var day = name.match(/\[([^\]]+)\]/)[1];
-            var time = $(this).val();
-            
-            if (!selectedSlots[day]) {
-                selectedSlots[day] = [];
-            }
-            selectedSlots[day].push(time);
-        });
-        
-        // Update preview display
-        $('.hamdy-availability-preview').html(JSON.stringify(selectedSlots, null, 2));
-    }
+    // General form field dependencies can be added here if needed
     
     // Utility function to show notices
     function showNotice(type, message) {
