@@ -110,6 +110,5 @@ class Hamdy_Teacher {
         }
         
         return array_unique($available_slots);
-    }
-    
+    }  
 }

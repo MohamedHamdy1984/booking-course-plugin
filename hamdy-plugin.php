@@ -70,10 +70,7 @@ class Hamdy_Plugin
         // Check if WooCommerce is active
         add_action('admin_init', array($this, 'check_woocommerce_dependency'));
 
-        // Enqueue scripts and styles
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_checkout_scripts'));
-        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
-
+        
         //  WooCommerce HPOS compatibility
         add_action('before_woocommerce_init', array($this, 'declare_hpos_compatibility'));
     }
@@ -211,69 +208,8 @@ class Hamdy_Plugin
     }
 
 
-    /**
-     * Enqueue checkout scripts
-     */
-    public function enqueue_checkout_scripts()
-    {
-        if (is_checkout()) {
-            wp_enqueue_script('hamdy-checkout', HAMDY_PLUGIN_URL . 'assets/js/checkout.js', array('jquery'), HAMDY_PLUGIN_VERSION, true);
-            wp_enqueue_style('hamdy-checkout', HAMDY_PLUGIN_URL . 'assets/css/checkout.css', array(), HAMDY_PLUGIN_VERSION);
+    
 
-            wp_localize_script('hamdy-checkout', 'hamdy_checkout_ajax', array(
-                'ajax_url' => admin_url('admin-ajax.php'),
-                'nonce' => wp_create_nonce('hamdy_nonce'),
-                'strings' => array(
-                    'loading' => __('Loading available slots...', 'hamdy-plugin'),
-                    'no_slots' => __('No available slots for this selection.', 'hamdy-plugin'),
-                    'select_category' => __('Please select a category first.', 'hamdy-plugin'),
-                    'select_timezone' => __('Please select your timezone first.', 'hamdy-plugin'),
-                    'select_slot' => __('Please select at least one time slot.', 'hamdy-plugin'),
-                    'error' => __('An error occurred. Please try again.', 'hamdy-plugin')
-                )
-            ));
-        }
-    }
-
-    /**
-     * Enqueue admin assets
-     */
-    public function enqueue_admin_assets($hook)
-    {
-        // Only load on our admin pages
-        if (strpos($hook, 'hamdy') === false) {
-            return;
-        }
-
-        // CSS
-        wp_enqueue_style(
-            'hamdy-admin-style',
-            HAMDY_PLUGIN_URL . 'assets/css/admin.css',
-            array(),
-            HAMDY_PLUGIN_VERSION
-        );
-
-        // JavaScript
-        wp_enqueue_script(
-            'hamdy-admin-script',
-            HAMDY_PLUGIN_URL . 'assets/js/admin.js',
-            array('jquery', 'jquery-ui-datepicker', 'jquery-ui-sortable'),
-            HAMDY_PLUGIN_VERSION,
-            true
-        );
-
-        // Localize script
-        wp_localize_script('hamdy-admin-script', 'hamdy_admin_ajax', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('hamdy_admin_nonce'),
-            'strings' => array(
-                'confirm_delete' => __('Are you sure you want to delete this item?', 'hamdy-plugin'),
-                'loading' => __('Loading...', 'hamdy-plugin'),
-                'saved' => __('Saved successfully!', 'hamdy-plugin'),
-                'error' => __('An error occurred. Please try again.', 'hamdy-plugin'),
-            )
-        ));
-    }
 }
 
 /**

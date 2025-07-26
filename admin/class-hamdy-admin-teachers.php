@@ -33,10 +33,16 @@ class Hamdy_Admin_Teachers {
         // Enqueue admin teachers JavaScript if needed
         wp_enqueue_script('hamdy-admin-teachers', HAMDY_PLUGIN_URL . 'assets/js/admin-teachers.js', array('jquery'), HAMDY_PLUGIN_VERSION, true);
         
-        // Localize script for AJAX
-        wp_localize_script('hamdy-admin-teachers', 'hamdy_admin_ajax', array(
+        // Localize script for AJAX with unique variable name
+        wp_localize_script('hamdy-admin-teachers', 'hamdy_teachers_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('hamdy_admin_nonce')
+            'nonce' => wp_create_nonce('hamdy_admin_nonce'),
+            'strings' => array(
+                'confirm_delete' => __('Are you sure you want to delete this teacher?', 'hamdy-plugin'),
+                'loading' => __('Loading...', 'hamdy-plugin'),
+                'saved' => __('Teacher saved successfully!', 'hamdy-plugin'),
+                'error' => __('An error occurred. Please try again.', 'hamdy-plugin'),
+            )
         ));
     }
     

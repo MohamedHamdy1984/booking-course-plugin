@@ -30,10 +30,15 @@ class Hamdy_Admin_Schedule {
         wp_enqueue_style('hamdy-admin-schedule', HAMDY_PLUGIN_URL . 'assets/css/admin-schedule.css', array(), HAMDY_PLUGIN_VERSION);
         wp_enqueue_script('hamdy-admin-schedule', HAMDY_PLUGIN_URL . 'assets/js/admin-schedule.js', array('jquery'), HAMDY_PLUGIN_VERSION, true);
         
-        // Localize script for AJAX
-        wp_localize_script('hamdy-admin-schedule', 'hamdy_admin_ajax', array(
+        // Localize script for AJAX with unique variable name
+        wp_localize_script('hamdy-admin-schedule', 'hamdy_schedule_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('hamdy_admin_nonce')
+            'nonce' => wp_create_nonce('hamdy_admin_nonce'),
+            'strings' => array(
+                'loading' => __('Loading schedule...', 'hamdy-plugin'),
+                'no_data' => __('No schedule data available.', 'hamdy-plugin'),
+                'error' => __('An error occurred while loading the schedule.', 'hamdy-plugin'),
+            )
         ));
     }
     

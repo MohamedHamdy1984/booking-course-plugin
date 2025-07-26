@@ -115,15 +115,74 @@ class Hamdy_Admin
     {
         // Only enqueue on our admin pages
         if (strpos($hook, 'hamdy-') !== false) {
-            // Enqueue common admin styles
-            wp_enqueue_style('hamdy-admin', HAMDY_PLUGIN_URL . 'assets/css/admin.css', array(), HAMDY_PLUGIN_VERSION);
+            // Enqueue common admin styles and scripts for all hamdy pages
+            $this->enqueue_common_admin_assets();
             
-            // Enqueue specific scripts based on page
-            if ($hook === 'hamdy-booking_page_hamdy-schedule') {
-                $this->schedule_admin->enqueue_scripts();
-            } elseif ($hook === 'hamdy-booking_page_hamdy-teachers') {
-                $this->teachers_admin->enqueue_scripts();
-            }
+            // Enqueue page-specific assets
+            $this->enqueue_page_specific_assets($hook);
+        }
+    }
+
+    /**
+     * Enqueue common admin assets used across all admin pages
+     */
+    private function enqueue_common_admin_assets()
+    {
+        // Common admin CSS
+        wp_enqueue_style(
+            'hamdy-admin',
+            HAMDY_PLUGIN_URL . 'assets/css/admin.css',
+            array(),
+            HAMDY_PLUGIN_VERSION
+        );
+
+        // Common admin JavaScript
+        wp_enqueue_script(
+            'hamdy-admin',
+            HAMDY_PLUGIN_URL . 'assets/js/admin.js',
+            array('jquery', 'jquery-ui-datepicker', 'jquery-ui-sortable'),
+            HAMDY_PLUGIN_VERSION,
+            true
+        );
+
+        // Localize common admin script
+        wp_localize_script('hamdy-admin', 'hamdy_admin_ajax', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('hamdy_admin_nonce'),
+            'strings' => array(
+                'confirm_delete' => __('Are you sure you want to delete this item?', 'hamdy-plugin'),
+                'loading' => __('Loading...', 'hamdy-plugin'),
+                'saved' => __('Saved successfully!', 'hamdy-plugin'),
+                'error' => __('An error occurred. Please try again.', 'hamdy-plugin'),
+            )
+        ));
+    }
+
+    /**
+     * Enqueue page-specific assets based on current admin page
+     */
+    private function enqueue_page_specific_assets($hook)
+    {
+        switch ($hook) {
+            case 'hamdy-booking_page_hamdy-schedule':
+                // Load schedule-specific assets
+                if ($this->schedule_admin) {
+                    $this->schedule_admin->enqueue_scripts();
+                }
+                break;
+                
+            case 'hamdy-booking_page_hamdy-teachers':
+                // Load teachers-specific assets
+                if ($this->teachers_admin) {
+                    $this->teachers_admin->enqueue_scripts();
+                }
+                break;
+                
+            case 'toplevel_page_hamdy-booking':
+            case 'hamdy-booking_page_hamdy-bookings':
+                // Dashboard and bookings pages only need common assets
+                // No additional assets needed
+                break;
         }
     }
 
