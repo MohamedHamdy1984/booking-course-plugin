@@ -5,23 +5,6 @@
 jQuery(document).ready(function($) {
     'use strict';
     
-    // Tab switching functionality
-    $('.nav-tab').on('click', function(e) {
-        e.preventDefault();
-        
-        var tab = $(this).data('tab');
-        
-        // Update active tab
-        $('.nav-tab').removeClass('nav-tab-active');
-        $(this).addClass('nav-tab-active');
-        
-        // Show corresponding panel
-        $('.hamdy-tab-panel').removeClass('active');
-        $('#' + tab + '-tab').addClass('active');
-    });
-    
-    // General admin functionality only - teacher-specific code moved to admin-teachers.js
-    
     // Schedule overview - time slot tooltips
     $('.hamdy-time-slot').on('mouseenter', function() {
         var hour = $(this).data('hour');
@@ -192,4 +175,193 @@ jQuery(document).ready(function($) {
             loadInitialData();
         }
     }
+    
+    // Booking Management Functionality
+    
+    // Delete booking confirmation and AJAX
+    $('.hamdy-delete-booking').on('click', function(e) {
+        e.preventDefault();
+        
+        var $button = $(this);
+        var bookingId = $button.data('booking-id');
+        var $row = $button.closest('tr');
+        
+        // Show confirmation dialog
+        if (confirm(hamdy_admin_ajax.strings.confirm_delete)) {
+            // Add loading state
+            $row.addClass('deleting');
+            $button.prop('disabled', true).text(hamdy_admin_ajax.strings.loading);
+            
+            // Send AJAX request
+            $.ajax({
+                url: hamdy_admin_ajax.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'hamdy_delete_booking',
+                    booking_id: bookingId,
+                    nonce: hamdy_admin_ajax.nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Remove row with animation
+                        $row.fadeOut(300, function() {
+                            $(this).remove();
+                            
+                            // Show success message
+                            showNotice('success', response.data);
+                            
+                            // Check if table is empty
+                            if ($('.hamdy-bookings-table tbody tr').length === 0) {
+                                $('.hamdy-bookings-list').html('<p>' + 'No bookings found.' + '</p>');
+                            }
+                        });
+                    } else {
+                        // Remove loading state and show error
+                        $row.removeClass('deleting');
+                        $button.prop('disabled', false).text('Delete');
+                        showNotice('error', response.data || hamdy_admin_ajax.strings.error);
+                    }
+                },
+                error: function() {
+                    // Remove loading state and show error
+                    $row.removeClass('deleting');
+                    $button.prop('disabled', false).text('Delete');
+                    showNotice('error', hamdy_admin_ajax.strings.error);
+                }
+            });
+        }
+    });
+    
+    // Tab switching functionality for bookings - removed to allow natural navigation
+    // The tabs will work through normal page navigation with URL parameters
+    
+    // Highlight expiring bookings on page load
+    highlightExpiringBookings();
+    
+    function highlightExpiringBookings() {
+        $('.hamdy-bookings-table tr.expiring').each(function() {
+            var $row = $(this);
+            
+            // Add a subtle animation to draw attention
+            setTimeout(function() {
+                $row.addClass('highlight-animation');
+            }, 500);
+        });
+    }
+    
+    // Enhanced search functionality for bookings
+    $('#booking-search-input').on('keyup', function() {
+        var value = $(this).val().toLowerCase();
+        $('.hamdy-bookings-table tbody tr').filter(function() {
+            var text = $(this).text().toLowerCase();
+            $(this).toggle(text.indexOf(value) > -1);
+        });
+    });
+    
+    // Bulk actions for bookings (future enhancement)
+    $('.hamdy-bookings-table #cb-select-all-1').on('change', function() {
+        var checked = $(this).prop('checked');
+        $('.hamdy-bookings-table tbody input[type="checkbox"]').prop('checked', checked);
+    });
+    
+    // Add confirmation dialog for critical actions
+    function showConfirmDialog(title, message, onConfirm, onCancel) {
+        var $overlay = $('<div class="hamdy-dialog-overlay"></div>');
+        var $dialog = $('<div class="hamdy-confirm-dialog"></div>');
+        
+        $dialog.html(
+            '<h3>' + title + '</h3>' +
+            '<p>' + message + '</p>' +
+            '<div class="button-group">' +
+                '<button class="button button-secondary hamdy-cancel-btn">Cancel</button>' +
+                '<button class="button button-primary hamdy-confirm-btn">Confirm</button>' +
+            '</div>'
+        );
+        
+        $('body').append($overlay).append($dialog);
+        
+        // Handle confirm
+        $dialog.find('.hamdy-confirm-btn').on('click', function() {
+            $overlay.remove();
+            $dialog.remove();
+            if (typeof onConfirm === 'function') {
+                onConfirm();
+            }
+        });
+        
+        // Handle cancel
+        $dialog.find('.hamdy-cancel-btn, .hamdy-dialog-overlay').on('click', function() {
+            $overlay.remove();
+            $dialog.remove();
+            if (typeof onCancel === 'function') {
+                onCancel();
+            }
+        });
+        
+        // Close on escape
+        $(document).on('keydown.hamdy-dialog', function(e) {
+            if (e.which === 27) {
+                $overlay.remove();
+                $dialog.remove();
+                $(document).off('keydown.hamdy-dialog');
+                if (typeof onCancel === 'function') {
+                    onCancel();
+                }
+            }
+        });
+    }
+    
+    // Enhanced table row hover effects
+    $('.hamdy-bookings-table tbody tr').hover(
+        function() {
+            $(this).addClass('hover-highlight');
+        },
+        function() {
+            $(this).removeClass('hover-highlight');
+        }
+    );
+    
+    // Auto-refresh functionality (optional)
+    var autoRefreshInterval;
+    
+    function startAutoRefresh() {
+        autoRefreshInterval = setInterval(function() {
+            // Only refresh if user is on bookings page and not interacting
+            if (window.location.href.indexOf('hamdy-bookings') > -1 &&
+                !$('body').hasClass('user-interacting')) {
+                
+                // Subtle refresh without full page reload
+                refreshBookingsTable();
+            }
+        }, 30000); // Refresh every 30 seconds
+    }
+    
+    function stopAutoRefresh() {
+        if (autoRefreshInterval) {
+            clearInterval(autoRefreshInterval);
+        }
+    }
+    
+    function refreshBookingsTable() {
+        // This would be implemented with AJAX to refresh just the table
+        // For now, we'll skip this to avoid complexity
+    }
+    
+    // Track user interaction
+    $(document).on('mousedown keydown', function() {
+        $('body').addClass('user-interacting');
+        setTimeout(function() {
+            $('body').removeClass('user-interacting');
+        }, 5000);
+    });
+    
+    // Initialize auto-refresh if on bookings page
+    if (window.location.href.indexOf('hamdy-bookings') > -1) {
+        startAutoRefresh();
+    }
+    
+    // Cleanup on page unload
+    $(window).on('beforeunload', function() {
+        stopAutoRefresh();
+    });
 });

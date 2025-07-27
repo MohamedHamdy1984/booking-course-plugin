@@ -45,6 +45,7 @@ class Hamdy_Database {
             selected_slots longtext NOT NULL,
             booking_date date NOT NULL,
             booking_time time NOT NULL,
+            renewal_date date DEFAULT NULL,
             status enum('pending','confirmed','completed','cancelled') DEFAULT 'pending',
             notes text DEFAULT '',
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
@@ -54,6 +55,7 @@ class Hamdy_Database {
             KEY customer_id (customer_id),
             KEY teacher_id (teacher_id),
             KEY booking_date (booking_date),
+            KEY renewal_date (renewal_date),
             KEY status (status)
         ) $charset_collate;";
         

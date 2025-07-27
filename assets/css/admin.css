@@ -188,3 +188,301 @@
         font-size: 24px;
     }
 }
+
+/* Booking Management Styles */
+.hamdy-bookings-tabs {
+    margin-bottom: 20px;
+}
+
+.hamdy-bookings-tabs .nav-tab-wrapper {
+    border-bottom: 1px solid #ccd0d4;
+    margin-bottom: 0;
+}
+
+.hamdy-bookings-tabs .nav-tab {
+    position: relative;
+    background: #f1f1f1;
+    border: 1px solid #ccd0d4;
+    color: #0073aa;
+    text-decoration: none;
+}
+
+.hamdy-bookings-tabs .nav-tab:hover {
+    background: #fafafa;
+    color: #0073aa;
+}
+
+.hamdy-bookings-tabs .nav-tab-active {
+    background: #fff !important;
+    border-bottom: 1px solid #fff !important;
+    color: #000 !important;
+    font-weight: 600;
+}
+
+.hamdy-bookings-tabs .nav-tab-active::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #0073aa;
+}
+
+.hamdy-bookings-table {
+    margin-top: 0;
+}
+
+.hamdy-bookings-table tr.expiring {
+    background-color: #fff3cd !important;
+}
+
+.hamdy-bookings-table tr.expiring:hover {
+    background-color: #ffeaa7 !important;
+}
+
+.hamdy-bookings-table .hamdy-delete-booking {
+    color: #a00;
+    border-color: #a00;
+}
+
+.hamdy-bookings-table .hamdy-delete-booking:hover {
+    background-color: #a00;
+    color: #fff;
+}
+
+.hamdy-bookings-table .hamdy-edit-booking {
+    margin-right: 5px;
+}
+
+/* Tab content styling */
+.hamdy-bookings-list {
+    background: #fff;
+    border: 1px solid #e1e1e1;
+    border-radius: 6px;
+    padding: 20px;
+    margin-top: 0;
+}
+
+/* Expiring soon indicator */
+.hamdy-bookings-table tr.expiring td {
+    position: relative;
+}
+
+.hamdy-bookings-table tr.expiring td:first-child::before {
+    content: "⚠";
+    color: #856404;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+/* Action buttons styling */
+.hamdy-bookings-table .button-small {
+    padding: 2px 8px;
+    font-size: 11px;
+    line-height: 1.4;
+    height: auto;
+}
+
+/* Loading state for AJAX operations */
+.hamdy-bookings-table tr.deleting {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.hamdy-bookings-table tr.deleting td {
+    background-color: #f8f9fa;
+}
+
+/* Responsive design for booking table */
+@media (max-width: 768px) {
+    .hamdy-bookings-table {
+        font-size: 12px;
+    }
+    
+    .hamdy-bookings-table th,
+    .hamdy-bookings-table td {
+        padding: 8px 4px;
+    }
+    
+    .hamdy-bookings-table .button-small {
+        padding: 1px 4px;
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 600px) {
+    .hamdy-bookings-tabs .nav-tab {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+    
+    .hamdy-bookings-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+/* Edit booking page styles */
+.hamdy-edit-booking-page .form-table th {
+    width: 150px;
+    font-weight: 600;
+}
+
+.hamdy-edit-booking-page .form-table td {
+    padding-left: 20px;
+}
+
+/* Enhanced status indicators */
+.hamdy-status {
+    display: inline-block;
+    min-width: 60px;
+    text-align: center;
+}
+
+/* Tab badge for expiring count */
+.nav-tab .badge {
+    background: #d63384;
+    color: white;
+    border-radius: 10px;
+    padding: 2px 6px;
+    font-size: 10px;
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+/* Confirmation dialog styles */
+.hamdy-confirm-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    z-index: 10000;
+    min-width: 300px;
+}
+
+.hamdy-confirm-dialog h3 {
+    margin-top: 0;
+    color: #d63384;
+}
+
+.hamdy-confirm-dialog .button-group {
+    text-align: right;
+    margin-top: 15px;
+}
+
+.hamdy-confirm-dialog .button-group .button {
+    margin-left: 10px;
+}
+
+.hamdy-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+}
+
+/* Additional animations and hover effects */
+.hamdy-bookings-table tbody tr.hover-highlight {
+    background-color: #f8f9fa;
+}
+
+.hamdy-bookings-table tbody tr.highlight-animation {
+    animation: highlightPulse 2s ease-in-out;
+}
+
+@keyframes highlightPulse {
+    0% { background-color: transparent; }
+    50% { background-color: #fff3cd; }
+    100% { background-color: transparent; }
+}
+
+/* Smooth transitions for all interactive elements */
+.hamdy-bookings-table tbody tr,
+.hamdy-bookings-table .button,
+.nav-tab {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Enhanced button states */
+.hamdy-bookings-table .button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Loading spinner for buttons */
+.hamdy-bookings-table .button.loading::before {
+    content: "";
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #ddd;
+    border-top: 2px solid #0073aa;
+    border-radius: 50%;
+    animation: hamdy-spin 1s linear infinite;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+/* Tab active state enhancement */
+.hamdy-bookings-tabs .nav-tab-active {
+    position: relative;
+}
+
+.hamdy-bookings-tabs .nav-tab-active::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #0073aa;
+}
+
+/* Fade in animation for new content */
+.hamdy-bookings-list {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Enhanced expiring row styling */
+.hamdy-bookings-table tr.expiring {
+    border-left: 4px solid #856404;
+}
+
+.hamdy-bookings-table tr.expiring td:first-child {
+    font-weight: 600;
+}
+
+/* Responsive improvements */
+@media (max-width: 480px) {
+    .hamdy-bookings-tabs .nav-tab {
+        display: block;
+        width: 100%;
+        text-align: center;
+        margin-bottom: 5px;
+        border-radius: 4px;
+    }
+    
+    .hamdy-bookings-tabs .nav-tab-wrapper {
+        border: none;
+    }
+    
+    .hamdy-confirm-dialog {
+        width: 90%;
+        max-width: 300px;
+    }
+}

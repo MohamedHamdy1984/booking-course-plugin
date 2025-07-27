@@ -30,10 +30,11 @@ class Hamdy_Booking {
                 'selected_slots' => wp_json_encode($data['selected_slots']),
                 'booking_date' => sanitize_text_field($data['booking_date']),
                 'booking_time' => sanitize_text_field($data['booking_time']),
+                'renewal_date' => isset($data['renewal_date']) ? sanitize_text_field($data['renewal_date']) : null,
                 'status' => sanitize_text_field($data['status']),
                 'notes' => sanitize_textarea_field($data['notes'])
             ),
-            array('%d', '%d', '%d', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s')
+            array('%d', '%d', '%d', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s')
         );
         
         return $result ? $wpdb->insert_id : false;
@@ -95,6 +96,11 @@ class Hamdy_Booking {
             $update_format[] = '%s';
         }
         
+        if (isset($data['renewal_date'])) {
+            $update_data['renewal_date'] = sanitize_text_field($data['renewal_date']);
+            $update_format[] = '%s';
+        }
+        
         return $wpdb->update(
             $table,
             $update_data,
@@ -134,16 +140,32 @@ class Hamdy_Booking {
             $where_values[] = $filters['teacher_id'];
         }
         
-        $where_clause = '';
-        if (!empty($where_conditions)) {
-            $where_clause = 'WHERE ' . implode(' AND ', $where_conditions);
+        if (!empty($filters['customer_gender'])) {
+            $where_conditions[] = "customer_gender = %s";
+            $where_values[] = $filters['customer_gender'];
         }
         
-        $query = "SELECT * FROM $table $where_clause ORDER BY booking_date DESC, booking_time DESC";
+        if (!empty($filters['expiring_soon'])) {
+            $where_conditions[] = "renewal_date IS NOT NULL AND renewal_date <= DATE_ADD(CURDATE(), INTERVAL 5 DAY) AND renewal_date >= CURDATE()";
+        }
         
+        // Build the query
+        $query = "SELECT * FROM $table";
+        
+        if (!empty($where_conditions)) {
+            $query .= ' WHERE ' . implode(' AND ', $where_conditions);
+        }
+        
+        $query .= ' ORDER BY booking_date DESC, booking_time DESC';
+        
+        // Prepare query if we have values to bind
         if (!empty($where_values)) {
             $query = $wpdb->prepare($query, $where_values);
         }
+        
+        // Debug: Log the query for troubleshooting
+        error_log('Hamdy Booking Query: ' . $query);
+        error_log('Hamdy Booking Filters: ' . print_r($filters, true));
         
         return $wpdb->get_results($query);
     }
