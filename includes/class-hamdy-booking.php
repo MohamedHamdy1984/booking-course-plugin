@@ -101,6 +101,21 @@ class Hamdy_Booking {
             $update_format[] = '%s';
         }
         
+        if (isset($data['customer_gender'])) {
+            $update_data['customer_gender'] = sanitize_text_field($data['customer_gender']);
+            $update_format[] = '%s';
+        }
+        
+        if (isset($data['customer_age'])) {
+            $update_data['customer_age'] = intval($data['customer_age']);
+            $update_format[] = '%d';
+        }
+        
+        if (isset($data['selected_slots'])) {
+            $update_data['selected_slots'] = $data['selected_slots']; // Already JSON encoded
+            $update_format[] = '%s';
+        }
+        
         return $wpdb->update(
             $table,
             $update_data,

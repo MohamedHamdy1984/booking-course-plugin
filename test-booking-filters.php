@@ -94,51 +94,168 @@ $expiring_bookings = Hamdy_Booking::get_all(['expiring_soon' => true]);
 echo '<p>Expiring bookings: ' . count($expiring_bookings) . '</p>';
 
 // Test 4: Create sample data if none exists
-if (empty($all_bookings)) {
+
     echo '<h2>4. Creating Sample Data</h2>';
     
     $sample_data = [
-        [
-            'order_id' => 1001,
-            'customer_id' => 1,
-            'timezone' => 'UTC',
-            'customer_gender' => 'male',
-            'customer_age' => 25,
-            'selected_slots' => ['friday_10'],
-            'booking_date' => date('Y-m-d'),
-            'booking_time' => '10:00:00',
-            'renewal_date' => date('Y-m-d', strtotime('+3 days')), // Expiring soon
-            'status' => 'confirmed',
-            'notes' => 'Test male booking'
-        ],
-        [
-            'order_id' => 1002,
-            'customer_id' => 2,
-            'timezone' => 'UTC',
-            'customer_gender' => 'female',
-            'customer_age' => 30,
-            'selected_slots' => ['saturday_14'],
-            'booking_date' => date('Y-m-d'),
-            'booking_time' => '14:00:00',
-            'renewal_date' => date('Y-m-d', strtotime('+10 days')), // Not expiring
-            'status' => 'pending',
-            'notes' => 'Test female booking'
-        ],
-        [
-            'order_id' => 1003,
-            'customer_id' => 3,
-            'timezone' => 'UTC',
-            'customer_gender' => 'male',
-            'customer_age' => 35,
-            'selected_slots' => ['sunday_16'],
-            'booking_date' => date('Y-m-d'),
-            'booking_time' => '16:00:00',
-            'renewal_date' => null, // No renewal date
-            'status' => 'completed',
-            'notes' => 'Test male booking without renewal'
-        ]
-    ];
-    
+    [
+        'order_id' => 1001,
+        'customer_id' => 1,
+        'timezone' => 'UTC',
+        'customer_gender' => 'male',
+        'customer_age' => 25,
+        'selected_slots' => ['friday_10'],
+        'booking_date' => date('Y-m-d'),
+        'booking_time' => '10:00:00',
+        'renewal_date' => date('Y-m-d', strtotime('+3 days')),
+        'status' => 'confirmed',
+        'notes' => 'Test male booking'
+    ],
+    [
+        'order_id' => 1002,
+        'customer_id' => 2,
+        'timezone' => 'UTC',
+        'customer_gender' => 'female',
+        'customer_age' => 30,
+        'selected_slots' => ['saturday_14'],
+        'booking_date' => date('Y-m-d'),
+        'booking_time' => '14:00:00',
+        'renewal_date' => date('Y-m-d', strtotime('+10 days')),
+        'status' => 'pending',
+        'notes' => 'Test female booking'
+    ],
+    [
+        'order_id' => 1003,
+        'customer_id' => 3,
+        'timezone' => 'UTC',
+        'customer_gender' => 'male',
+        'customer_age' => 35,
+        'selected_slots' => ['sunday_16'],
+        'booking_date' => date('Y-m-d'),
+        'booking_time' => '16:00:00',
+        'renewal_date' => null,
+        'status' => 'completed',
+        'notes' => 'Test male booking without renewal'
+    ],
+    [
+        'order_id' => 1004,
+        'customer_id' => 4,
+        'timezone' => 'UTC',
+        'customer_gender' => 'female',
+        'customer_age' => 22,
+        'selected_slots' => ['monday_09'],
+        'booking_date' => date('Y-m-d'),
+        'booking_time' => '09:00:00',
+        'renewal_date' => date('Y-m-d', strtotime('+2 days')),
+        'status' => 'confirmed',
+        'notes' => 'Expiring soon female'
+    ],
+    [
+        'order_id' => 1005,
+        'customer_id' => 5,
+        'timezone' => 'UTC',
+        'customer_gender' => 'male',
+        'customer_age' => 40,
+        'selected_slots' => ['tuesday_11'],
+        'booking_date' => date('Y-m-d'),
+        'booking_time' => '11:00:00',
+        'renewal_date' => date('Y-m-d', strtotime('+7 days')),
+        'status' => 'pending',
+        'notes' => 'Test male not expiring'
+    ],
+    [
+        'order_id' => 1006,
+        'customer_id' => 6,
+        'timezone' => 'UTC',
+        'customer_gender' => 'female',
+        'customer_age' => 29,
+        'selected_slots' => ['wednesday_15'],
+        'booking_date' => date('Y-m-d'),
+        'booking_time' => '15:00:00',
+        'renewal_date' => null,
+        'status' => 'completed',
+        'notes' => 'Test female no renewal'
+    ],
+    [
+        'order_id' => 1007,
+        'customer_id' => 7,
+        'timezone' => 'UTC',
+        'customer_gender' => 'male',
+        'customer_age' => 28,
+        'selected_slots' => ['thursday_13'],
+        'booking_date' => date('Y-m-d'),
+        'booking_time' => '13:00:00',
+        'renewal_date' => date('Y-m-d', strtotime('+1 day')),
+        'status' => 'confirmed',
+        'notes' => 'Urgent male booking'
+    ],
+    [
+        'order_id' => 1008,
+        'customer_id' => 8,
+        'timezone' => 'UTC',
+        'customer_gender' => 'female',
+        'customer_age' => 34,
+        'selected_slots' => ['friday_12'],
+        'booking_date' => date('Y-m-d'),
+        'booking_time' => '12:00:00',
+        'renewal_date' => date('Y-m-d', strtotime('+6 days')),
+        'status' => 'confirmed',
+        'notes' => 'Normal female booking'
+    ],
+    [
+        'order_id' => 1009,
+        'customer_id' => 9,
+        'timezone' => 'UTC',
+        'customer_gender' => 'male',
+        'customer_age' => 45,
+        'selected_slots' => ['saturday_16'],
+        'booking_date' => date('Y-m-d'),
+        'booking_time' => '16:00:00',
+        'renewal_date' => date('Y-m-d', strtotime('+5 days')),
+        'status' => 'pending',
+        'notes' => 'Expiring borderline'
+    ],
+    [
+        'order_id' => 1010,
+        'customer_id' => 10,
+        'timezone' => 'UTC',
+        'customer_gender' => 'female',
+        'customer_age' => 31,
+        'selected_slots' => ['sunday_17'],
+        'booking_date' => date('Y-m-d'),
+        'booking_time' => '17:00:00',
+        'renewal_date' => null,
+        'status' => 'completed',
+        'notes' => 'Old booking female'
+    ],
+    [
+        'order_id' => 1011,
+        'customer_id' => 11,
+        'timezone' => 'UTC',
+        'customer_gender' => 'male',
+        'customer_age' => 38,
+        'selected_slots' => ['monday_10'],
+        'booking_date' => date('Y-m-d'),
+        'booking_time' => '10:00:00',
+        'renewal_date' => date('Y-m-d', strtotime('+2 days')),
+        'status' => 'confirmed',
+        'notes' => 'Short renewal male'
+    ],
+    [
+        'order_id' => 1012,
+        'customer_id' => 12,
+        'timezone' => 'UTC',
+        'customer_gender' => 'female',
+        'customer_age' => 27,
+        'selected_slots' => ['tuesday_14'],
+        'booking_date' => date('Y-m-d'),
+        'booking_time' => '14:00:00',
+        'renewal_date' => date('Y-m-d', strtotime('+12 days')),
+        'status' => 'pending',
+        'notes' => 'Test future female booking'
+    ]
+];
+
     foreach ($sample_data as $data) {
         $result = Hamdy_Booking::create($data);
         if ($result) {
@@ -149,7 +266,7 @@ if (empty($all_bookings)) {
     }
     
     echo '<p><a href="' . $_SERVER['PHP_SELF'] . '">Refresh to see results</a></p>';
-}
+
 
 echo '<h2>5. Admin Page Links</h2>';
 echo '<p><a href="' . admin_url('admin.php?page=hamdy-bookings') . '" target="_blank">View Bookings (All)</a></p>';

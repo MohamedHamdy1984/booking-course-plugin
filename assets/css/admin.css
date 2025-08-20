@@ -486,3 +486,237 @@
         max-width: 300px;
     }
 }
+
+/* Booking Editor Styles */
+.hamdy-edit-booking-page .hamdy-form-section {
+    margin-bottom: 25px;
+}
+
+.hamdy-edit-booking-page .hamdy-form-section h3 {
+    border-bottom: 2px solid #0073aa;
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+    color: #0073aa;
+}
+
+.hamdy-edit-booking-page .form-table th {
+    width: 200px;
+    font-weight: 600;
+    color: #333;
+}
+
+.hamdy-edit-booking-page .form-table td {
+    padding-left: 20px;
+}
+
+.hamdy-editable-field {
+    border: 2px solid #ddd;
+    transition: border-color 0.3s ease;
+}
+
+.hamdy-editable-field:focus {
+    border-color: #0073aa;
+    box-shadow: 0 0 5px rgba(0, 115, 170, 0.3);
+}
+
+/* Session Management Styles */
+.hamdy-session-row {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.hamdy-session-row:hover {
+    background: #f5f5f5;
+    border-color: #0073aa;
+}
+
+.hamdy-session-row .form-table {
+    margin: 0;
+}
+
+.hamdy-session-row .form-table th {
+    width: auto;
+    padding: 8px 15px 8px 0;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.hamdy-session-row .form-table td {
+    padding: 8px 15px 8px 0;
+}
+
+.hamdy-session-day,
+.hamdy-session-start-time,
+.hamdy-session-end-time {
+    min-width: 120px;
+}
+
+.hamdy-remove-session {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.hamdy-remove-session:hover {
+    background: #c82333;
+    border-color: #bd2130;
+    color: white;
+}
+
+#hamdy-add-session {
+    background: #28a745;
+    border-color: #28a745;
+    color: white;
+    font-weight: 600;
+}
+
+#hamdy-add-session:hover {
+    background: #218838;
+    border-color: #1e7e34;
+    color: white;
+}
+
+.hamdy-no-sessions {
+    text-align: center;
+    padding: 30px;
+    color: #666;
+    font-style: italic;
+    background: #f9f9f9;
+    border: 2px dashed #ddd;
+    border-radius: 6px;
+}
+
+/* Status indicators in edit form */
+.hamdy-edit-booking-page .hamdy-status {
+    font-size: 14px;
+    padding: 6px 12px;
+}
+
+/* Form validation styles */
+.hamdy-field-error {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 5px rgba(220, 53, 69, 0.3) !important;
+}
+
+.hamdy-error-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Success/Error notices in edit form */
+.hamdy-edit-booking-page .notice {
+    margin: 15px 0;
+}
+
+.hamdy-edit-booking-page .notice ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.hamdy-edit-booking-page .notice li {
+    margin: 5px 0;
+}
+
+/* Improved form layout */
+.hamdy-booking-edit-form .submit {
+    background: #f9f9f9;
+    border-top: 1px solid #ddd;
+    padding: 20px;
+    margin: 20px -20px -20px -20px;
+    border-radius: 0 0 6px 6px;
+}
+
+.hamdy-booking-edit-form .button-primary {
+    font-size: 14px;
+    padding: 8px 20px;
+    height: auto;
+    margin-right: 10px;
+}
+
+/* Responsive design for edit form */
+@media (max-width: 768px) {
+    .hamdy-edit-booking-page .form-table th {
+        width: 120px;
+        font-size: 12px;
+    }
+    
+    .hamdy-session-row .form-table th {
+        display: block;
+        width: 100%;
+        padding: 5px 0;
+    }
+    
+    .hamdy-session-row .form-table td {
+        display: block;
+        width: 100%;
+        padding: 5px 0 10px 0;
+    }
+    
+    .hamdy-session-day,
+    .hamdy-session-start-time,
+    .hamdy-session-end-time {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .hamdy-edit-booking-page .hamdy-form-section {
+        padding: 15px;
+    }
+    
+    .hamdy-edit-booking-page .form-table th,
+    .hamdy-edit-booking-page .form-table td {
+        display: block;
+        width: 100%;
+        padding: 8px 0;
+    }
+    
+    .hamdy-editable-field {
+        width: 100%;
+    }
+    
+    .hamdy-session-row {
+        padding: 10px;
+    }
+}
+
+/* Animation for adding/removing sessions */
+.hamdy-session-row {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hamdy-session-removing {
+    animation: slideOut 0.3s ease-in forwards;
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+        height: 0;
+        margin: 0;
+        padding: 0;
+    }
+}

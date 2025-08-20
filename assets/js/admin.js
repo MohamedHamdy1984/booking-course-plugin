@@ -364,4 +364,257 @@ jQuery(document).ready(function($) {
     $(window).on('beforeunload', function() {
         stopAutoRefresh();
     });
+    
+    // Booking Editor Functionality
+    
+    // Add new session functionality
+    $(document).on('click', '#hamdy-add-session', function(e) {
+        e.preventDefault();
+        
+        var $container = $('#hamdy-sessions-container');
+        var $template = $('#hamdy-session-template');
+        var sessionCount = $('.hamdy-session-row').length;
+        var newIndex = sessionCount;
+        
+        // Remove "no sessions" message if it exists
+        $('.hamdy-no-sessions').remove();
+        
+        // Get template HTML and replace placeholder
+        var templateHtml = $template.html();
+        templateHtml = templateHtml.replace(/\{\{INDEX\}\}/g, newIndex);
+        
+        // Create new session row
+        var $newSession = $(templateHtml);
+        $newSession.hide();
+        
+        // Add to container
+        $container.append($newSession);
+        
+        // Show with animation
+        $newSession.slideDown(300);
+        
+        // Focus on first field
+        $newSession.find('.hamdy-session-day').focus();
+    });
+    
+    // Remove session functionality
+    $(document).on('click', '.hamdy-remove-session', function(e) {
+        e.preventDefault();
+        
+        var $sessionRow = $(this).closest('.hamdy-session-row');
+        var $container = $('#hamdy-sessions-container');
+        
+        // Add removing class for animation
+        $sessionRow.addClass('hamdy-session-removing');
+        
+        // Remove after animation
+        setTimeout(function() {
+            $sessionRow.remove();
+            
+            // Re-index remaining sessions
+            reindexSessions();
+            
+            // Show "no sessions" message if no sessions left
+            if ($('.hamdy-session-row').length === 0) {
+                $container.append('<p class="hamdy-no-sessions">' + 'No sessions scheduled yet.' + '</p>');
+            }
+        }, 300);
+    });
+    
+    // Re-index sessions after removal
+    function reindexSessions() {
+        $('.hamdy-session-row').each(function(index) {
+            var $row = $(this);
+            $row.attr('data-index', index);
+            
+            // Update field names
+            $row.find('select, input').each(function() {
+                var $field = $(this);
+                var name = $field.attr('name');
+                if (name) {
+                    // Replace the index in the name attribute
+                    var newName = name.replace(/sessions\[\d+\]/, 'sessions[' + index + ']');
+                    $field.attr('name', newName);
+                }
+            });
+        });
+    }
+    
+    // Form validation for booking editor
+    $('.hamdy-booking-edit-form').on('submit', function(e) {
+        var hasErrors = false;
+        var $form = $(this);
+        
+        // Clear previous errors
+        $('.hamdy-field-error').removeClass('hamdy-field-error');
+        $('.hamdy-error-message').remove();
+        
+        // Validate student name
+        var $studentName = $('#student_name');
+        if ($studentName.val().trim() === '') {
+            showFieldError($studentName, 'Student name is required.');
+            hasErrors = true;
+        }
+        
+        // Validate age
+        var $age = $('#customer_age');
+        var age = parseInt($age.val());
+        if (isNaN(age) || age < 1 || age > 100) {
+            showFieldError($age, 'Please enter a valid age between 1 and 100.');
+            hasErrors = true;
+        }
+        
+        // Validate sessions
+        var sessionErrors = validateSessions();
+        if (sessionErrors.length > 0) {
+            hasErrors = true;
+        }
+        
+        if (hasErrors) {
+            e.preventDefault();
+            
+            // Scroll to first error
+            var $firstError = $('.hamdy-field-error').first();
+            if ($firstError.length) {
+                $('html, body').animate({
+                    scrollTop: $firstError.offset().top - 100
+                }, 500);
+            }
+            
+            showNotice('error', 'Please correct the errors below and try again.');
+        }
+    });
+    
+    // Show field error
+    function showFieldError($field, message) {
+        $field.addClass('hamdy-field-error');
+        $field.after('<span class="hamdy-error-message">' + message + '</span>');
+    }
+    
+    // Validate sessions
+    function validateSessions() {
+        var errors = [];
+        
+        $('.hamdy-session-row').each(function(index) {
+            var $row = $(this);
+            var day = $row.find('.hamdy-session-day').val();
+            var startTime = $row.find('.hamdy-session-start-time').val();
+            var endTime = $row.find('.hamdy-session-end-time').val();
+            
+            if (!day || !startTime || !endTime) {
+                $row.find('select, input').addClass('hamdy-field-error');
+                errors.push('Session ' + (index + 1) + ': All fields are required.');
+            } else if (startTime >= endTime) {
+                $row.find('.hamdy-session-start-time, .hamdy-session-end-time').addClass('hamdy-field-error');
+                errors.push('Session ' + (index + 1) + ': End time must be after start time.');
+            }
+        });
+        
+        return errors;
+    }
+    
+    // Real-time validation
+    $(document).on('blur', '.hamdy-editable-field', function() {
+        var $field = $(this);
+        $field.removeClass('hamdy-field-error');
+        $field.siblings('.hamdy-error-message').remove();
+        
+        // Validate specific fields
+        if ($field.attr('id') === 'student_name' && $field.val().trim() === '') {
+            showFieldError($field, 'Student name is required.');
+        } else if ($field.attr('id') === 'customer_age') {
+            var age = parseInt($field.val());
+            if (isNaN(age) || age < 1 || age > 100) {
+                showFieldError($field, 'Please enter a valid age between 1 and 100.');
+            }
+        }
+    });
+    
+    // Session time validation
+    $(document).on('change', '.hamdy-session-start-time, .hamdy-session-end-time', function() {
+        var $row = $(this).closest('.hamdy-session-row');
+        var startTime = $row.find('.hamdy-session-start-time').val();
+        var endTime = $row.find('.hamdy-session-end-time').val();
+        
+        // Clear previous errors
+        $row.find('.hamdy-session-start-time, .hamdy-session-end-time').removeClass('hamdy-field-error');
+        $row.find('.hamdy-error-message').remove();
+        
+        if (startTime && endTime && startTime >= endTime) {
+            $row.find('.hamdy-session-start-time, .hamdy-session-end-time').addClass('hamdy-field-error');
+            $row.find('.hamdy-session-end-time').after('<span class="hamdy-error-message">End time must be after start time.</span>');
+        }
+    });
+    
+    // Auto-save draft functionality (optional)
+    var autoSaveTimer;
+    $(document).on('input change', '.hamdy-editable-field', function() {
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(function() {
+            // Could implement auto-save to localStorage here
+            console.log('Auto-save triggered');
+        }, 2000);
+    });
+    
+    // Keyboard shortcuts for booking editor
+    $(document).on('keydown', function(e) {
+        // Only on booking edit page
+        if (!$('.hamdy-edit-booking-page').length) return;
+        
+        // Ctrl/Cmd + S to save
+        if ((e.ctrlKey || e.metaKey) && e.which === 83) {
+            e.preventDefault();
+            $('.hamdy-booking-edit-form').submit();
+        }
+        
+        // Ctrl/Cmd + N to add new session
+        if ((e.ctrlKey || e.metaKey) && e.which === 78) {
+            e.preventDefault();
+            $('#hamdy-add-session').click();
+        }
+    });
+    
+    // Initialize booking editor if on edit page
+    if ($('.hamdy-edit-booking-page').length) {
+        initializeBookingEditor();
+    }
+    
+    function initializeBookingEditor() {
+        // Focus on first editable field
+        $('.hamdy-editable-field').first().focus();
+        
+        // Initialize date picker if available
+        if ($.fn.datepicker) {
+            $('.hamdy-date-picker').datepicker({
+                dateFormat: 'yy-mm-dd',
+                minDate: 0 // Don't allow past dates
+            });
+        }
+        
+        // Add tooltips to form fields
+        $('.hamdy-editable-field').each(function() {
+            var $field = $(this);
+            var description = $field.siblings('.description').text();
+            if (description) {
+                $field.attr('title', description);
+            }
+        });
+        
+        // Show confirmation before leaving with unsaved changes
+        var formChanged = false;
+        $('.hamdy-editable-field').on('change', function() {
+            formChanged = true;
+        });
+        
+        $(window).on('beforeunload', function() {
+            if (formChanged) {
+                return 'You have unsaved changes. Are you sure you want to leave?';
+            }
+        });
+        
+        // Reset form changed flag on successful submit
+        $('.hamdy-booking-edit-form').on('submit', function() {
+            formChanged = false;
+        });
+    }
 });
