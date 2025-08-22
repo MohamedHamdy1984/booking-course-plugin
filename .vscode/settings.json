@@ -1,7 +1,0 @@
-{
-  "intelephense.environment.includePaths": [
-    "./wordpress/wp-includes",
-    "./wordpress/wp-admin",
-    "./wordpress/wp-content/plugins/woocommerce"
-  ]
-}
