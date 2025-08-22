@@ -1,5 +1,5 @@
 /* Admin Schedule Styles */
-.hamdy-timezone-selector {
+.soob-timezone-selector {
     background: #fff;
     border: 1px solid #ccd0d4;
     border-radius: 4px;
@@ -7,21 +7,21 @@
     margin-bottom: 20px;
 }
 
-.hamdy-timezone-selector label {
+.soob-timezone-selector label {
     font-weight: 600;
     margin-right: 10px;
 }
 
-.hamdy-timezone-selector select {
+.soob-timezone-selector select {
     min-width: 200px;
 }
 
-.hamdy-schedule-tabs .nav-tab-wrapper {
+.soob-schedule-tabs .nav-tab-wrapper {
     border-bottom: 1px solid #ccd0d4;
     margin-bottom: 20px;
 }
 
-.hamdy-tab-content {
+.soob-tab-content {
     background: #fff;
     border: 1px solid #ccd0d4;
     border-radius: 4px;
@@ -30,7 +30,7 @@
 }
 
 /* Timezone indicator */
-.hamdy-timezone-indicator {
+.soob-timezone-indicator {
     background: #e7f3ff;
     border: 1px solid #b3d9ff;
     border-radius: 4px;
@@ -41,7 +41,7 @@
 }
 
 /* Legend */
-.hamdy-legend {
+.soob-legend {
     display: flex;
     gap: 20px;
     margin-bottom: 20px;
@@ -49,32 +49,32 @@
     border-bottom: 1px solid #e1e1e1;
 }
 
-.hamdy-legend-item {
+.soob-legend-item {
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 14px;
 }
 
-.hamdy-legend-color {
+.soob-legend-color {
     width: 16px;
     height: 16px;
     border-radius: 3px;
     border: 1px solid #ddd;
 }
 
-.hamdy-legend-available {
+.soob-legend-available {
     background: #d4edda;
     border-color: #c3e6cb;
 }
 
-.hamdy-legend-unavailable {
+.soob-legend-unavailable {
     background: #f8f9fa;
     border-color: #e1e1e1;
 }
 
 /* Schedule grid layout */
-.hamdy-schedule-grid {
+.soob-schedule-grid {
     display: grid;
     grid-template-columns: 100px 1fr;
     gap: 0;
@@ -83,24 +83,24 @@
     overflow: hidden;
 }
 
-.hamdy-hours-header {
+.soob-hours-header {
     display: contents;
 }
 
-.hamdy-hours-header > div:first-child {
+.soob-hours-header > div:first-child {
     background: #f8f9fa;
     border-bottom: 1px solid #e1e1e1;
     border-right: 1px solid #e1e1e1;
 }
 
-.hamdy-hours-labels {
+.soob-hours-labels {
     display: grid;
     grid-template-columns: repeat(24, 1fr);
     background: #f8f9fa;
     border-bottom: 1px solid #e1e1e1;
 }
 
-.hamdy-hour-label {
+.soob-hour-label {
     padding: 8px 4px;
     text-align: center;
     font-size: 11px;
@@ -109,11 +109,11 @@
     border-right: 1px solid #e1e1e1;
 }
 
-.hamdy-hour-label:last-child {
+.soob-hour-label:last-child {
     border-right: none;
 }
 
-.hamdy-day-header {
+.soob-day-header {
     background: #f8f9fa;
     padding: 12px 8px;
     font-weight: 600;
@@ -126,17 +126,17 @@
     justify-content: center;
 }
 
-.hamdy-day-row {
+.soob-day-row {
     display: grid;
     grid-template-columns: repeat(24, 1fr);
     border-bottom: 1px solid #e1e1e1;
 }
 
-.hamdy-day-row:last-child {
+.soob-day-row:last-child {
     border-bottom: none;
 }
 
-.hamdy-time-slot {
+.soob-time-slot {
     padding: 12px 4px;
     text-align: center;
     font-size: 10px;
@@ -150,21 +150,21 @@
     justify-content: center;
 }
 
-.hamdy-time-slot:last-child {
+.soob-time-slot:last-child {
     border-right: none;
 }
 
-.hamdy-time-slot.available {
+.soob-time-slot.available {
     background: #d4edda;
     color: #155724;
 }
 
-.hamdy-time-slot.unavailable {
+.soob-time-slot.unavailable {
     background: #f8f9fa;
     color: #6c757d;
 }
 
-.hamdy-time-slot:hover {
+.soob-time-slot:hover {
     opacity: 0.8;
     transform: scale(1.05);
 }
@@ -184,12 +184,12 @@
     border: 2px solid #ddd;
     border-top: 2px solid #0073aa;
     border-radius: 50%;
-    animation: hamdy-spin 1s linear infinite;
+    animation: soob-spin 1s linear infinite;
     margin-right: 10px;
     vertical-align: middle;
 }
 
-@keyframes hamdy-spin {
+@keyframes soob-spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
@@ -204,7 +204,7 @@
 }
 
 /* No data state */
-.hamdy-no-data {
+.soob-no-data {
     text-align: center;
     padding: 60px 20px;
     background: #f8f9fa;
@@ -213,76 +213,76 @@
     color: #6c757d;
 }
 
-.hamdy-no-data h3 {
+.soob-no-data h3 {
     margin: 0 0 15px 0;
     color: #495057;
     font-size: 18px;
 }
 
-.hamdy-no-data p {
+.soob-no-data p {
     margin: 0 0 15px 0;
     font-size: 14px;
     line-height: 1.5;
 }
 
-.hamdy-no-data p:last-child {
+.soob-no-data p:last-child {
     margin-bottom: 0;
 }
 
 /* Responsive design */
 @media (max-width: 1200px) {
-    .hamdy-schedule-grid {
+    .soob-schedule-grid {
         grid-template-columns: 80px 1fr;
     }
     
-    .hamdy-hour-label {
+    .soob-hour-label {
         font-size: 10px;
         padding: 6px 2px;
     }
     
-    .hamdy-time-slot {
+    .soob-time-slot {
         font-size: 9px;
         min-height: 35px;
     }
 }
 
 @media (max-width: 768px) {
-    .hamdy-schedule-grid {
+    .soob-schedule-grid {
         grid-template-columns: 60px 1fr;
     }
     
-    .hamdy-hour-label {
+    .soob-hour-label {
         font-size: 9px;
         padding: 4px 1px;
     }
     
-    .hamdy-time-slot {
+    .soob-time-slot {
         font-size: 8px;
         min-height: 30px;
         padding: 8px 2px;
     }
     
-    .hamdy-day-header {
+    .soob-day-header {
         font-size: 11px;
         padding: 8px 4px;
     }
     
-    .hamdy-legend {
+    .soob-legend {
         flex-direction: column;
         gap: 10px;
     }
 }
 
 @media (max-width: 480px) {
-    .hamdy-timezone-selector {
+    .soob-timezone-selector {
         padding: 10px;
     }
     
-    .hamdy-tab-content {
+    .soob-tab-content {
         padding: 10px;
     }
     
-    .hamdy-schedule-grid {
+    .soob-schedule-grid {
         font-size: 10px;
     }
 }

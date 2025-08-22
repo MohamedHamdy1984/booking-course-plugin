@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Plugin Name: Hamdy Plugin
- * Plugin URI: https://example.com/hamdy-plugin
- * Description: A simple one-to-one booking system integrated with WooCommerce for live course sessions.
+ * Plugin Name: Simple One-to-One Booking
+ * Plugin URI: https://example.com/simple-one-to-one-booking
+ * Description: Book one-to-one sessions with any provider (teacher, therapist, coach) via WooCommerce checkout with timezone-aware scheduling.
  * Version: 1.0.0
  * Author: Your Name
  * Author URI: https://example.com
- * License: GPL v2 or later
+ * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: hamdy-plugin
+ * Text Domain: simple-one-to-one-booking
  * Domain Path: /languages
  * Requires at least: 5.0
  * Tested up to: 6.3
@@ -24,15 +24,16 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('HAMDY_PLUGIN_VERSION', '1.0.0');
-define('HAMDY_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('HAMDY_PLUGIN_PATH', plugin_dir_path(__FILE__));
-define('HAMDY_PLUGIN_BASENAME', plugin_basename(__FILE__));
+define('SOOB_PLUGIN_VERSION', '1.0.0');
+define('SOOB_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('SOOB_PLUGIN_PATH', plugin_dir_path(__FILE__));
+define('SOOB_PLUGIN_BASENAME', plugin_basename(__FILE__));
+define('SOOB_PLUGIN_FILE', __FILE__);
 
 /**
- * Main Hamdy Plugin Class
+ * Main SOOB Plugin Class
  */
-class Hamdy_Plugin
+class SOOB_Plugin
 {
 
     /**
@@ -96,7 +97,7 @@ class Hamdy_Plugin
      */
     public function load_textdomain()
     {
-        load_plugin_textdomain('hamdy-plugin', false, dirname(HAMDY_PLUGIN_BASENAME) . '/languages');
+        load_plugin_textdomain('simple-one-to-one-booking', false, dirname(SOOB_PLUGIN_BASENAME) . '/languages');
     }
 
     /**
@@ -106,7 +107,7 @@ class Hamdy_Plugin
     {
         if (!class_exists('WooCommerce')) {
             add_action('admin_notices', array($this, 'woocommerce_missing_notice'));
-            deactivate_plugins(HAMDY_PLUGIN_BASENAME);
+            deactivate_plugins(SOOB_PLUGIN_BASENAME);
         }
     }
 
@@ -117,7 +118,7 @@ class Hamdy_Plugin
     {
 ?>
         <div class="notice notice-error">
-            <p><?php _e('Hamdy Plugin requires WooCommerce to be installed and active.', 'hamdy-plugin'); ?></p>
+            <p><?php _e('Soob Plugin requires WooCommerce to be installed and active.', 'soob-plugin'); ?></p>
         </div>
 <?php
     }
@@ -148,7 +149,7 @@ class Hamdy_Plugin
             require_once $file_path;
         } else {
             // Optional: log missing file for debugging
-            error_log("Hamdy Plugin: File not found - " . $file_path);
+            error_log("Soob Plugin: File not found - " . $file_path);
         }
     }
 
@@ -158,20 +159,20 @@ class Hamdy_Plugin
     private function load_dependencies()
     {
         // Core includes
-        $this->safe_require(HAMDY_PLUGIN_PATH . 'includes/class-hamdy-database.php');
-        $this->safe_require(HAMDY_PLUGIN_PATH . 'includes/class-hamdy-teacher.php');
-        $this->safe_require(HAMDY_PLUGIN_PATH . 'includes/class-hamdy-booking.php');
-        $this->safe_require(HAMDY_PLUGIN_PATH . 'includes/class-hamdy-woocommerce.php');
+        $this->safe_require(SOOB_PLUGIN_PATH . 'includes/class-soob-database.php');
+        $this->safe_require(SOOB_PLUGIN_PATH . 'includes/class-soob-teacher.php');
+        $this->safe_require(SOOB_PLUGIN_PATH . 'includes/class-soob-booking.php');
+        $this->safe_require(SOOB_PLUGIN_PATH . 'includes/class-soob-woocommerce.php');
 
         // Admin includes
         if (is_admin()) {
-            $this->safe_require(HAMDY_PLUGIN_PATH . 'admin/class-hamdy-admin.php');
-            $this->safe_require(HAMDY_PLUGIN_PATH . 'admin/class-hamdy-admin-teachers.php');
-            $this->safe_require(HAMDY_PLUGIN_PATH . 'admin/class-hamdy-admin-schedule.php');
+            $this->safe_require(SOOB_PLUGIN_PATH . 'admin/class-soob-admin.php');
+            $this->safe_require(SOOB_PLUGIN_PATH . 'admin/class-soob-admin-teachers.php');
+            $this->safe_require(SOOB_PLUGIN_PATH . 'admin/class-soob-admin-schedule.php');
         }
 
         // Public includes
-        $this->safe_require(HAMDY_PLUGIN_PATH . 'public/class-hamdy-checkout.php');
+        $this->safe_require(SOOB_PLUGIN_PATH . 'public/class-soob-checkout.php');
     }
 
 
@@ -180,8 +181,8 @@ class Hamdy_Plugin
      */
     private function init_admin()
     {
-        if (is_admin() && class_exists('Hamdy_Admin')) {
-            new Hamdy_Admin();
+        if (is_admin() && class_exists('SOOB_Admin')) {
+            new SOOB_Admin();
         }
     }
 
@@ -191,8 +192,8 @@ class Hamdy_Plugin
     private function init_checkout()
     {
         // Initialize checkout functionality for AJAX handling
-        if (class_exists('Hamdy_Checkout')) {
-            new Hamdy_Checkout();
+        if (class_exists('SOOB_Checkout')) {
+            new SOOB_Checkout();
         }
     }
 
@@ -202,8 +203,8 @@ class Hamdy_Plugin
     private function init_woocommerce()
     {
         // Initialize WooCommerce integration for both admin and frontend
-        if (class_exists('WooCommerce') && class_exists('Hamdy_WooCommerce')) {
-            new Hamdy_WooCommerce();
+        if (class_exists('WooCommerce') && class_exists('SOOB_WooCommerce')) {
+            new SOOB_WooCommerce();
         }
     }
 
@@ -215,25 +216,25 @@ class Hamdy_Plugin
 /**
  * Plugin activation hook
  */
-function hamdy_plugin_activate()
+function soob_plugin_activate()
 {
     // Check WordPress version
     if (version_compare(get_bloginfo('version'), '5.0', '<')) {
-        wp_die(__('Hamdy Plugin requires WordPress 5.0 or higher.', 'hamdy-plugin'));
+        wp_die(__('Soob Plugin requires WordPress 5.0 or higher.', 'soob-plugin'));
     }
 
     // Check PHP version
     if (version_compare(PHP_VERSION, '7.4', '<')) {
-        wp_die(__('Hamdy Plugin requires PHP 7.4 or higher.', 'hamdy-plugin'));
+        wp_die(__('Soob Plugin requires PHP 7.4 or higher.', 'soob-plugin'));
     }
 
     // Create database tables
-    require_once HAMDY_PLUGIN_PATH . 'includes/class-hamdy-database.php';
-    Hamdy_Database::create_tables();
+    require_once SOOB_PLUGIN_PATH . 'includes/class-soob-database.php';
+    SOOB_Database::create_tables();
 
     // Set default options
-    add_option('hamdy_plugin_version', HAMDY_PLUGIN_VERSION);
-    add_option('hamdy_plugin_activated', time());
+    add_option('soob_plugin_version', SOOB_PLUGIN_VERSION);
+    add_option('soob_plugin_activated', time());
 
     // Flush rewrite rules
     flush_rewrite_rules();
@@ -242,10 +243,10 @@ function hamdy_plugin_activate()
 /**
  * Plugin deactivation hook
  */
-function hamdy_plugin_deactivate()
+function soob_plugin_deactivate()
 {
     // Clear scheduled events
-    wp_clear_scheduled_hook('hamdy_cleanup_expired_bookings');
+    wp_clear_scheduled_hook('soob_cleanup_expired_bookings');
 
     // Flush rewrite rules
     flush_rewrite_rules();
@@ -254,21 +255,21 @@ function hamdy_plugin_deactivate()
 /**
  * Plugin uninstall hook
  */
-function hamdy_plugin_uninstall()
+function soob_plugin_uninstall()
 {
     // Remove options
-    delete_option('hamdy_plugin_version');
-    delete_option('hamdy_plugin_activated');
+    delete_option('soob_plugin_version');
+    delete_option('soob_plugin_activated');
 
     // Remove database tables (optional - uncomment if needed)
-    // require_once HAMDY_PLUGIN_PATH . 'includes/class-hamdy-database.php';
-    // Hamdy_Database::drop_tables();
+    // require_once SOOB_PLUGIN_PATH . 'includes/class-soob-database.php';
+    // SOOB_Database::drop_tables();
 }
 
 // Register hooks
-register_activation_hook(__FILE__, 'hamdy_plugin_activate');
-register_deactivation_hook(__FILE__, 'hamdy_plugin_deactivate');
-register_uninstall_hook(__FILE__, 'hamdy_plugin_uninstall');
+register_activation_hook(__FILE__, 'soob_plugin_activate');
+register_deactivation_hook(__FILE__, 'soob_plugin_deactivate');
+register_uninstall_hook(__FILE__, 'soob_plugin_uninstall');
 
 // Initialize the plugin
-add_action('plugins_loaded', array('Hamdy_Plugin', 'get_instance'));
+add_action('plugins_loaded', array('SOOB_Plugin', 'get_instance'));

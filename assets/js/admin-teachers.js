@@ -1,6 +1,6 @@
 jQuery(document).ready(function($) {
     // Handle teacher deletion
-    $('.hamdy-delete-teacher').on('click', function(e) {
+    $('.soob-delete-teacher').on('click', function(e) {
         e.preventDefault();
         
         if (!confirm('Are you sure you want to delete this teacher?')) {
@@ -13,12 +13,12 @@ jQuery(document).ready(function($) {
         $button.prop('disabled', true).text('Deleting...');
         
         $.ajax({
-            url: hamdy_admin_ajax.ajax_url,
+            url: soob_admin_ajax.ajax_url,
             type: 'POST',
             data: {
-                action: 'hamdy_delete_teacher',
+                action: 'soob_delete_teacher',
                 teacher_id: teacherId,
-                nonce: hamdy_admin_ajax.nonce
+                nonce: soob_admin_ajax.nonce
             },
             success: function(response) {
                 if (response.success) {
@@ -59,13 +59,13 @@ jQuery(document).ready(function($) {
     }
     
     // Select all/none functionality for availability
-    $('.hamdy-day-column').each(function() {
+    $('.soob-day-column').each(function() {
         var $dayColumn = $(this);
         var dayName = $dayColumn.find('h4').text();
         
         // Add select all/none buttons
         $dayColumn.find('h4').after(
-            '<div class="hamdy-day-controls" style="margin-bottom: 10px; text-align: center;">' +
+            '<div class="soob-day-controls" style="margin-bottom: 10px; text-align: center;">' +
             '<button type="button" class="button button-small select-all" style="margin-right: 5px;">All</button>' +
             '<button type="button" class="button button-small select-none">None</button>' +
             '</div>'
@@ -75,17 +75,17 @@ jQuery(document).ready(function($) {
     // Handle select all button
     $(document).on('click', '.select-all', function(e) {
         e.preventDefault();
-        $(this).closest('.hamdy-day-column').find('input[type="checkbox"]').prop('checked', true);
+        $(this).closest('.soob-day-column').find('input[type="checkbox"]').prop('checked', true);
     });
     
     // Handle select none button
     $(document).on('click', '.select-none', function(e) {
         e.preventDefault();
-        $(this).closest('.hamdy-day-column').find('input[type="checkbox"]').prop('checked', false);
+        $(this).closest('.soob-day-column').find('input[type="checkbox"]').prop('checked', false);
     });
     
     // Enhanced form validation
-    $('.hamdy-teacher-form').on('submit', function(e) {
+    $('.soob-teacher-form').on('submit', function(e) {
         var name = $('#teacher_name').val().trim();
         var gender = $('#teacher_gender').val();
         var hasAvailability = $(this).find('input[name^="availability"]:checked').length > 0;
@@ -112,7 +112,7 @@ jQuery(document).ready(function($) {
     });
     
     // Availability grid - select all day functionality
-    $('.hamdy-day-column h4').on('click', function() {
+    $('.soob-day-column h4').on('click', function() {
         var $column = $(this).parent();
         var $checkboxes = $column.find('input[type="checkbox"]');
         var allChecked = $checkboxes.length === $checkboxes.filter(':checked').length;
@@ -121,14 +121,14 @@ jQuery(document).ready(function($) {
     });
     
     // Real-time availability preview
-    $('.hamdy-availability-grid input[type="checkbox"]').on('change', function() {
+    $('.soob-availability-grid input[type="checkbox"]').on('change', function() {
         updateAvailabilityPreview();
     });
     
     function updateAvailabilityPreview() {
         var selectedSlots = {};
         
-        $('.hamdy-availability-grid input[type="checkbox"]:checked').each(function() {
+        $('.soob-availability-grid input[type="checkbox"]:checked').each(function() {
             var name = $(this).attr('name');
             var day = name.match(/\[([^\]]+)\]/)[1];
             var time = $(this).val();
@@ -140,14 +140,14 @@ jQuery(document).ready(function($) {
         });
         
         // Update preview display if element exists
-        if ($('.hamdy-availability-preview').length) {
-            $('.hamdy-availability-preview').html(JSON.stringify(selectedSlots, null, 2));
+        if ($('.soob-availability-preview').length) {
+            $('.soob-availability-preview').html(JSON.stringify(selectedSlots, null, 2));
         }
     }
     
     // Utility function to show notices
     function showNotice(type, message) {
-        var noticeClass = 'hamdy-notice hamdy-notice-' + type;
+        var noticeClass = 'soob-notice soob-notice-' + type;
         var $notice = $('<div class="' + noticeClass + '">' + message + '</div>');
         
         $('.wrap h1').after($notice);
@@ -162,12 +162,12 @@ jQuery(document).ready(function($) {
     function updateAvailabilityDisplay(timezone) {
         // This function would handle timezone conversion for display
         // For now, we'll just add a visual indicator
-        $('.hamdy-availability-grid').attr('data-timezone', timezone);
+        $('.soob-availability-grid').attr('data-timezone', timezone);
         
         // Add timezone indicator
         var $indicator = $('.timezone-indicator');
         if ($indicator.length === 0) {
-            $('.hamdy-availability-grid').prepend(
+            $('.soob-availability-grid').prepend(
                 '<div class="timezone-indicator" style="background: #e7f3ff; padding: 8px; margin-bottom: 15px; border-radius: 4px; font-size: 12px;">' +
                 '<strong>Timezone:</strong> <span class="current-timezone">' + timezone + '</span>' +
                 '</div>'

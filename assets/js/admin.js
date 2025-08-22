@@ -1,14 +1,14 @@
 /**
- * Hamdy Plugin Admin JavaScript
+ * Soob Plugin Admin JavaScript
  */
 
 jQuery(document).ready(function($) {
     'use strict';
     
     // Schedule overview - time slot tooltips
-    $('.hamdy-time-slot').on('mouseenter', function() {
+    $('.soob-time-slot').on('mouseenter', function() {
         var hour = $(this).data('hour');
-        var day = $(this).closest('.hamdy-day-row').data('day');
+        var day = $(this).closest('.soob-day-row').data('day');
         var available = $(this).hasClass('available');
         
         var tooltip = available ? 
@@ -20,7 +20,7 @@ jQuery(document).ready(function($) {
     
     // Auto-save functionality for forms
     var autoSaveTimeout;
-    $('.hamdy-teacher-form input, .hamdy-teacher-form select, .hamdy-teacher-form textarea').on('input change', function() {
+    $('.soob-teacher-form input, .soob-teacher-form select, .soob-teacher-form textarea').on('input change', function() {
         clearTimeout(autoSaveTimeout);
         autoSaveTimeout = setTimeout(function() {
             // Auto-save logic can be implemented here
@@ -53,21 +53,21 @@ jQuery(document).ready(function($) {
     });
     
     // Statistics refresh
-    $('.hamdy-stat-card').on('click', function() {
+    $('.soob-stat-card').on('click', function() {
         refreshStatistics();
     });
     
     function refreshStatistics() {
         $.ajax({
-            url: hamdy_admin_ajax.ajax_url,
+            url: soob_admin_ajax.ajax_url,
             type: 'POST',
             data: {
-                action: 'hamdy_refresh_stats',
-                nonce: hamdy_admin_ajax.nonce
+                action: 'soob_refresh_stats',
+                nonce: soob_admin_ajax.nonce
             },
             success: function(response) {
                 if (response.success) {
-                    $('.hamdy-stat-number').each(function(index) {
+                    $('.soob-stat-number').each(function(index) {
                         $(this).text(response.data.stats[index]);
                     });
                 }
@@ -76,7 +76,7 @@ jQuery(document).ready(function($) {
     }
     
     // Media uploader for teacher photos
-    $('.hamdy-upload-photo').on('click', function(e) {
+    $('.soob-upload-photo').on('click', function(e) {
         e.preventDefault();
         
         var mediaUploader = wp.media({
@@ -90,7 +90,7 @@ jQuery(document).ready(function($) {
         mediaUploader.on('select', function() {
             var attachment = mediaUploader.state().get('selection').first().toJSON();
             $('#teacher_photo').val(attachment.url);
-            $('.hamdy-current-photo img').attr('src', attachment.url);
+            $('.soob-current-photo img').attr('src', attachment.url);
         });
         
         mediaUploader.open();
@@ -99,17 +99,17 @@ jQuery(document).ready(function($) {
     // Sortable functionality for tables
     if ($.fn.sortable) {
         $('.wp-list-table tbody').sortable({
-            handle: '.hamdy-sort-handle',
+            handle: '.soob-sort-handle',
             update: function(event, ui) {
                 var order = $(this).sortable('toArray', {attribute: 'data-id'});
                 
                 $.ajax({
-                    url: hamdy_admin_ajax.ajax_url,
+                    url: soob_admin_ajax.ajax_url,
                     type: 'POST',
                     data: {
-                        action: 'hamdy_update_order',
+                        action: 'soob_update_order',
                         order: order,
-                        nonce: hamdy_admin_ajax.nonce
+                        nonce: soob_admin_ajax.nonce
                     },
                     success: function(response) {
                         if (response.success) {
@@ -125,7 +125,7 @@ jQuery(document).ready(function($) {
     
     // Utility function to show notices
     function showNotice(type, message) {
-        var noticeClass = 'hamdy-notice hamdy-notice-' + type;
+        var noticeClass = 'soob-notice soob-notice-' + type;
         var $notice = $('<div class="' + noticeClass + '">' + message + '</div>');
         
         $('.wrap h1').after($notice);
@@ -147,12 +147,12 @@ jQuery(document).ready(function($) {
         // Ctrl/Cmd + S to save
         if ((e.ctrlKey || e.metaKey) && e.which === 83) {
             e.preventDefault();
-            $('.hamdy-teacher-form').submit();
+            $('.soob-teacher-form').submit();
         }
         
         // Escape to close modals
         if (e.which === 27) {
-            $('.hamdy-modal').hide();
+            $('.soob-modal').hide();
         }
     });
     
@@ -161,11 +161,11 @@ jQuery(document).ready(function($) {
     
     function initializePage() {
         // Set focus on first input
-        $('.hamdy-teacher-form input:first').focus();
+        $('.soob-teacher-form input:first').focus();
         
         // Initialize any third-party plugins
         if ($.fn.datepicker) {
-            $('.hamdy-date-picker').datepicker({
+            $('.soob-date-picker').datepicker({
                 dateFormat: 'yy-mm-dd'
             });
         }
@@ -179,7 +179,7 @@ jQuery(document).ready(function($) {
     // Booking Management Functionality
     
     // Delete booking confirmation and AJAX
-    $('.hamdy-delete-booking').on('click', function(e) {
+    $('.soob-delete-booking').on('click', function(e) {
         e.preventDefault();
         
         var $button = $(this);
@@ -187,19 +187,19 @@ jQuery(document).ready(function($) {
         var $row = $button.closest('tr');
         
         // Show confirmation dialog
-        if (confirm(hamdy_admin_ajax.strings.confirm_delete)) {
+        if (confirm(soob_admin_ajax.strings.confirm_delete)) {
             // Add loading state
             $row.addClass('deleting');
-            $button.prop('disabled', true).text(hamdy_admin_ajax.strings.loading);
+            $button.prop('disabled', true).text(soob_admin_ajax.strings.loading);
             
             // Send AJAX request
             $.ajax({
-                url: hamdy_admin_ajax.ajax_url,
+                url: soob_admin_ajax.ajax_url,
                 type: 'POST',
                 data: {
-                    action: 'hamdy_delete_booking',
+                    action: 'soob_delete_booking',
                     booking_id: bookingId,
-                    nonce: hamdy_admin_ajax.nonce
+                    nonce: soob_admin_ajax.nonce
                 },
                 success: function(response) {
                     if (response.success) {
@@ -211,22 +211,22 @@ jQuery(document).ready(function($) {
                             showNotice('success', response.data);
                             
                             // Check if table is empty
-                            if ($('.hamdy-bookings-table tbody tr').length === 0) {
-                                $('.hamdy-bookings-list').html('<p>' + 'No bookings found.' + '</p>');
+                            if ($('.soob-bookings-table tbody tr').length === 0) {
+                                $('.soob-bookings-list').html('<p>' + 'No bookings found.' + '</p>');
                             }
                         });
                     } else {
                         // Remove loading state and show error
                         $row.removeClass('deleting');
                         $button.prop('disabled', false).text('Delete');
-                        showNotice('error', response.data || hamdy_admin_ajax.strings.error);
+                        showNotice('error', response.data || soob_admin_ajax.strings.error);
                     }
                 },
                 error: function() {
                     // Remove loading state and show error
                     $row.removeClass('deleting');
                     $button.prop('disabled', false).text('Delete');
-                    showNotice('error', hamdy_admin_ajax.strings.error);
+                    showNotice('error', soob_admin_ajax.strings.error);
                 }
             });
         }
@@ -239,7 +239,7 @@ jQuery(document).ready(function($) {
     highlightExpiringBookings();
     
     function highlightExpiringBookings() {
-        $('.hamdy-bookings-table tr.expiring').each(function() {
+        $('.soob-bookings-table tr.expiring').each(function() {
             var $row = $(this);
             
             // Add a subtle animation to draw attention
@@ -252,36 +252,36 @@ jQuery(document).ready(function($) {
     // Enhanced search functionality for bookings
     $('#booking-search-input').on('keyup', function() {
         var value = $(this).val().toLowerCase();
-        $('.hamdy-bookings-table tbody tr').filter(function() {
+        $('.soob-bookings-table tbody tr').filter(function() {
             var text = $(this).text().toLowerCase();
             $(this).toggle(text.indexOf(value) > -1);
         });
     });
     
     // Bulk actions for bookings (future enhancement)
-    $('.hamdy-bookings-table #cb-select-all-1').on('change', function() {
+    $('.soob-bookings-table #cb-select-all-1').on('change', function() {
         var checked = $(this).prop('checked');
-        $('.hamdy-bookings-table tbody input[type="checkbox"]').prop('checked', checked);
+        $('.soob-bookings-table tbody input[type="checkbox"]').prop('checked', checked);
     });
     
     // Add confirmation dialog for critical actions
     function showConfirmDialog(title, message, onConfirm, onCancel) {
-        var $overlay = $('<div class="hamdy-dialog-overlay"></div>');
-        var $dialog = $('<div class="hamdy-confirm-dialog"></div>');
+        var $overlay = $('<div class="soob-dialog-overlay"></div>');
+        var $dialog = $('<div class="soob-confirm-dialog"></div>');
         
         $dialog.html(
             '<h3>' + title + '</h3>' +
             '<p>' + message + '</p>' +
             '<div class="button-group">' +
-                '<button class="button button-secondary hamdy-cancel-btn">Cancel</button>' +
-                '<button class="button button-primary hamdy-confirm-btn">Confirm</button>' +
+                '<button class="button button-secondary soob-cancel-btn">Cancel</button>' +
+                '<button class="button button-primary soob-confirm-btn">Confirm</button>' +
             '</div>'
         );
         
         $('body').append($overlay).append($dialog);
         
         // Handle confirm
-        $dialog.find('.hamdy-confirm-btn').on('click', function() {
+        $dialog.find('.soob-confirm-btn').on('click', function() {
             $overlay.remove();
             $dialog.remove();
             if (typeof onConfirm === 'function') {
@@ -290,7 +290,7 @@ jQuery(document).ready(function($) {
         });
         
         // Handle cancel
-        $dialog.find('.hamdy-cancel-btn, .hamdy-dialog-overlay').on('click', function() {
+        $dialog.find('.soob-cancel-btn, .soob-dialog-overlay').on('click', function() {
             $overlay.remove();
             $dialog.remove();
             if (typeof onCancel === 'function') {
@@ -299,11 +299,11 @@ jQuery(document).ready(function($) {
         });
         
         // Close on escape
-        $(document).on('keydown.hamdy-dialog', function(e) {
+        $(document).on('keydown.soob-dialog', function(e) {
             if (e.which === 27) {
                 $overlay.remove();
                 $dialog.remove();
-                $(document).off('keydown.hamdy-dialog');
+                $(document).off('keydown.soob-dialog');
                 if (typeof onCancel === 'function') {
                     onCancel();
                 }
@@ -312,7 +312,7 @@ jQuery(document).ready(function($) {
     }
     
     // Enhanced table row hover effects
-    $('.hamdy-bookings-table tbody tr').hover(
+    $('.soob-bookings-table tbody tr').hover(
         function() {
             $(this).addClass('hover-highlight');
         },
@@ -327,7 +327,7 @@ jQuery(document).ready(function($) {
     function startAutoRefresh() {
         autoRefreshInterval = setInterval(function() {
             // Only refresh if user is on bookings page and not interacting
-            if (window.location.href.indexOf('hamdy-bookings') > -1 &&
+            if (window.location.href.indexOf('soob-bookings') > -1 &&
                 !$('body').hasClass('user-interacting')) {
                 
                 // Subtle refresh without full page reload
@@ -356,7 +356,7 @@ jQuery(document).ready(function($) {
     });
     
     // Initialize auto-refresh if on bookings page
-    if (window.location.href.indexOf('hamdy-bookings') > -1) {
+    if (window.location.href.indexOf('soob-bookings') > -1) {
         startAutoRefresh();
     }
     
@@ -368,16 +368,16 @@ jQuery(document).ready(function($) {
     // Booking Editor Functionality
     
     // Add new session functionality
-    $(document).on('click', '#hamdy-add-session', function(e) {
+    $(document).on('click', '#soob-add-session', function(e) {
         e.preventDefault();
         
-        var $container = $('#hamdy-sessions-container');
-        var $template = $('#hamdy-session-template');
-        var sessionCount = $('.hamdy-session-row').length;
+        var $container = $('#soob-sessions-container');
+        var $template = $('#soob-session-template');
+        var sessionCount = $('.soob-session-row').length;
         var newIndex = sessionCount;
         
         // Remove "no sessions" message if it exists
-        $('.hamdy-no-sessions').remove();
+        $('.soob-no-sessions').remove();
         
         // Get template HTML and replace placeholder
         var templateHtml = $template.html();
@@ -394,18 +394,18 @@ jQuery(document).ready(function($) {
         $newSession.slideDown(300);
         
         // Focus on first field
-        $newSession.find('.hamdy-session-day').focus();
+        $newSession.find('.soob-session-day').focus();
     });
     
     // Remove session functionality
-    $(document).on('click', '.hamdy-remove-session', function(e) {
+    $(document).on('click', '.soob-remove-session', function(e) {
         e.preventDefault();
         
-        var $sessionRow = $(this).closest('.hamdy-session-row');
-        var $container = $('#hamdy-sessions-container');
+        var $sessionRow = $(this).closest('.soob-session-row');
+        var $container = $('#soob-sessions-container');
         
         // Add removing class for animation
-        $sessionRow.addClass('hamdy-session-removing');
+        $sessionRow.addClass('soob-session-removing');
         
         // Remove after animation
         setTimeout(function() {
@@ -415,15 +415,15 @@ jQuery(document).ready(function($) {
             reindexSessions();
             
             // Show "no sessions" message if no sessions left
-            if ($('.hamdy-session-row').length === 0) {
-                $container.append('<p class="hamdy-no-sessions">' + 'No sessions scheduled yet.' + '</p>');
+            if ($('.soob-session-row').length === 0) {
+                $container.append('<p class="soob-no-sessions">' + 'No sessions scheduled yet.' + '</p>');
             }
         }, 300);
     });
     
     // Re-index sessions after removal
     function reindexSessions() {
-        $('.hamdy-session-row').each(function(index) {
+        $('.soob-session-row').each(function(index) {
             var $row = $(this);
             $row.attr('data-index', index);
             
@@ -441,13 +441,13 @@ jQuery(document).ready(function($) {
     }
     
     // Form validation for booking editor
-    $('.hamdy-booking-edit-form').on('submit', function(e) {
+    $('.soob-booking-edit-form').on('submit', function(e) {
         var hasErrors = false;
         var $form = $(this);
         
         // Clear previous errors
-        $('.hamdy-field-error').removeClass('hamdy-field-error');
-        $('.hamdy-error-message').remove();
+        $('.soob-field-error').removeClass('soob-field-error');
+        $('.soob-error-message').remove();
         
         // Validate student name
         var $studentName = $('#student_name');
@@ -474,7 +474,7 @@ jQuery(document).ready(function($) {
             e.preventDefault();
             
             // Scroll to first error
-            var $firstError = $('.hamdy-field-error').first();
+            var $firstError = $('.soob-field-error').first();
             if ($firstError.length) {
                 $('html, body').animate({
                     scrollTop: $firstError.offset().top - 100
@@ -487,25 +487,25 @@ jQuery(document).ready(function($) {
     
     // Show field error
     function showFieldError($field, message) {
-        $field.addClass('hamdy-field-error');
-        $field.after('<span class="hamdy-error-message">' + message + '</span>');
+        $field.addClass('soob-field-error');
+        $field.after('<span class="soob-error-message">' + message + '</span>');
     }
     
     // Validate sessions
     function validateSessions() {
         var errors = [];
         
-        $('.hamdy-session-row').each(function(index) {
+        $('.soob-session-row').each(function(index) {
             var $row = $(this);
-            var day = $row.find('.hamdy-session-day').val();
-            var startTime = $row.find('.hamdy-session-start-time').val();
-            var endTime = $row.find('.hamdy-session-end-time').val();
+            var day = $row.find('.soob-session-day').val();
+            var startTime = $row.find('.soob-session-start-time').val();
+            var endTime = $row.find('.soob-session-end-time').val();
             
             if (!day || !startTime || !endTime) {
-                $row.find('select, input').addClass('hamdy-field-error');
+                $row.find('select, input').addClass('soob-field-error');
                 errors.push('Session ' + (index + 1) + ': All fields are required.');
             } else if (startTime >= endTime) {
-                $row.find('.hamdy-session-start-time, .hamdy-session-end-time').addClass('hamdy-field-error');
+                $row.find('.soob-session-start-time, .soob-session-end-time').addClass('soob-field-error');
                 errors.push('Session ' + (index + 1) + ': End time must be after start time.');
             }
         });
@@ -514,10 +514,10 @@ jQuery(document).ready(function($) {
     }
     
     // Real-time validation
-    $(document).on('blur', '.hamdy-editable-field', function() {
+    $(document).on('blur', '.soob-editable-field', function() {
         var $field = $(this);
-        $field.removeClass('hamdy-field-error');
-        $field.siblings('.hamdy-error-message').remove();
+        $field.removeClass('soob-field-error');
+        $field.siblings('.soob-error-message').remove();
         
         // Validate specific fields
         if ($field.attr('id') === 'student_name' && $field.val().trim() === '') {
@@ -531,24 +531,24 @@ jQuery(document).ready(function($) {
     });
     
     // Session time validation
-    $(document).on('change', '.hamdy-session-start-time, .hamdy-session-end-time', function() {
-        var $row = $(this).closest('.hamdy-session-row');
-        var startTime = $row.find('.hamdy-session-start-time').val();
-        var endTime = $row.find('.hamdy-session-end-time').val();
+    $(document).on('change', '.soob-session-start-time, .soob-session-end-time', function() {
+        var $row = $(this).closest('.soob-session-row');
+        var startTime = $row.find('.soob-session-start-time').val();
+        var endTime = $row.find('.soob-session-end-time').val();
         
         // Clear previous errors
-        $row.find('.hamdy-session-start-time, .hamdy-session-end-time').removeClass('hamdy-field-error');
-        $row.find('.hamdy-error-message').remove();
+        $row.find('.soob-session-start-time, .soob-session-end-time').removeClass('soob-field-error');
+        $row.find('.soob-error-message').remove();
         
         if (startTime && endTime && startTime >= endTime) {
-            $row.find('.hamdy-session-start-time, .hamdy-session-end-time').addClass('hamdy-field-error');
-            $row.find('.hamdy-session-end-time').after('<span class="hamdy-error-message">End time must be after start time.</span>');
+            $row.find('.soob-session-start-time, .soob-session-end-time').addClass('soob-field-error');
+            $row.find('.soob-session-end-time').after('<span class="soob-error-message">End time must be after start time.</span>');
         }
     });
     
     // Auto-save draft functionality (optional)
     var autoSaveTimer;
-    $(document).on('input change', '.hamdy-editable-field', function() {
+    $(document).on('input change', '.soob-editable-field', function() {
         clearTimeout(autoSaveTimer);
         autoSaveTimer = setTimeout(function() {
             // Could implement auto-save to localStorage here
@@ -559,40 +559,40 @@ jQuery(document).ready(function($) {
     // Keyboard shortcuts for booking editor
     $(document).on('keydown', function(e) {
         // Only on booking edit page
-        if (!$('.hamdy-edit-booking-page').length) return;
+        if (!$('.soob-edit-booking-page').length) return;
         
         // Ctrl/Cmd + S to save
         if ((e.ctrlKey || e.metaKey) && e.which === 83) {
             e.preventDefault();
-            $('.hamdy-booking-edit-form').submit();
+            $('.soob-booking-edit-form').submit();
         }
         
         // Ctrl/Cmd + N to add new session
         if ((e.ctrlKey || e.metaKey) && e.which === 78) {
             e.preventDefault();
-            $('#hamdy-add-session').click();
+            $('#soob-add-session').click();
         }
     });
     
     // Initialize booking editor if on edit page
-    if ($('.hamdy-edit-booking-page').length) {
+    if ($('.soob-edit-booking-page').length) {
         initializeBookingEditor();
     }
     
     function initializeBookingEditor() {
         // Focus on first editable field
-        $('.hamdy-editable-field').first().focus();
+        $('.soob-editable-field').first().focus();
         
         // Initialize date picker if available
         if ($.fn.datepicker) {
-            $('.hamdy-date-picker').datepicker({
+            $('.soob-date-picker').datepicker({
                 dateFormat: 'yy-mm-dd',
                 minDate: 0 // Don't allow past dates
             });
         }
         
         // Add tooltips to form fields
-        $('.hamdy-editable-field').each(function() {
+        $('.soob-editable-field').each(function() {
             var $field = $(this);
             var description = $field.siblings('.description').text();
             if (description) {
@@ -602,7 +602,7 @@ jQuery(document).ready(function($) {
         
         // Show confirmation before leaving with unsaved changes
         var formChanged = false;
-        $('.hamdy-editable-field').on('change', function() {
+        $('.soob-editable-field').on('change', function() {
             formChanged = true;
         });
         
@@ -613,7 +613,7 @@ jQuery(document).ready(function($) {
         });
         
         // Reset form changed flag on successful submit
-        $('.hamdy-booking-edit-form').on('submit', function() {
+        $('.soob-booking-edit-form').on('submit', function() {
             formChanged = false;
         });
     }

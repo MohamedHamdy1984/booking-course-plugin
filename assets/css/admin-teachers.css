@@ -1,31 +1,31 @@
 /* Admin Teachers Styles */
-.hamdy-teacher-form .form-table th {
+.soob-teacher-form .form-table th {
     width: 150px;
     vertical-align: top;
     padding-top: 15px;
 }
 
-.hamdy-availability-grid {
+.soob-availability-grid {
     border: 1px solid #ddd;
     border-radius: 4px;
     padding: 20px;
     background: #f9f9f9;
 }
 
-.hamdy-availability-days {
+.soob-availability-days {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 15px;
 }
 
-.hamdy-day-column {
+.soob-day-column {
     background: #fff;
     border: 1px solid #e1e1e1;
     border-radius: 4px;
     padding: 10px;
 }
 
-.hamdy-day-column h4 {
+.soob-day-column h4 {
     margin: 0 0 10px 0;
     text-align: center;
     font-size: 14px;
@@ -35,7 +35,7 @@
     padding-bottom: 8px;
 }
 
-.hamdy-time-slot {
+.soob-time-slot {
     display: block;
     margin-bottom: 5px;
     font-size: 12px;
@@ -45,20 +45,20 @@
     transition: background-color 0.2s ease;
 }
 
-.hamdy-time-slot:hover {
+.soob-time-slot:hover {
     background-color: #f0f0f0;
 }
 
-.hamdy-time-slot input[type="checkbox"] {
+.soob-time-slot input[type="checkbox"] {
     margin-right: 6px;
 }
 
-.hamdy-time-slot input[type="checkbox"]:checked + span {
+.soob-time-slot input[type="checkbox"]:checked + span {
     font-weight: 600;
     color: #0073aa;
 }
 
-.hamdy-empty-state {
+.soob-empty-state {
     text-align: center;
     padding: 60px 20px;
     background: #fff;
@@ -66,27 +66,27 @@
     border-radius: 4px;
 }
 
-.hamdy-empty-state h2 {
+.soob-empty-state h2 {
     color: #666;
     margin-bottom: 10px;
 }
 
-.hamdy-empty-state p {
+.soob-empty-state p {
     color: #999;
     margin-bottom: 20px;
 }
 
-.hamdy-current-photo img {
+.soob-current-photo img {
     border: 1px solid #ddd;
     border-radius: 4px;
 }
 
-.hamdy-avatar-placeholder {
+.soob-avatar-placeholder {
     color: #666;
     font-weight: 600;
 }
 
-.hamdy-status {
+.soob-status {
     padding: 4px 8px;
     border-radius: 3px;
     font-size: 12px;
@@ -94,31 +94,31 @@
     text-transform: uppercase;
 }
 
-.hamdy-status-active {
+.soob-status-active {
     background: #d4edda;
     color: #155724;
 }
 
-.hamdy-status-inactive {
+.soob-status-inactive {
     background: #f8d7da;
     color: #721c24;
 }
 
 /* Responsive design */
 @media (max-width: 1200px) {
-    .hamdy-availability-days {
+    .soob-availability-days {
         grid-template-columns: repeat(4, 1fr);
     }
 }
 
 @media (max-width: 768px) {
-    .hamdy-availability-days {
+    .soob-availability-days {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (max-width: 480px) {
-    .hamdy-availability-days {
+    .soob-availability-days {
         grid-template-columns: 1fr;
     }
 }

@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Hamdy_Checkout
+class SOOB_Checkout
 {
 
     public function __construct()
@@ -23,8 +23,8 @@ class Hamdy_Checkout
     private function init_hooks()
     {
         // AJAX handlers for checkout
-        add_action('wp_ajax_hamdy_get_checkout_slots', array($this, 'ajax_get_checkout_slots'));
-        add_action('wp_ajax_nopriv_hamdy_get_checkout_slots', array($this, 'ajax_get_checkout_slots'));
+        add_action('wp_ajax_soob_get_checkout_slots', array($this, 'ajax_get_checkout_slots'));
+        add_action('wp_ajax_nopriv_soob_get_checkout_slots', array($this, 'ajax_get_checkout_slots'));
 
         // Enqueue scripts and styles
         add_action('wp_enqueue_scripts', array($this, 'enqueue_checkout_scripts'));
@@ -37,19 +37,19 @@ class Hamdy_Checkout
     public function enqueue_checkout_scripts()
     {
         if (is_checkout()) {
-            wp_enqueue_script('hamdy-checkout', HAMDY_PLUGIN_URL . 'assets/js/checkout.js', array('jquery'), HAMDY_PLUGIN_VERSION, true);
-            wp_enqueue_style('hamdy-checkout', HAMDY_PLUGIN_URL . 'assets/css/checkout.css', array(), HAMDY_PLUGIN_VERSION);
+            wp_enqueue_script('soob-checkout', SOOB_PLUGIN_URL . 'assets/js/checkout.js', array('jquery'), SOOB_PLUGIN_VERSION, true);
+            wp_enqueue_style('soob-checkout', SOOB_PLUGIN_URL . 'assets/css/checkout.css', array(), SOOB_PLUGIN_VERSION);
 
-            wp_localize_script('hamdy-checkout', 'hamdy_checkout_ajax', array(
+            wp_localize_script('soob-checkout', 'soob_checkout_ajax', array(
                 'ajax_url' => admin_url('admin-ajax.php'),
-                'nonce' => wp_create_nonce('hamdy_nonce'),
+                'nonce' => wp_create_nonce('soob_nonce'),
                 'strings' => array(
-                    'loading' => __('Loading available slots...', 'hamdy-plugin'),
-                    'no_slots' => __('No available slots for this selection.', 'hamdy-plugin'),
-                    'select_category' => __('Please select a category first.', 'hamdy-plugin'),
-                    'select_timezone' => __('Please select your timezone first.', 'hamdy-plugin'),
-                    'select_slot' => __('Please select at least one time slot.', 'hamdy-plugin'),
-                    'error' => __('An error occurred. Please try again.', 'hamdy-plugin')
+                    'loading' => __('Loading available slots...', 'soob-plugin'),
+                    'no_slots' => __('No available slots for this selection.', 'soob-plugin'),
+                    'select_category' => __('Please select a category first.', 'soob-plugin'),
+                    'select_timezone' => __('Please select your timezone first.', 'soob-plugin'),
+                    'select_slot' => __('Please select at least one time slot.', 'soob-plugin'),
+                    'error' => __('An error occurred. Please try again.', 'soob-plugin')
                 )
             ));
         }
@@ -63,38 +63,38 @@ class Hamdy_Checkout
     public function ajax_get_checkout_slots()
     {
         try {
-            check_ajax_referer('hamdy_nonce', 'nonce');
+            check_ajax_referer('soob_nonce', 'nonce');
 
             $gender = sanitize_text_field($_POST['gender']);
             $timezone = sanitize_text_field($_POST['timezone']);
 
             if (empty($gender)) {
-                wp_send_json_error(array('message' => __('Please select your gender.', 'hamdy-plugin')));
+                wp_send_json_error(array('message' => __('Please select your gender.', 'soob-plugin')));
             }
             if (empty($timezone)) {
-                wp_send_json_error(array('message' => __('Please select a Time Zone.', 'hamdy-plugin')));
+                wp_send_json_error(array('message' => __('Please select a Time Zone.', 'soob-plugin')));
             }
 
             // Check if Teacher class exists
-            if (!class_exists('Hamdy_Teacher')) {
-                wp_send_json_error(array('message' => __('Teacher class not found.', 'hamdy-plugin')));
+            if (!class_exists('SOOB_Teacher')) {
+                wp_send_json_error(array('message' => __('Teacher class not found.', 'soob-plugin')));
             }
 
             // Get weekly recurring schedule (Sunday to Saturday)
             $days_data = array();
             $days_of_week = array(
-                'sunday' => __('Sunday', 'hamdy-plugin'),
-                'monday' => __('Monday', 'hamdy-plugin'),
-                'tuesday' => __('Tuesday', 'hamdy-plugin'),
-                'wednesday' => __('Wednesday', 'hamdy-plugin'),
-                'thursday' => __('Thursday', 'hamdy-plugin'),
-                'friday' => __('Friday', 'hamdy-plugin'),
-                'saturday' => __('Saturday', 'hamdy-plugin')
+                'sunday' => __('Sunday', 'soob-plugin'),
+                'monday' => __('Monday', 'soob-plugin'),
+                'tuesday' => __('Tuesday', 'soob-plugin'),
+                'wednesday' => __('Wednesday', 'soob-plugin'),
+                'thursday' => __('Thursday', 'soob-plugin'),
+                'friday' => __('Friday', 'soob-plugin'),
+                'saturday' => __('Saturday', 'soob-plugin')
             );
 
             foreach ($days_of_week as $day_key => $day_name) {
                 // Get available slots for this day
-                $available_slots = Hamdy_Teacher::get_available_slots($gender, $day_key);
+                $available_slots = SOOB_Teacher::get_available_slots($gender, $day_key);
 
                 // If no slots from database, show empty state
                 if (empty($available_slots)) {
@@ -103,7 +103,7 @@ class Hamdy_Checkout
                         'day_key' => $day_key,
                         'slots' => [],
                         'has_slots' => false,
-                        'message' => sprintf(__('No available time slots for %s', 'hamdy-plugin'), $day_name)
+                        'message' => sprintf(__('No available time slots for %s', 'soob-plugin'), $day_name)
                     );
                     continue;
                 }
@@ -183,35 +183,35 @@ class Hamdy_Checkout
     public function generate_time_slots_html($days_data)
     {
         if (empty($days_data)) {
-            return '<p class="hamdy-no-slots">' . __('No available time slots found.', 'hamdy-plugin') . '</p>';
+            return '<p class="soob-no-slots">' . __('No available time slots found.', 'soob-plugin') . '</p>';
         }
 
-        $html = '<div class="hamdy-time-slots-container">';
+        $html = '<div class="soob-time-slots-container">';
 
         // Days tabs (weekly recurring)
-        $html .= '<div class="hamdy-days-tabs">';
+        $html .= '<div class="soob-days-tabs">';
         foreach ($days_data as $index => $day) {
             $active_class = $index === 0 ? ' active' : '';
             $disabled_class = !$day['has_slots'] ? ' disabled' : '';
 
-            $html .= '<button type="button" class="hamdy-day-tab' . $active_class . $disabled_class . '" data-day="' . $day['day_key'] . '">';
+            $html .= '<button type="button" class="soob-day-tab' . $active_class . $disabled_class . '" data-day="' . $day['day_key'] . '">';
             $html .= '<span class="day-name">' . $day['day_name'] . '</span>';
             $html .= '</button>';
         }
         $html .= '</div>';
 
         // Time slots content
-        $html .= '<div class="hamdy-slots-content">';
+        $html .= '<div class="soob-slots-content">';
         foreach ($days_data as $index => $day) {
             $active_class = $index === 0 ? ' active' : '';
 
-            $html .= '<div class="hamdy-day-slots' . $active_class . '" data-day="' . $day['day_key'] . '">';
+            $html .= '<div class="soob-day-slots' . $active_class . '" data-day="' . $day['day_key'] . '">';
 
             if ($day['has_slots']) {
-                $html .= '<div class="hamdy-slots-grid">';
+                $html .= '<div class="soob-slots-grid">';
                 foreach ($day['slots'] as $slot) {
-                    $html .= '<label class="hamdy-slot-option">';
-                    $html .= '<input type="checkbox" name="hamdy_time_slots[]" value="' . esc_attr(json_encode(array(
+                    $html .= '<label class="soob-slot-option">';
+                    $html .= '<input type="checkbox" name="soob_time_slots[]" value="' . esc_attr(json_encode(array(
                         'day' => $day['day_name'],
                         'day_key' => $day['day_key'],
                         'time' => $slot['original'],
@@ -223,7 +223,7 @@ class Hamdy_Checkout
                 }
                 $html .= '</div>';
             } else {
-                $html .= '<p class="hamdy-no-slots">' . __('No available slots for this day.', 'hamdy-plugin') . '</p>';
+                $html .= '<p class="soob-no-slots">' . __('No available slots for this day.', 'soob-plugin') . '</p>';
             }
 
             $html .= '</div>';

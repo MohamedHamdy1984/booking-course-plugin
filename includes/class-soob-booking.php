@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Hamdy_Booking {
+class SOOB_Booking {
     
     /**
      * Create new booking
@@ -16,7 +16,7 @@ class Hamdy_Booking {
     public static function create($data) {
         global $wpdb;
         
-        $table = $wpdb->prefix . 'hamdy_bookings';
+        $table = $wpdb->prefix . 'soob_bookings';
         
         $result = $wpdb->insert(
             $table,
@@ -29,8 +29,8 @@ class Hamdy_Booking {
                 'customer_age' => intval($data['customer_age']),
                 'selected_slots' => wp_json_encode($data['selected_slots']),
                 'booking_date' => sanitize_text_field($data['booking_date']),
-                'booking_time' => sanitize_text_field($data['booking_time']),
-                'renewal_date' => isset($data['renewal_date']) ? sanitize_text_field($data['renewal_date']) : null,
+                'purchase_at' => sanitize_text_field($data['purchase_at']),
+                'next_renewal_date' => isset($data['next_renewal_date']) ? sanitize_text_field($data['next_renewal_date']) : null,
                 'status' => sanitize_text_field($data['status']),
                 'notes' => sanitize_textarea_field($data['notes'])
             ),
@@ -46,7 +46,7 @@ class Hamdy_Booking {
     public static function get_by_order_id($order_id) {
         global $wpdb;
         
-        $table = $wpdb->prefix . 'hamdy_bookings';
+        $table = $wpdb->prefix . 'soob_bookings';
         return $wpdb->get_row($wpdb->prepare("SELECT * FROM $table WHERE order_id = %d", $order_id));
     }
     
@@ -56,7 +56,7 @@ class Hamdy_Booking {
     public static function get_by_id($id) {
         global $wpdb;
         
-        $table = $wpdb->prefix . 'hamdy_bookings';
+        $table = $wpdb->prefix . 'soob_bookings';
         return $wpdb->get_row($wpdb->prepare("SELECT * FROM $table WHERE id = %d", $id));
     }
     
@@ -66,7 +66,7 @@ class Hamdy_Booking {
     public static function update($id, $data) {
         global $wpdb;
         
-        $table = $wpdb->prefix . 'hamdy_bookings';
+        $table = $wpdb->prefix . 'soob_bookings';
         
         $update_data = array();
         $update_format = array();
@@ -91,13 +91,13 @@ class Hamdy_Booking {
             $update_format[] = '%s';
         }
         
-        if (isset($data['booking_time'])) {
-            $update_data['booking_time'] = sanitize_text_field($data['booking_time']);
+        if (isset($data['purchase_at'])) {
+            $update_data['purchase_at'] = sanitize_text_field($data['purchase_at']);
             $update_format[] = '%s';
         }
         
-        if (isset($data['renewal_date'])) {
-            $update_data['renewal_date'] = sanitize_text_field($data['renewal_date']);
+        if (isset($data['next_renewal_date'])) {
+            $update_data['next_renewal_date'] = sanitize_text_field($data['next_renewal_date']);
             $update_format[] = '%s';
         }
         
@@ -131,7 +131,7 @@ class Hamdy_Booking {
     public static function get_all($filters = array()) {
         global $wpdb;
         
-        $table = $wpdb->prefix . 'hamdy_bookings';
+        $table = $wpdb->prefix . 'soob_bookings';
         $where_conditions = array();
         $where_values = array();
         
@@ -161,7 +161,7 @@ class Hamdy_Booking {
         }
         
         if (!empty($filters['expiring_soon'])) {
-            $where_conditions[] = "renewal_date IS NOT NULL AND renewal_date <= DATE_ADD(CURDATE(), INTERVAL 5 DAY) AND renewal_date >= CURDATE()";
+            $where_conditions[] = "next_renewal_date IS NOT NULL AND next_renewal_date <= DATE_ADD(CURDATE(), INTERVAL 5 DAY) AND next_renewal_date >= CURDATE()";
         }
         
         // Build the query
@@ -171,7 +171,7 @@ class Hamdy_Booking {
             $query .= ' WHERE ' . implode(' AND ', $where_conditions);
         }
         
-        $query .= ' ORDER BY booking_date DESC, booking_time DESC';
+        $query .= ' ORDER BY booking_date DESC, purchase_at DESC';
         
         // Prepare query if we have values to bind
         if (!empty($where_values)) {
@@ -179,8 +179,8 @@ class Hamdy_Booking {
         }
         
         // Debug: Log the query for troubleshooting
-        error_log('Hamdy Booking Query: ' . $query);
-        error_log('Hamdy Booking Filters: ' . print_r($filters, true));
+        error_log('Soob Booking Query: ' . $query);
+        error_log('Soob Booking Filters: ' . print_r($filters, true));
         
         return $wpdb->get_results($query);
     }
@@ -191,7 +191,7 @@ class Hamdy_Booking {
     public static function delete($id) {
         global $wpdb;
         
-        $table = $wpdb->prefix . 'hamdy_bookings';
+        $table = $wpdb->prefix . 'soob_bookings';
         return $wpdb->delete($table, array('id' => $id), array('%d'));
     }
 }

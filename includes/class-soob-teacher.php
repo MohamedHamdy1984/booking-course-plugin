@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Hamdy_Teacher {
+class SOOB_Teacher {
     
     /**
      * Get all teachers
@@ -16,7 +16,7 @@ class Hamdy_Teacher {
     public static function get_all($status = 'active') {
         global $wpdb;
         
-        $table = $wpdb->prefix . 'hamdy_teachers';
+        $table = $wpdb->prefix . 'soob_teachers';
         $where = $status ? $wpdb->prepare("WHERE status = %s", $status) : '';
         
         return $wpdb->get_results("SELECT * FROM $table $where ORDER BY name ASC");
@@ -28,7 +28,7 @@ class Hamdy_Teacher {
     public static function get_by_id($id) {
         global $wpdb;
         
-        $table = $wpdb->prefix . 'hamdy_teachers';
+        $table = $wpdb->prefix . 'soob_teachers';
         return $wpdb->get_row($wpdb->prepare("SELECT * FROM $table WHERE id = %d", $id));
     }
     
@@ -38,7 +38,7 @@ class Hamdy_Teacher {
     public static function create($data) {
         global $wpdb;
         
-        $table = $wpdb->prefix . 'hamdy_teachers';
+        $table = $wpdb->prefix . 'soob_teachers';
         
         $result = $wpdb->insert(
             $table,
@@ -61,7 +61,7 @@ class Hamdy_Teacher {
     public static function update($id, $data) {
         global $wpdb;
         
-        $table = $wpdb->prefix . 'hamdy_teachers';
+        $table = $wpdb->prefix . 'soob_teachers';
         
         return $wpdb->update(
             $table,
@@ -84,7 +84,7 @@ class Hamdy_Teacher {
     public static function delete($id) {
         global $wpdb;
         
-        $table = $wpdb->prefix . 'hamdy_teachers';
+        $table = $wpdb->prefix . 'soob_teachers';
         return $wpdb->delete($table, array('id' => $id), array('%d'));
     }
     
@@ -94,7 +94,7 @@ class Hamdy_Teacher {
     public static function get_available_slots($customer_gender, $day_of_week) {
         global $wpdb;
         
-        $table = $wpdb->prefix . 'hamdy_teachers';
+        $table = $wpdb->prefix . 'soob_teachers';
         $teachers = $wpdb->get_results($wpdb->prepare(
             "SELECT availability FROM $table WHERE status = 'active' AND gender = %s",
             $customer_gender

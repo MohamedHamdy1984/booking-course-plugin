@@ -1,20 +1,20 @@
-# Hamdy Plugin - Booking Categories Simplification Summary
+# Soob Plugin - Booking Categories Simplification Summary
 
 ## Overview
-This document summarizes all changes made to simplify the booking categories system and improve the schedule UI for the Hamdy Plugin.
+This document summarizes all changes made to simplify the booking categories system and improve the schedule UI for the Soob Plugin.
 
 ## Key Changes Implemented
 
 ### 1. Database Structure Updates
-**File:** `includes/class-hamdy-database.php`
+**File:** `includes/class-soob-database.php`
 - **Removed:** `age_group` field from teachers table
 - **Changed:** Gender enum values from `'man','woman','child'` to `'male','female'`
 - **Updated:** Bookings table to use separate `customer_gender` and `customer_age` fields instead of combined `gender_age_group`
 
 ### 2. Teacher Management Simplification
 **Files:** 
-- `includes/class-hamdy-teacher.php`
-- `admin/class-hamdy-admin-teachers.php`
+- `includes/class-soob-teacher.php`
+- `admin/class-soob-admin-teachers.php`
 
 **Changes:**
 - Removed age group functionality from teacher management
@@ -24,8 +24,8 @@ This document summarizes all changes made to simplify the booking categories sys
 
 ### 3. Checkout Form Enhancement
 **Files:**
-- `includes/class-hamdy-woocommerce.php`
-- `public/class-hamdy-checkout.php`
+- `includes/class-soob-woocommerce.php`
+- `public/class-soob-checkout.php`
 - `assets/js/checkout.js`
 
 **Changes:**
@@ -36,7 +36,7 @@ This document summarizes all changes made to simplify the booking categories sys
 
 ### 4. Admin Schedule View Improvements
 **Files:**
-- `admin/class-hamdy-admin-schedule.php`
+- `admin/class-soob-admin-schedule.php`
 - `assets/css/admin-schedule.css`
 
 **Changes:**
@@ -47,8 +47,8 @@ This document summarizes all changes made to simplify the booking categories sys
 
 ### 5. Booking System Updates
 **Files:**
-- `includes/class-hamdy-booking.php`
-- `admin/class-hamdy-admin.php`
+- `includes/class-soob-booking.php`
+- `admin/class-soob-admin.php`
 
 **Changes:**
 - Updated to use new database field names (`customer_gender`, `customer_age`)
@@ -87,18 +87,18 @@ This document summarizes all changes made to simplify the booking categories sys
 ## Files Modified
 
 ### Core Plugin Files
-1. `includes/class-hamdy-database.php` - Database schema updates
-2. `includes/class-hamdy-teacher.php` - Teacher model simplification
-3. `includes/class-hamdy-booking.php` - Booking system updates
-4. `includes/class-hamdy-woocommerce.php` - WooCommerce integration updates
+1. `includes/class-soob-database.php` - Database schema updates
+2. `includes/class-soob-teacher.php` - Teacher model simplification
+3. `includes/class-soob-booking.php` - Booking system updates
+4. `includes/class-soob-woocommerce.php` - WooCommerce integration updates
 
 ### Admin Interface Files
-5. `admin/class-hamdy-admin.php` - Admin dashboard updates
-6. `admin/class-hamdy-admin-teachers.php` - Teacher management updates
-7. `admin/class-hamdy-admin-schedule.php` - Schedule view improvements
+5. `admin/class-soob-admin.php` - Admin dashboard updates
+6. `admin/class-soob-admin-teachers.php` - Teacher management updates
+7. `admin/class-soob-admin-schedule.php` - Schedule view improvements
 
 ### Frontend Files
-8. `public/class-hamdy-checkout.php` - Checkout functionality updates
+8. `public/class-soob-checkout.php` - Checkout functionality updates
 
 ### Asset Files
 9. `assets/js/admin.js` - General admin JavaScript

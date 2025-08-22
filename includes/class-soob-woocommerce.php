@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 
 
 
-class Hamdy_WooCommerce
+class SOOB_WooCommerce
 {
 
     public function __construct()
@@ -56,11 +56,11 @@ class Hamdy_WooCommerce
         echo '<div class="options_group">';
 
         woocommerce_wp_checkbox(array(
-            'id' => '_hamdy_bookable',
-            'label' => __('Enable Booking', 'hamdy-plugin'),
-            'description' => __('Check this box to enable booking fields on checkout for this product.', 'hamdy-plugin'),
+            'id' => '_soob_bookable',
+            'label' => __('Enable Booking', 'soob-plugin'),
+            'description' => __('Check this box to enable booking fields on checkout for this product.', 'soob-plugin'),
             'desc_tip' => true,
-            'value' => get_post_meta($post->ID, '_hamdy_bookable', true)
+            'value' => get_post_meta($post->ID, '_soob_bookable', true)
         ));
 
         echo '</div>';
@@ -71,8 +71,8 @@ class Hamdy_WooCommerce
      */
     public function save_product_booking_field($post_id)
     {
-        $bookable = isset($_POST['_hamdy_bookable']) ? 'yes' : 'no';
-        update_post_meta($post_id, '_hamdy_bookable', $bookable);
+        $bookable = isset($_POST['_soob_bookable']) ? 'yes' : 'no';
+        update_post_meta($post_id, '_soob_bookable', $bookable);
     }
 
     /**
@@ -85,46 +85,46 @@ class Hamdy_WooCommerce
             return;
         }
 
-        echo '<div id="hamdy_booking_fields"><h3>' . __('Booking Details', 'hamdy-plugin') . '</h3>';
+        echo '<div id="soob_booking_fields"><h3>' . __('Booking Details', 'soob-plugin') . '</h3>';
 
         // Timezone field
-        woocommerce_form_field('hamdy_timezone', array(
+        woocommerce_form_field('soob_timezone', array(
             'type' => 'select',
-            'class' => array('hamdy-field-wide'),
-            'label' => __('Select your timezone', 'hamdy-plugin'),
+            'class' => array('soob-field-wide'),
+            'label' => __('Select your timezone', 'soob-plugin'),
             'required' => true,
             'options' => $this->get_timezone_options()
-        ), $checkout->get_value('hamdy_timezone'));
+        ), $checkout->get_value('soob_timezone'));
 
         // Gender field
-        woocommerce_form_field('hamdy_gender', array(
+        woocommerce_form_field('soob_gender', array(
             'type' => 'select',
-            'class' => array('hamdy-field-wide'),
-            'label' => __('Select your gender', 'hamdy-plugin'),
+            'class' => array('soob-field-wide'),
+            'label' => __('Select your gender', 'soob-plugin'),
             'required' => true,
             'options' => array(
-                '' => __('Choose an option', 'hamdy-plugin'),
-                'male' => __('Male', 'hamdy-plugin'),
-                'female' => __('Female', 'hamdy-plugin')
+                '' => __('Choose an option', 'soob-plugin'),
+                'male' => __('Male', 'soob-plugin'),
+                'female' => __('Female', 'soob-plugin')
             )
-        ), $checkout->get_value('hamdy_gender'));
+        ), $checkout->get_value('soob_gender'));
 
         // Age field
-        woocommerce_form_field('hamdy_age', array(
+        woocommerce_form_field('soob_age', array(
             'type' => 'number',
-            'class' => array('hamdy-field-wide'),
-            'label' => __('Your age', 'hamdy-plugin'),
+            'class' => array('soob-field-wide'),
+            'label' => __('Your age', 'soob-plugin'),
             'required' => true,
             'custom_attributes' => array(
                 'min' => 1,
                 'max' => 120
             )
-        ), $checkout->get_value('hamdy_age'));
+        ), $checkout->get_value('soob_age'));
 
         // Time slots container
-        echo '<div id="hamdy_time_slots_container">';
-        echo '<label>' . __('Select available time slots', 'hamdy-plugin') . ' <abbr class="required" title="required">*</abbr></label>';
-        echo '<div id="hamdy_time_slots_wrapper"></div>';
+        echo '<div id="soob_time_slots_container">';
+        echo '<label>' . __('Select available time slots', 'soob-plugin') . ' <abbr class="required" title="required">*</abbr></label>';
+        echo '<div id="soob_time_slots_wrapper"></div>';
         echo '</div>';
 
         echo '</div>';
@@ -139,20 +139,20 @@ class Hamdy_WooCommerce
             return;
         }
 
-        if (empty($_POST['hamdy_timezone'])) {
-            wc_add_notice(__('Please select your timezone.', 'hamdy-plugin'), 'error');
+        if (empty($_POST['soob_timezone'])) {
+            wc_add_notice(__('Please select your timezone.', 'soob-plugin'), 'error');
         }
 
-        if (empty($_POST['hamdy_gender'])) {
-            wc_add_notice(__('Please select your gender.', 'hamdy-plugin'), 'error');
+        if (empty($_POST['soob_gender'])) {
+            wc_add_notice(__('Please select your gender.', 'soob-plugin'), 'error');
         }
 
-        if (empty($_POST['hamdy_age']) || !is_numeric($_POST['hamdy_age']) || $_POST['hamdy_age'] < 1 || $_POST['hamdy_age'] > 120) {
-            wc_add_notice(__('Please enter a valid age (1-120).', 'hamdy-plugin'), 'error');
+        if (empty($_POST['soob_age']) || !is_numeric($_POST['soob_age']) || $_POST['soob_age'] < 1 || $_POST['soob_age'] > 120) {
+            wc_add_notice(__('Please enter a valid age (1-120).', 'soob-plugin'), 'error');
         }
 
-        if (empty($_POST['hamdy_selected_slots'])) {
-            wc_add_notice(__('Please select at least one time slot.', 'hamdy-plugin'), 'error');
+        if (empty($_POST['soob_selected_slots'])) {
+            wc_add_notice(__('Please select at least one time slot.', 'soob-plugin'), 'error');
         }
     }
 
@@ -165,38 +165,38 @@ class Hamdy_WooCommerce
             return;
         }
 
-        if (!empty($_POST['hamdy_timezone'])) {
-            update_post_meta($order_id, '_hamdy_timezone', sanitize_text_field($_POST['hamdy_timezone']));
+        if (!empty($_POST['soob_timezone'])) {
+            update_post_meta($order_id, '_soob_timezone', sanitize_text_field($_POST['soob_timezone']));
         }
 
-        if (!empty($_POST['hamdy_gender'])) {
-            update_post_meta($order_id, '_hamdy_gender', sanitize_text_field($_POST['hamdy_gender']));
+        if (!empty($_POST['soob_gender'])) {
+            update_post_meta($order_id, '_soob_gender', sanitize_text_field($_POST['soob_gender']));
         }
 
-        if (!empty($_POST['hamdy_age'])) {
-            update_post_meta($order_id, '_hamdy_age', intval($_POST['hamdy_age']));
+        if (!empty($_POST['soob_age'])) {
+            update_post_meta($order_id, '_soob_age', intval($_POST['soob_age']));
         }
 
-        if (!empty($_POST['hamdy_selected_slots'])) {
-            $selected_slots = json_decode(stripslashes($_POST['hamdy_selected_slots']), true);
-            update_post_meta($order_id, '_hamdy_selected_slots', $selected_slots);
+        if (!empty($_POST['soob_selected_slots'])) {
+            $selected_slots = json_decode(stripslashes($_POST['soob_selected_slots']), true);
+            update_post_meta($order_id, '_soob_selected_slots', $selected_slots);
 
             // Create booking record
             $order = wc_get_order($order_id);
             $booking_data = array(
                 'order_id' => $order_id,
                 'customer_id' => $order->get_customer_id(),
-                'timezone' => sanitize_text_field($_POST['hamdy_timezone']),
-                'customer_gender' => sanitize_text_field($_POST['hamdy_gender']),
-                'customer_age' => intval($_POST['hamdy_age']),
+                'timezone' => sanitize_text_field($_POST['soob_timezone']),
+                'customer_gender' => sanitize_text_field($_POST['soob_gender']),
+                'customer_age' => intval($_POST['soob_age']),
                 'selected_slots' => $selected_slots,
                 'booking_date' => current_time('Y-m-d'),
-                'booking_time' => current_time('H:i:s'),
+                'purchase_at' => current_time('H:i:s'),
                 'status' => 'pending',
                 'notes' => ''
             );
 
-            Hamdy_Booking::create($booking_data);
+            SOOB_Booking::create($booking_data);
         }
     }
 
@@ -205,28 +205,28 @@ class Hamdy_WooCommerce
      */
     public function display_admin_order_meta($order)
     {
-        $timezone = get_post_meta($order->get_id(), '_hamdy_timezone', true);
-        $gender = get_post_meta($order->get_id(), '_hamdy_gender', true);
-        $age = get_post_meta($order->get_id(), '_hamdy_age', true);
-        $selected_slots = get_post_meta($order->get_id(), '_hamdy_selected_slots', true);
+        $timezone = get_post_meta($order->get_id(), '_soob_timezone', true);
+        $gender = get_post_meta($order->get_id(), '_soob_gender', true);
+        $age = get_post_meta($order->get_id(), '_soob_age', true);
+        $selected_slots = get_post_meta($order->get_id(), '_soob_selected_slots', true);
 
         if ($timezone || $gender || $age || $selected_slots) {
-            echo '<h3>' . __('Booking Details', 'hamdy-plugin') . '</h3>';
+            echo '<h3>' . __('Booking Details', 'soob-plugin') . '</h3>';
 
             if ($timezone) {
-                echo '<p><strong>' . __('Timezone:', 'hamdy-plugin') . '</strong> ' . esc_html($timezone) . '</p>';
+                echo '<p><strong>' . __('Timezone:', 'soob-plugin') . '</strong> ' . esc_html($timezone) . '</p>';
             }
 
             if ($gender) {
-                echo '<p><strong>' . __('Gender:', 'hamdy-plugin') . '</strong> ' . esc_html(ucfirst($gender)) . '</p>';
+                echo '<p><strong>' . __('Gender:', 'soob-plugin') . '</strong> ' . esc_html(ucfirst($gender)) . '</p>';
             }
 
             if ($age) {
-                echo '<p><strong>' . __('Age:', 'hamdy-plugin') . '</strong> ' . esc_html($age) . '</p>';
+                echo '<p><strong>' . __('Age:', 'soob-plugin') . '</strong> ' . esc_html($age) . '</p>';
             }
 
             if ($selected_slots) {
-                echo '<p><strong>' . __('Selected Time Slots:', 'hamdy-plugin') . '</strong></p>';
+                echo '<p><strong>' . __('Selected Time Slots:', 'soob-plugin') . '</strong></p>';
                 echo '<ul>';
                 foreach ($selected_slots as $slot) {
                     echo '<li>' . esc_html($slot['day'] . ' - ' . $slot['time']) . '</li>';
@@ -241,30 +241,30 @@ class Hamdy_WooCommerce
      */
     public function add_order_meta_to_email($order, $sent_to_admin, $plain_text)
     {
-        $timezone = get_post_meta($order->get_id(), '_hamdy_timezone', true);
-        $gender = get_post_meta($order->get_id(), '_hamdy_gender', true);
-        $age = get_post_meta($order->get_id(), '_hamdy_age', true);
-        $selected_slots = get_post_meta($order->get_id(), '_hamdy_selected_slots', true);
+        $timezone = get_post_meta($order->get_id(), '_soob_timezone', true);
+        $gender = get_post_meta($order->get_id(), '_soob_gender', true);
+        $age = get_post_meta($order->get_id(), '_soob_age', true);
+        $selected_slots = get_post_meta($order->get_id(), '_soob_selected_slots', true);
 
         if ($timezone || $gender || $age || $selected_slots) {
             if ($plain_text) {
-                echo "\n" . __('Booking Details:', 'hamdy-plugin') . "\n";
-                if ($timezone) echo __('Timezone:', 'hamdy-plugin') . ' ' . $timezone . "\n";
-                if ($gender) echo __('Gender:', 'hamdy-plugin') . ' ' . ucfirst($gender) . "\n";
-                if ($age) echo __('Age:', 'hamdy-plugin') . ' ' . $age . "\n";
+                echo "\n" . __('Booking Details:', 'soob-plugin') . "\n";
+                if ($timezone) echo __('Timezone:', 'soob-plugin') . ' ' . $timezone . "\n";
+                if ($gender) echo __('Gender:', 'soob-plugin') . ' ' . ucfirst($gender) . "\n";
+                if ($age) echo __('Age:', 'soob-plugin') . ' ' . $age . "\n";
                 if ($selected_slots) {
-                    echo __('Selected Time Slots:', 'hamdy-plugin') . "\n";
+                    echo __('Selected Time Slots:', 'soob-plugin') . "\n";
                     foreach ($selected_slots as $slot) {
                         echo '- ' . $slot['day'] . ' - ' . $slot['time'] . "\n";
                     }
                 }
             } else {
-                echo '<h3>' . __('Booking Details', 'hamdy-plugin') . '</h3>';
-                if ($timezone) echo '<p><strong>' . __('Timezone:', 'hamdy-plugin') . '</strong> ' . esc_html($timezone) . '</p>';
-                if ($gender) echo '<p><strong>' . __('Gender:', 'hamdy-plugin') . '</strong> ' . esc_html(ucfirst($gender)) . '</p>';
-                if ($age) echo '<p><strong>' . __('Age:', 'hamdy-plugin') . '</strong> ' . esc_html($age) . '</p>';
+                echo '<h3>' . __('Booking Details', 'soob-plugin') . '</h3>';
+                if ($timezone) echo '<p><strong>' . __('Timezone:', 'soob-plugin') . '</strong> ' . esc_html($timezone) . '</p>';
+                if ($gender) echo '<p><strong>' . __('Gender:', 'soob-plugin') . '</strong> ' . esc_html(ucfirst($gender)) . '</p>';
+                if ($age) echo '<p><strong>' . __('Age:', 'soob-plugin') . '</strong> ' . esc_html($age) . '</p>';
                 if ($selected_slots) {
-                    echo '<p><strong>' . __('Selected Time Slots:', 'hamdy-plugin') . '</strong></p>';
+                    echo '<p><strong>' . __('Selected Time Slots:', 'soob-plugin') . '</strong></p>';
                     echo '<ul>';
                     foreach ($selected_slots as $slot) {
                         echo '<li>' . esc_html($slot['day'] . ' - ' . $slot['time']) . '</li>';
@@ -286,7 +286,7 @@ class Hamdy_WooCommerce
 
         foreach (WC()->cart->get_cart() as $cart_item) {
             $product = $cart_item['data'];
-            if (get_post_meta($product->get_id(), '_hamdy_bookable', true) === 'yes') {
+            if (get_post_meta($product->get_id(), '_soob_bookable', true) === 'yes') {
                 return true;
             }
         }
@@ -370,13 +370,13 @@ class Hamdy_WooCommerce
         
         // Create final sorted array
         $sorted_timezones = array(
-            '' => __('Select timezone', 'hamdy-plugin')
+            '' => __('Select timezone', 'soob-plugin')
         );
         
         foreach ($timezone_offsets as $timezone_id => $offset) {
             $sorted_timezones[$timezone_id] = $timezones_with_offset[$timezone_id];
         }
 
-        return apply_filters('hamdy_timezone_options', $sorted_timezones);
+        return apply_filters('soob_timezone_options', $sorted_timezones);
     }
 }

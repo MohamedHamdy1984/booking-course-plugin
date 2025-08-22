@@ -12,14 +12,14 @@ jQuery(document).ready(function($) {
         var audience = $(this).data('audience');
         
         // Get selected timezone
-        var timezone = $('#hamdy_display_timezone').val() || 'UTC';
+        var timezone = $('#soob_display_timezone').val() || 'UTC';
         
         // Load schedule for this audience
         loadScheduleForAudience(audience, timezone);
     });
     
     // Handle timezone change
-    $('#hamdy_display_timezone').on('change', function() {
+    $('#soob_display_timezone').on('change', function() {
         var timezone = $(this).val();
         var activeTab = $('.nav-tab-active');
         
@@ -34,7 +34,7 @@ jQuery(document).ready(function($) {
     if (firstTab.length) {
         firstTab.addClass('nav-tab-active');
         var audience = firstTab.data('audience');
-        var timezone = $('#hamdy_display_timezone').val() || 'UTC';
+        var timezone = $('#soob_display_timezone').val() || 'UTC';
         loadScheduleForAudience(audience, timezone);
     }
     
@@ -43,13 +43,13 @@ jQuery(document).ready(function($) {
         $('#schedule-content').html('<div class="loading">Loading schedule...</div>');
         
         $.ajax({
-            url: hamdy_admin_ajax.ajax_url,
+            url: soob_admin_ajax.ajax_url,
             type: 'POST',
             data: {
-                action: 'hamdy_load_schedule',
+                action: 'soob_load_schedule',
                 audience: audience,
                 timezone: timezone,
-                nonce: hamdy_admin_ajax.nonce
+                nonce: soob_admin_ajax.nonce
             },
             success: function(response) {
                 if (response.success) {

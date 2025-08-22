@@ -1,4 +1,4 @@
-# Hamdy Plugin - WordPress Booking System
+# Soob Plugin - WordPress Booking System
 
 A simple one-to-one booking system integrated with WooCommerce for live course sessions.
 
@@ -18,20 +18,20 @@ This WordPress plugin allows customers to purchase 1-on-1 live courses as WooCom
 ## File Structure
 
 ```
-hamdy-plugin/
-├── hamdy-plugin.php          # Main plugin file
+soob-plugin/
+├── soob-plugin.php          # Main plugin file
 ├── includes/                 # Core functionality
-│   ├── class-hamdy-database.php
-│   ├── class-hamdy-teacher.php
-│   ├── class-hamdy-booking.php
-│   └── class-hamdy-woocommerce.php
+│   ├── class-soob-database.php
+│   ├── class-soob-teacher.php
+│   ├── class-soob-booking.php
+│   └── class-soob-woocommerce.php
 ├── admin/                    # Admin functionality
-│   ├── class-hamdy-admin.php
-│   ├── class-hamdy-admin-teachers.php
-│   └── class-hamdy-admin-schedule.php
+│   ├── class-soob-admin.php
+│   ├── class-soob-admin-teachers.php
+│   └── class-soob-admin-schedule.php
 ├── public/                   # Public functionality
-│   ├── class-hamdy-public.php
-│   └── class-hamdy-checkout.php
+│   ├── class-soob-public.php
+│   └── class-soob-checkout.php
 ├── assets/                   # CSS and JS files
 │   ├── css/
 │   │   ├── admin.css
@@ -91,27 +91,27 @@ hamdy-plugin/
 
 ## Database Tables
 
-### wp_hamdy_teachers
+### wp_soob_teachers
 - Teacher information and availability schedules
 - JSON-encoded availability data by day of week
 
-### wp_hamdy_bookings
+### wp_soob_bookings
 - Booking records linked to WooCommerce orders
 - Customer preferences and selected time slots
 
 ## Hooks and Filters
 
 ### Actions
-- `hamdy_booking_created` - Fired when a new booking is created
-- `hamdy_teacher_updated` - Fired when teacher data is updated
+- `soob_booking_created` - Fired when a new booking is created
+- `soob_teacher_updated` - Fired when teacher data is updated
 
 ### Filters
-- `hamdy_timezone_options` - Modify available timezone options
-- `hamdy_available_slots` - Filter available time slots
+- `soob_timezone_options` - Modify available timezone options
+- `soob_available_slots` - Filter available time slots
 
 ## Shortcodes
 
-### [hamdy_booking_button]
+### [soob_booking_button]
 Display a booking button for a specific product.
 
 **Attributes:**
@@ -121,10 +121,10 @@ Display a booking button for a specific product.
 
 **Example:**
 ```
-[hamdy_booking_button product_id="123" text="Book Your Session" class="custom-button"]
+[soob_booking_button product_id="123" text="Book Your Session" class="custom-button"]
 ```
 
-### [hamdy_time_slots]
+### [soob_time_slots]
 Display available time slots for a specific date and category.
 
 **Attributes:**
@@ -133,7 +133,7 @@ Display available time slots for a specific date and category.
 
 **Example:**
 ```
-[hamdy_time_slots gender_age_group="man" date="2024-01-15"]
+[soob_time_slots gender_age_group="man" date="2024-01-15"]
 ```
 
 ## Customization

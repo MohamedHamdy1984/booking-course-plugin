@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Hamdy_Database {
+class SOOB_Database {
     
     /**
      * Create plugin database tables
@@ -19,7 +19,7 @@ class Hamdy_Database {
         $charset_collate = $wpdb->get_charset_collate();
         
         // Teachers table
-        $teachers_table = $wpdb->prefix . 'hamdy_teachers';
+        $teachers_table = $wpdb->prefix . 'soob_teachers';
         $teachers_sql = "CREATE TABLE $teachers_table (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             name varchar(255) NOT NULL,
@@ -31,9 +31,9 @@ class Hamdy_Database {
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id)
         ) $charset_collate;";
-        
+
         // Bookings table
-        $bookings_table = $wpdb->prefix . 'hamdy_bookings';
+        $bookings_table = $wpdb->prefix . 'soob_bookings';
         $bookings_sql = "CREATE TABLE $bookings_table (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             order_id mediumint(9) NOT NULL,
@@ -44,8 +44,8 @@ class Hamdy_Database {
             customer_age int(3) NOT NULL,
             selected_slots longtext NOT NULL,
             booking_date date NOT NULL,
-            booking_time time NOT NULL,
-            renewal_date date DEFAULT NULL,
+            purchase_at time NOT NULL,
+            next_renewal_date date DEFAULT NULL,
             status enum('pending','confirmed','completed','cancelled') DEFAULT 'pending',
             notes text DEFAULT '',
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
@@ -55,7 +55,7 @@ class Hamdy_Database {
             KEY customer_id (customer_id),
             KEY teacher_id (teacher_id),
             KEY booking_date (booking_date),
-            KEY renewal_date (renewal_date),
+            KEY next_renewal_date (next_renewal_date),
             KEY status (status)
         ) $charset_collate;";
         
@@ -69,10 +69,10 @@ class Hamdy_Database {
      */
     public static function drop_tables() {
         global $wpdb;
-        
-        $teachers_table = $wpdb->prefix . 'hamdy_teachers';
-        $bookings_table = $wpdb->prefix . 'hamdy_bookings';
-        
+
+        $teachers_table = $wpdb->prefix . 'soob_teachers';
+        $bookings_table = $wpdb->prefix . 'soob_bookings';
+
         $wpdb->query("DROP TABLE IF EXISTS $bookings_table");
         $wpdb->query("DROP TABLE IF EXISTS $teachers_table");
     }

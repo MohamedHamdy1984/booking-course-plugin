@@ -2,7 +2,7 @@
 /**
  * Test script for booking filters
  * This file should be placed in the plugin root and accessed via browser
- * URL: /wp-content/plugins/hamdy-plugin/test-booking-filters.php
+ * URL: /wp-content/plugins/soob-plugin/test-booking-filters.php
  */
 
 // Load WordPress
@@ -14,14 +14,14 @@ if (!current_user_can('manage_options')) {
 }
 
 // Load our classes
-require_once('includes/class-hamdy-database.php');
-require_once('includes/class-hamdy-booking.php');
+require_once('includes/class-soob-database.php');
+require_once('includes/class-soob-booking.php');
 
-echo '<h1>Hamdy Plugin - Booking Filter Test</h1>';
+echo '<h1>Soob Plugin - Booking Filter Test</h1>';
 
-// Test 1: Check if table exists and has renewal_date field
+// Test 1: Check if table exists and has next_renewal_date field
 global $wpdb;
-$table = $wpdb->prefix . 'hamdy_bookings';
+$table = $wpdb->prefix . 'soob_bookings';
 
 echo '<h2>1. Database Table Structure</h2>';
 $columns = $wpdb->get_results("DESCRIBE $table");
@@ -39,19 +39,19 @@ if ($columns) {
     }
     echo '</table>';
     
-    // Check if renewal_date exists
-    $has_renewal_date = false;
+    // Check if next_renewal_date exists
+    $has_next_renewal_date = false;
     foreach ($columns as $column) {
-        if ($column->Field === 'renewal_date') {
-            $has_renewal_date = true;
+        if ($column->Field === 'next_renewal_date') {
+            $has_next_renewal_date = true;
             break;
         }
     }
     
-    if ($has_renewal_date) {
-        echo '<p style="color: green;">✓ renewal_date field exists</p>';
+    if ($has_next_renewal_date) {
+        echo '<p style="color: green;">✓ next_renewal_date field exists</p>';
     } else {
-        echo '<p style="color: red;">✗ renewal_date field missing</p>';
+        echo '<p style="color: red;">✗ next_renewal_date field missing</p>';
     }
 } else {
     echo '<p style="color: red;">Table does not exist or cannot be accessed</p>';
@@ -59,7 +59,7 @@ if ($columns) {
 
 // Test 2: Check existing bookings
 echo '<h2>2. Existing Bookings</h2>';
-$all_bookings = Hamdy_Booking::get_all();
+$all_bookings = SOOB_Booking::get_all();
 echo '<p>Total bookings: ' . count($all_bookings) . '</p>';
 
 if (!empty($all_bookings)) {
@@ -71,7 +71,7 @@ if (!empty($all_bookings)) {
         echo '<td>' . $booking->order_id . '</td>';
         echo '<td>' . $booking->customer_gender . '</td>';
         echo '<td>' . $booking->customer_age . '</td>';
-        echo '<td>' . ($booking->renewal_date ?: 'NULL') . '</td>';
+        echo '<td>' . ($booking->next_renewal_date ?: 'NULL') . '</td>';
         echo '<td>' . $booking->status . '</td>';
         echo '</tr>';
     }
@@ -82,15 +82,15 @@ if (!empty($all_bookings)) {
 echo '<h2>3. Filter Tests</h2>';
 
 // Test male filter
-$male_bookings = Hamdy_Booking::get_all(['customer_gender' => 'male']);
+$male_bookings = SOOB_Booking::get_all(['customer_gender' => 'male']);
 echo '<p>Male bookings: ' . count($male_bookings) . '</p>';
 
 // Test female filter
-$female_bookings = Hamdy_Booking::get_all(['customer_gender' => 'female']);
+$female_bookings = SOOB_Booking::get_all(['customer_gender' => 'female']);
 echo '<p>Female bookings: ' . count($female_bookings) . '</p>';
 
 // Test expiring filter
-$expiring_bookings = Hamdy_Booking::get_all(['expiring_soon' => true]);
+$expiring_bookings = SOOB_Booking::get_all(['expiring_soon' => true]);
 echo '<p>Expiring bookings: ' . count($expiring_bookings) . '</p>';
 
 // Test 4: Create sample data if none exists
@@ -106,8 +106,8 @@ echo '<p>Expiring bookings: ' . count($expiring_bookings) . '</p>';
         'customer_age' => 25,
         'selected_slots' => ['friday_10'],
         'booking_date' => date('Y-m-d'),
-        'booking_time' => '10:00:00',
-        'renewal_date' => date('Y-m-d', strtotime('+3 days')),
+        'purchase_at' => '10:00:00',
+        'next_renewal_date' => date('Y-m-d', strtotime('+3 days')),
         'status' => 'confirmed',
         'notes' => 'Test male booking'
     ],
@@ -119,8 +119,8 @@ echo '<p>Expiring bookings: ' . count($expiring_bookings) . '</p>';
         'customer_age' => 30,
         'selected_slots' => ['saturday_14'],
         'booking_date' => date('Y-m-d'),
-        'booking_time' => '14:00:00',
-        'renewal_date' => date('Y-m-d', strtotime('+10 days')),
+        'purchase_at' => '14:00:00',
+        'next_renewal_date' => date('Y-m-d', strtotime('+10 days')),
         'status' => 'pending',
         'notes' => 'Test female booking'
     ],
@@ -132,8 +132,8 @@ echo '<p>Expiring bookings: ' . count($expiring_bookings) . '</p>';
         'customer_age' => 35,
         'selected_slots' => ['sunday_16'],
         'booking_date' => date('Y-m-d'),
-        'booking_time' => '16:00:00',
-        'renewal_date' => null,
+        'purchase_at' => '16:00:00',
+        'next_renewal_date' => null,
         'status' => 'completed',
         'notes' => 'Test male booking without renewal'
     ],
@@ -145,8 +145,8 @@ echo '<p>Expiring bookings: ' . count($expiring_bookings) . '</p>';
         'customer_age' => 22,
         'selected_slots' => ['monday_09'],
         'booking_date' => date('Y-m-d'),
-        'booking_time' => '09:00:00',
-        'renewal_date' => date('Y-m-d', strtotime('+2 days')),
+        'purchase_at' => '09:00:00',
+        'next_renewal_date' => date('Y-m-d', strtotime('+2 days')),
         'status' => 'confirmed',
         'notes' => 'Expiring soon female'
     ],
@@ -158,8 +158,8 @@ echo '<p>Expiring bookings: ' . count($expiring_bookings) . '</p>';
         'customer_age' => 40,
         'selected_slots' => ['tuesday_11'],
         'booking_date' => date('Y-m-d'),
-        'booking_time' => '11:00:00',
-        'renewal_date' => date('Y-m-d', strtotime('+7 days')),
+        'purchase_at' => '11:00:00',
+        'next_renewal_date' => date('Y-m-d', strtotime('+7 days')),
         'status' => 'pending',
         'notes' => 'Test male not expiring'
     ],
@@ -171,8 +171,8 @@ echo '<p>Expiring bookings: ' . count($expiring_bookings) . '</p>';
         'customer_age' => 29,
         'selected_slots' => ['wednesday_15'],
         'booking_date' => date('Y-m-d'),
-        'booking_time' => '15:00:00',
-        'renewal_date' => null,
+        'purchase_at' => '15:00:00',
+        'next_renewal_date' => null,
         'status' => 'completed',
         'notes' => 'Test female no renewal'
     ],
@@ -184,8 +184,8 @@ echo '<p>Expiring bookings: ' . count($expiring_bookings) . '</p>';
         'customer_age' => 28,
         'selected_slots' => ['thursday_13'],
         'booking_date' => date('Y-m-d'),
-        'booking_time' => '13:00:00',
-        'renewal_date' => date('Y-m-d', strtotime('+1 day')),
+        'purchase_at' => '13:00:00',
+        'next_renewal_date' => date('Y-m-d', strtotime('+1 day')),
         'status' => 'confirmed',
         'notes' => 'Urgent male booking'
     ],
@@ -197,8 +197,8 @@ echo '<p>Expiring bookings: ' . count($expiring_bookings) . '</p>';
         'customer_age' => 34,
         'selected_slots' => ['friday_12'],
         'booking_date' => date('Y-m-d'),
-        'booking_time' => '12:00:00',
-        'renewal_date' => date('Y-m-d', strtotime('+6 days')),
+        'purchase_at' => '12:00:00',
+        'next_renewal_date' => date('Y-m-d', strtotime('+6 days')),
         'status' => 'confirmed',
         'notes' => 'Normal female booking'
     ],
@@ -210,8 +210,8 @@ echo '<p>Expiring bookings: ' . count($expiring_bookings) . '</p>';
         'customer_age' => 45,
         'selected_slots' => ['saturday_16'],
         'booking_date' => date('Y-m-d'),
-        'booking_time' => '16:00:00',
-        'renewal_date' => date('Y-m-d', strtotime('+5 days')),
+        'purchase_at' => '16:00:00',
+        'next_renewal_date' => date('Y-m-d', strtotime('+5 days')),
         'status' => 'pending',
         'notes' => 'Expiring borderline'
     ],
@@ -223,8 +223,8 @@ echo '<p>Expiring bookings: ' . count($expiring_bookings) . '</p>';
         'customer_age' => 31,
         'selected_slots' => ['sunday_17'],
         'booking_date' => date('Y-m-d'),
-        'booking_time' => '17:00:00',
-        'renewal_date' => null,
+        'purchase_at' => '17:00:00',
+        'next_renewal_date' => null,
         'status' => 'completed',
         'notes' => 'Old booking female'
     ],
@@ -236,8 +236,8 @@ echo '<p>Expiring bookings: ' . count($expiring_bookings) . '</p>';
         'customer_age' => 38,
         'selected_slots' => ['monday_10'],
         'booking_date' => date('Y-m-d'),
-        'booking_time' => '10:00:00',
-        'renewal_date' => date('Y-m-d', strtotime('+2 days')),
+        'purchase_at' => '10:00:00',
+        'next_renewal_date' => date('Y-m-d', strtotime('+2 days')),
         'status' => 'confirmed',
         'notes' => 'Short renewal male'
     ],
@@ -249,15 +249,15 @@ echo '<p>Expiring bookings: ' . count($expiring_bookings) . '</p>';
         'customer_age' => 27,
         'selected_slots' => ['tuesday_14'],
         'booking_date' => date('Y-m-d'),
-        'booking_time' => '14:00:00',
-        'renewal_date' => date('Y-m-d', strtotime('+12 days')),
+        'purchase_at' => '14:00:00',
+        'next_renewal_date' => date('Y-m-d', strtotime('+12 days')),
         'status' => 'pending',
         'notes' => 'Test future female booking'
     ]
 ];
 
     foreach ($sample_data as $data) {
-        $result = Hamdy_Booking::create($data);
+        $result = SOOB_Booking::create($data);
         if ($result) {
             echo '<p style="color: green;">✓ Created booking with ID: ' . $result . '</p>';
         } else {
@@ -269,15 +269,15 @@ echo '<p>Expiring bookings: ' . count($expiring_bookings) . '</p>';
 
 
 echo '<h2>5. Admin Page Links</h2>';
-echo '<p><a href="' . admin_url('admin.php?page=hamdy-bookings') . '" target="_blank">View Bookings (All)</a></p>';
-echo '<p><a href="' . admin_url('admin.php?page=hamdy-bookings&tab=male') . '" target="_blank">View Bookings (Male)</a></p>';
-echo '<p><a href="' . admin_url('admin.php?page=hamdy-bookings&tab=female') . '" target="_blank">View Bookings (Female)</a></p>';
-echo '<p><a href="' . admin_url('admin.php?page=hamdy-bookings&tab=expiring') . '" target="_blank">View Bookings (Expiring)</a></p>';
+echo '<p><a href="' . admin_url('admin.php?page=soob-bookings') . '" target="_blank">View Bookings (All)</a></p>';
+echo '<p><a href="' . admin_url('admin.php?page=soob-bookings&tab=male') . '" target="_blank">View Bookings (Male)</a></p>';
+echo '<p><a href="' . admin_url('admin.php?page=soob-bookings&tab=female') . '" target="_blank">View Bookings (Female)</a></p>';
+echo '<p><a href="' . admin_url('admin.php?page=soob-bookings&tab=expiring') . '" target="_blank">View Bookings (Expiring)</a></p>';
 
 echo '<hr>';
 echo '<p><strong>Instructions:</strong></p>';
 echo '<ol>';
-echo '<li>Check the database structure above to ensure renewal_date field exists</li>';
+echo '<li>Check the database structure above to ensure next_renewal_date field exists</li>';
 echo '<li>If no bookings exist, sample data will be created automatically</li>';
 echo '<li>Click the admin page links above to test the filtering</li>';
 echo '<li>Check your WordPress debug.log for query debugging information</li>';

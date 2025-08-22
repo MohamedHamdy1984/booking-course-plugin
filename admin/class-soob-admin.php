@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Hamdy_Admin
+class SOOB_Admin
 {
 
     private $teachers_admin;
@@ -20,7 +20,7 @@ class Hamdy_Admin
     private function get_all_bookings()
     {
         if ($this->all_bookings === null) {
-            $this->all_bookings = Hamdy_Booking::get_all();
+            $this->all_bookings = SOOB_Booking::get_all();
         }
 
         return $this->all_bookings;
@@ -43,12 +43,12 @@ class Hamdy_Admin
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         
         // AJAX handlers for booking management
-        add_action('wp_ajax_hamdy_delete_booking', array($this, 'ajax_delete_booking'));
-        add_action('wp_ajax_hamdy_get_bookings', array($this, 'ajax_get_bookings'));
+        add_action('wp_ajax_soob_delete_booking', array($this, 'ajax_delete_booking'));
+        add_action('wp_ajax_soob_get_bookings', array($this, 'ajax_get_bookings'));
 
         // Initialize sub-admin classes
-        $this->teachers_admin = new Hamdy_Admin_Teachers();
-        $this->schedule_admin = new Hamdy_Admin_Schedule();
+        $this->teachers_admin = new SOOB_Admin_Teachers();
+        $this->schedule_admin = new SOOB_Admin_Schedule();
     }
 
     /**
@@ -57,48 +57,48 @@ class Hamdy_Admin
     public function add_admin_menu()
     {
         add_menu_page(
-            __('Hamdy Booking', 'hamdy-plugin'),
-            __('Hamdy Booking', 'hamdy-plugin'),
+            __('Soob Booking', 'soob-plugin'),
+            __('Soob Booking', 'soob-plugin'),
             'manage_options',
-            'hamdy-booking',
+            'soob-booking',
             array($this, 'admin_page'),
             'dashicons-calendar-alt',
             30
         );
 
         add_submenu_page(
-            'hamdy-booking',
-            __('Dashboard', 'hamdy-plugin'),
-            __('Dashboard', 'hamdy-plugin'),
+            'soob-booking',
+            __('Dashboard', 'soob-plugin'),
+            __('Dashboard', 'soob-plugin'),
             'manage_options',
-            'hamdy-booking',
+            'soob-booking',
             array($this, 'admin_page')
         );
 
         add_submenu_page(
-            'hamdy-booking',
-            __('Teachers', 'hamdy-plugin'),
-            __('Teachers', 'hamdy-plugin'),
+            'soob-booking',
+            __('Teachers', 'soob-plugin'),
+            __('Teachers', 'soob-plugin'),
             'manage_options',
-            'hamdy-teachers',
+            'soob-teachers',
             array($this, 'teachers_page')
         );
 
         add_submenu_page(
-            'hamdy-booking',
-            __('Schedule Overview', 'hamdy-plugin'),
-            __('Schedule Overview', 'hamdy-plugin'),
+            'soob-booking',
+            __('Schedule Overview', 'soob-plugin'),
+            __('Schedule Overview', 'soob-plugin'),
             'manage_options',
-            'hamdy-schedule',
+            'soob-schedule',
             array($this, 'schedule_page')
         );
 
         add_submenu_page(
-            'hamdy-booking',
-            __('Bookings', 'hamdy-plugin'),
-            __('Bookings', 'hamdy-plugin'),
+            'soob-booking',
+            __('Bookings', 'soob-plugin'),
+            __('Bookings', 'soob-plugin'),
             'manage_options',
-            'hamdy-bookings',
+            'soob-bookings',
             array($this, 'bookings_page')
         );
     }
@@ -109,7 +109,7 @@ class Hamdy_Admin
     public function admin_init()
     {
         // Register settings if needed
-        register_setting('hamdy_settings', 'hamdy_options');
+        register_setting('soob_settings', 'soob_options');
     }
 
     /**
@@ -118,8 +118,8 @@ class Hamdy_Admin
     public function enqueue_admin_scripts($hook)
     {
         // Only enqueue on our admin pages
-        if (strpos($hook, 'hamdy-') !== false) {
-            // Enqueue common admin styles and scripts for all hamdy pages
+        if (strpos($hook, 'soob-') !== false) {
+            // Enqueue common admin styles and scripts for all soob pages
             $this->enqueue_common_admin_assets();
             
             // Enqueue page-specific assets
@@ -134,30 +134,30 @@ class Hamdy_Admin
     {
         // Common admin CSS
         wp_enqueue_style(
-            'hamdy-admin',
-            HAMDY_PLUGIN_URL . 'assets/css/admin.css',
+            'soob-admin',
+            SOOB_PLUGIN_URL . 'assets/css/admin.css',
             array(),
-            HAMDY_PLUGIN_VERSION
+            SOOB_PLUGIN_VERSION
         );
 
         // Common admin JavaScript
         wp_enqueue_script(
-            'hamdy-admin',
-            HAMDY_PLUGIN_URL . 'assets/js/admin.js',
+            'soob-admin',
+            SOOB_PLUGIN_URL . 'assets/js/admin.js',
             array('jquery', 'jquery-ui-datepicker', 'jquery-ui-sortable'),
-            HAMDY_PLUGIN_VERSION,
+            SOOB_PLUGIN_VERSION,
             true
         );
 
         // Localize common admin script
-        wp_localize_script('hamdy-admin', 'hamdy_admin_ajax', array(
+        wp_localize_script('soob-admin', 'soob_admin_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('hamdy_admin_nonce'),
+            'nonce' => wp_create_nonce('soob_admin_nonce'),
             'strings' => array(
-                'confirm_delete' => __('Are you sure you want to delete this item?', 'hamdy-plugin'),
-                'loading' => __('Loading...', 'hamdy-plugin'),
-                'saved' => __('Saved successfully!', 'hamdy-plugin'),
-                'error' => __('An error occurred. Please try again.', 'hamdy-plugin'),
+                'confirm_delete' => __('Are you sure you want to delete this item?', 'soob-plugin'),
+                'loading' => __('Loading...', 'soob-plugin'),
+                'saved' => __('Saved successfully!', 'soob-plugin'),
+                'error' => __('An error occurred. Please try again.', 'soob-plugin'),
             )
         ));
     }
@@ -168,22 +168,22 @@ class Hamdy_Admin
     private function enqueue_page_specific_assets($hook)
     {
         switch ($hook) {
-            case 'hamdy-booking_page_hamdy-schedule':
+            case 'soob-booking_page_soob-schedule':
                 // Load schedule-specific assets
                 if ($this->schedule_admin) {
                     $this->schedule_admin->enqueue_scripts();
                 }
                 break;
                 
-            case 'hamdy-booking_page_hamdy-teachers':
+            case 'soob-booking_page_soob-teachers':
                 // Load teachers-specific assets
                 if ($this->teachers_admin) {
                     $this->teachers_admin->enqueue_scripts();
                 }
                 break;
                 
-            case 'toplevel_page_hamdy-booking':
-            case 'hamdy-booking_page_hamdy-bookings':
+            case 'toplevel_page_soob-booking':
+            case 'soob-booking_page_soob-bookings':
                 // Dashboard and bookings pages only need common assets
                 // No additional assets needed
                 break;
@@ -197,33 +197,33 @@ class Hamdy_Admin
     {
 ?>
         <div class="wrap">
-            <h1><?php _e('Hamdy Booking Dashboard', 'hamdy-plugin'); ?></h1>
+            <h1><?php _e('Soob Booking Dashboard', 'soob-plugin'); ?></h1>
 
-            <div class="hamdy-dashboard">
-                <div class="hamdy-stats-grid">
-                    <div class="hamdy-stat-card">
-                        <h3><?php _e('Total Bookings', 'hamdy-plugin'); ?></h3>
-                        <div class="hamdy-stat-number"><?php echo $this->get_total_bookings(); ?></div>
+            <div class="soob-dashboard">
+                <div class="soob-stats-grid">
+                    <div class="soob-stat-card">
+                        <h3><?php _e('Total Bookings', 'soob-plugin'); ?></h3>
+                        <div class="soob-stat-number"><?php echo $this->get_total_bookings(); ?></div>
                     </div>
 
-                    <div class="hamdy-stat-card">
-                        <h3><?php _e('Pending Bookings', 'hamdy-plugin'); ?></h3>
-                        <div class="hamdy-stat-number"><?php echo $this->get_pending_bookings(); ?></div>
+                    <div class="soob-stat-card">
+                        <h3><?php _e('Pending Bookings', 'soob-plugin'); ?></h3>
+                        <div class="soob-stat-number"><?php echo $this->get_pending_bookings(); ?></div>
                     </div>
 
-                    <div class="hamdy-stat-card">
-                        <h3><?php _e('Active Teachers', 'hamdy-plugin'); ?></h3>
-                        <div class="hamdy-stat-number"><?php echo $this->get_active_teachers(); ?></div>
+                    <div class="soob-stat-card">
+                        <h3><?php _e('Active Teachers', 'soob-plugin'); ?></h3>
+                        <div class="soob-stat-number"><?php echo $this->get_active_teachers(); ?></div>
                     </div>
 
-                    <div class="hamdy-stat-card">
-                        <h3><?php _e('This Week', 'hamdy-plugin'); ?></h3>
-                        <div class="hamdy-stat-number"><?php echo $this->get_this_week_bookings(); ?></div>
+                    <div class="soob-stat-card">
+                        <h3><?php _e('This Week', 'soob-plugin'); ?></h3>
+                        <div class="soob-stat-number"><?php echo $this->get_this_week_bookings(); ?></div>
                     </div>
                 </div>
 
-                <div class="hamdy-recent-bookings">
-                    <h2><?php _e('Recent Bookings', 'hamdy-plugin'); ?></h2>
+                <div class="soob-recent-bookings">
+                    <h2><?php _e('Recent Bookings', 'soob-plugin'); ?></h2>
                     <?php $this->display_recent_bookings(); ?>
                 </div>
             </div>
@@ -261,30 +261,30 @@ class Hamdy_Admin
         $current_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'all';
     ?>
         <div class="wrap">
-            <h1><?php _e('Bookings Management', 'hamdy-plugin'); ?></h1>
+            <h1><?php _e('Bookings Management', 'soob-plugin'); ?></h1>
 
-            <div class="hamdy-bookings-tabs">
+            <div class="soob-bookings-tabs">
                 <nav class="nav-tab-wrapper">
-                    <a href="<?php echo admin_url('admin.php?page=hamdy-bookings&tab=all'); ?>" 
+                    <a href="<?php echo admin_url('admin.php?page=soob-bookings&tab=all'); ?>" 
                        class="nav-tab <?php echo $current_tab === 'all' ? 'nav-tab-active' : ''; ?>">
-                        <?php _e('All', 'hamdy-plugin'); ?>
+                        <?php _e('All', 'soob-plugin'); ?>
                     </a>
-                    <a href="<?php echo admin_url('admin.php?page=hamdy-bookings&tab=male'); ?>" 
+                    <a href="<?php echo admin_url('admin.php?page=soob-bookings&tab=male'); ?>" 
                        class="nav-tab <?php echo $current_tab === 'male' ? 'nav-tab-active' : ''; ?>">
-                        <?php _e('Male', 'hamdy-plugin'); ?>
+                        <?php _e('Male', 'soob-plugin'); ?>
                     </a>
-                    <a href="<?php echo admin_url('admin.php?page=hamdy-bookings&tab=female'); ?>" 
+                    <a href="<?php echo admin_url('admin.php?page=soob-bookings&tab=female'); ?>" 
                        class="nav-tab <?php echo $current_tab === 'female' ? 'nav-tab-active' : ''; ?>">
-                        <?php _e('Female', 'hamdy-plugin'); ?>
+                        <?php _e('Female', 'soob-plugin'); ?>
                     </a>
-                    <a href="<?php echo admin_url('admin.php?page=hamdy-bookings&tab=expiring'); ?>" 
+                    <a href="<?php echo admin_url('admin.php?page=soob-bookings&tab=expiring'); ?>" 
                        class="nav-tab <?php echo $current_tab === 'expiring' ? 'nav-tab-active' : ''; ?>">
-                        <?php _e('Expiring Soon', 'hamdy-plugin'); ?>
+                        <?php _e('Expiring Soon', 'soob-plugin'); ?>
                     </a>
                 </nav>
             </div>
 
-            <div class="hamdy-bookings-list">
+            <div class="soob-bookings-list">
                 <?php $this->display_bookings_table($current_tab); ?>
             </div>
         </div>
@@ -306,7 +306,7 @@ class Hamdy_Admin
      */
     private function get_pending_bookings()
     {
-        $bookings = Hamdy_Booking::get_all(array('status' => 'pending'));
+        $bookings = SOOB_Booking::get_all(array('status' => 'pending'));
         return count($bookings);
     }
 
@@ -315,7 +315,7 @@ class Hamdy_Admin
      */
     private function get_active_teachers()
     {
-        $teachers = Hamdy_Teacher::get_all('active');
+        $teachers = SOOB_Teacher::get_all('active');
         return count($teachers);
     }
 
@@ -327,7 +327,7 @@ class Hamdy_Admin
         $start_of_week = date('Y-m-d', strtotime('monday this week'));
         $end_of_week = date('Y-m-d', strtotime('sunday this week'));
 
-        $bookings = Hamdy_Booking::get_all(array(
+        $bookings = SOOB_Booking::get_all(array(
             'date_from' => $start_of_week,
             'date_to' => $end_of_week
         ));
@@ -344,19 +344,19 @@ class Hamdy_Admin
         $recent_bookings = array_slice($bookings, 0, 5);
 
         if (empty($recent_bookings)) {
-            echo '<p>' . __('No recent bookings found.', 'hamdy-plugin') . '</p>';
+            echo '<p>' . __('No recent bookings found.', 'soob-plugin') . '</p>';
             return;
         }
 
         echo '<table class="wp-list-table widefat fixed striped">';
         echo '<thead>';
         echo '<tr>';
-        echo '<th>' . __('Order ID', 'hamdy-plugin') . '</th>';
-        echo '<th>' . __('Customer', 'hamdy-plugin') . '</th>';
-        echo '<th>' . __('Gender', 'hamdy-plugin') . '</th>';
-        echo '<th>' . __('Age', 'hamdy-plugin') . '</th>';
-        echo '<th>' . __('Date', 'hamdy-plugin') . '</th>';
-        echo '<th>' . __('Status', 'hamdy-plugin') . '</th>';
+        echo '<th>' . __('Order ID', 'soob-plugin') . '</th>';
+        echo '<th>' . __('Customer', 'soob-plugin') . '</th>';
+        echo '<th>' . __('Gender', 'soob-plugin') . '</th>';
+        echo '<th>' . __('Age', 'soob-plugin') . '</th>';
+        echo '<th>' . __('Date', 'soob-plugin') . '</th>';
+        echo '<th>' . __('Status', 'soob-plugin') . '</th>';
         echo '</tr>';
         echo '</thead>';
         echo '<tbody>';
@@ -365,11 +365,11 @@ class Hamdy_Admin
             $customer = get_user_by('id', $booking->customer_id);
             echo '<tr>';
             echo '<td>#' . $booking->order_id . '</td>';
-            echo '<td>' . ($customer ? $customer->display_name : __('Guest', 'hamdy-plugin')) . '</td>';
+            echo '<td>' . ($customer ? $customer->display_name : __('Guest', 'soob-plugin')) . '</td>';
             echo '<td>' . esc_html(ucfirst($booking->customer_gender)) . '</td>';
             echo '<td>' . esc_html($booking->customer_age) . '</td>';
             echo '<td>' . date('M j, Y', strtotime($booking->booking_date)) . '</td>';
-            echo '<td><span class="hamdy-status hamdy-status-' . $booking->status . '">' . ucfirst($booking->status) . '</span></td>';
+            echo '<td><span class="soob-status soob-status-' . $booking->status . '">' . ucfirst($booking->status) . '</span></td>';
             echo '</tr>';
         }
 
@@ -385,7 +385,7 @@ class Hamdy_Admin
         $filters = array();
         
         // Debug: Log the current tab
-        error_log('Hamdy Admin: Current tab = ' . $tab);
+        error_log('Soob Admin: Current tab = ' . $tab);
         
         switch ($tab) {
             case 'male':
@@ -403,29 +403,29 @@ class Hamdy_Admin
         }
         
         // Debug: Log the filters being applied
-        error_log('Hamdy Admin: Filters = ' . print_r($filters, true));
+        error_log('Soob Admin: Filters = ' . print_r($filters, true));
         
-        $bookings = Hamdy_Booking::get_all($filters);
+        $bookings = SOOB_Booking::get_all($filters);
         
         // Debug: Log the number of bookings returned
-        error_log('Hamdy Admin: Found ' . count($bookings) . ' bookings');
+        error_log('Soob Admin: Found ' . count($bookings) . ' bookings');
 
         if (empty($bookings)) {
-            echo '<p>' . __('No bookings found.', 'hamdy-plugin') . '</p>';
+            echo '<p>' . __('No bookings found.', 'soob-plugin') . '</p>';
             return;
         }
 
-        echo '<table class="wp-list-table widefat fixed striped hamdy-bookings-table">';
+        echo '<table class="wp-list-table widefat fixed striped soob-bookings-table">';
         echo '<thead>';
         echo '<tr>';
-        echo '<th>' . __('ID', 'hamdy-plugin') . '</th>';
-        echo '<th>' . __('WooCommerce Order ID', 'hamdy-plugin') . '</th>';
-        echo '<th>' . __('Student Name', 'hamdy-plugin') . '</th>';
-        echo '<th>' . __('Gender', 'hamdy-plugin') . '</th>';
-        echo '<th>' . __('Age', 'hamdy-plugin') . '</th>';
-        echo '<th>' . __('Renewal Date', 'hamdy-plugin') . '</th>';
-        echo '<th>' . __('Status', 'hamdy-plugin') . '</th>';
-        echo '<th>' . __('Actions', 'hamdy-plugin') . '</th>';
+        echo '<th>' . __('ID', 'soob-plugin') . '</th>';
+        echo '<th>' . __('WooCommerce Order ID', 'soob-plugin') . '</th>';
+        echo '<th>' . __('Student Name', 'soob-plugin') . '</th>';
+        echo '<th>' . __('Gender', 'soob-plugin') . '</th>';
+        echo '<th>' . __('Age', 'soob-plugin') . '</th>';
+        echo '<th>' . __('Renewal Date', 'soob-plugin') . '</th>';
+        echo '<th>' . __('Status', 'soob-plugin') . '</th>';
+        echo '<th>' . __('Actions', 'soob-plugin') . '</th>';
         echo '</tr>';
         echo '</thead>';
         echo '<tbody>';
@@ -435,12 +435,12 @@ class Hamdy_Admin
 
         foreach ($bookings as $booking) {
             $customer = get_user_by('id', $booking->customer_id);
-            $customer_name = $customer ? $customer->display_name : __('Guest', 'hamdy-plugin');
+            $customer_name = $customer ? $customer->display_name : __('Guest', 'soob-plugin');
             
             // Check if booking is expiring soon
             $is_expiring = false;
-            if (!empty($booking->renewal_date)) {
-                $is_expiring = $booking->renewal_date <= $expiring_threshold && $booking->renewal_date >= $today;
+            if (!empty($booking->next_renewal_date)) {
+                $is_expiring = $booking->next_renewal_date <= $expiring_threshold && $booking->next_renewal_date >= $today;
             }
             
             $row_class = $is_expiring ? 'expiring' : '';
@@ -451,11 +451,11 @@ class Hamdy_Admin
             echo '<td>' . esc_html($customer_name) . '</td>';
             echo '<td>' . esc_html(ucfirst($booking->customer_gender)) . '</td>';
             echo '<td>' . esc_html($booking->customer_age) . '</td>';
-            echo '<td>' . ($booking->renewal_date ? date('M j, Y', strtotime($booking->renewal_date)) : '—') . '</td>';
-            echo '<td><span class="hamdy-status hamdy-status-' . $booking->status . '">' . ucfirst($booking->status) . '</span></td>';
+            echo '<td>' . ($booking->next_renewal_date ? date('M j, Y', strtotime($booking->next_renewal_date)) : '—') . '</td>';
+            echo '<td><span class="soob-status soob-status-' . $booking->status . '">' . ucfirst($booking->status) . '</span></td>';
             echo '<td>';
-            echo '<a href="' . admin_url('admin.php?page=hamdy-bookings&action=edit&booking_id=' . $booking->id) . '" class="button button-small hamdy-edit-booking">' . __('Edit', 'hamdy-plugin') . '</a> ';
-            echo '<button class="button button-small button-link-delete hamdy-delete-booking" data-booking-id="' . $booking->id . '">' . __('Delete', 'hamdy-plugin') . '</button>';
+            echo '<a href="' . admin_url('admin.php?page=soob-bookings&action=edit&booking_id=' . $booking->id) . '" class="button button-small soob-edit-booking">' . __('Edit', 'soob-plugin') . '</a> ';
+            echo '<button class="button button-small button-link-delete soob-delete-booking" data-booking-id="' . $booking->id . '">' . __('Delete', 'soob-plugin') . '</button>';
             echo '</td>';
             echo '</tr>';
         }
@@ -470,27 +470,27 @@ class Hamdy_Admin
     private function display_edit_booking_page($booking_id)
     {
         // Handle form submission
-        if (isset($_POST['hamdy_save_booking']) && wp_verify_nonce($_POST['hamdy_booking_nonce'], 'hamdy_save_booking_' . $booking_id)) {
+        if (isset($_POST['soob_save_booking']) && wp_verify_nonce($_POST['soob_booking_nonce'], 'soob_save_booking_' . $booking_id)) {
             $this->handle_booking_save($booking_id);
         }
         
-        $booking = Hamdy_Booking::get_by_id($booking_id);
+        $booking = SOOB_Booking::get_by_id($booking_id);
         
         if (!$booking) {
             echo '<div class="wrap">';
-            echo '<h1>' . __('Edit Booking', 'hamdy-plugin') . '</h1>';
-            echo '<div class="notice notice-error"><p>' . __('Booking not found.', 'hamdy-plugin') . '</p></div>';
-            echo '<a href="' . admin_url('admin.php?page=hamdy-bookings') . '" class="button">' . __('Back to Bookings', 'hamdy-plugin') . '</a>';
+            echo '<h1>' . __('Edit Booking', 'soob-plugin') . '</h1>';
+            echo '<div class="notice notice-error"><p>' . __('Booking not found.', 'soob-plugin') . '</p></div>';
+            echo '<a href="' . admin_url('admin.php?page=soob-bookings') . '" class="button">' . __('Back to Bookings', 'soob-plugin') . '</a>';
             echo '</div>';
             return;
         }
         
         // Get customer info
         $customer = get_user_by('id', $booking->customer_id);
-        $customer_name = $customer ? $customer->display_name : __('Guest', 'hamdy-plugin');
+        $customer_name = $customer ? $customer->display_name : __('Guest', 'soob-plugin');
         
         // Get order info
-        $purchase_date = __('Unknown', 'hamdy-plugin');
+        $purchase_date = __('Unknown', 'soob-plugin');
         if (function_exists('wc_get_order')) {
             $order = wc_get_order($booking->order_id);
             if ($order) {
@@ -499,108 +499,108 @@ class Hamdy_Admin
         }
         
         // Get teachers for dropdown
-        $teachers = Hamdy_Teacher::get_all('active');
+        $teachers = SOOB_Teacher::get_all('active');
         
         // Parse selected slots
         $selected_slots = json_decode($booking->selected_slots, true) ?: array();
         
         ?>
-        <div class="wrap hamdy-edit-booking-page">
-            <h1><?php _e('Edit Booking', 'hamdy-plugin'); ?> #<?php echo $booking->id; ?></h1>
+        <div class="wrap soob-edit-booking-page">
+            <h1><?php _e('Edit Booking', 'soob-plugin'); ?> #<?php echo $booking->id; ?></h1>
             
-            <form method="post" action="" class="hamdy-booking-edit-form">
-                <?php wp_nonce_field('hamdy_save_booking_' . $booking_id, 'hamdy_booking_nonce'); ?>
+            <form method="post" action="" class="soob-booking-edit-form">
+                <?php wp_nonce_field('soob_save_booking_' . $booking_id, 'soob_booking_nonce'); ?>
                 
                 <!-- Non-editable Information -->
-                <div class="hamdy-form-section">
-                    <h3><?php _e('Order Information', 'hamdy-plugin'); ?></h3>
+                <div class="soob-form-section">
+                    <h3><?php _e('Order Information', 'soob-plugin'); ?></h3>
                     <table class="form-table">
                         <tr>
-                            <th scope="row"><?php _e('Order ID', 'hamdy-plugin'); ?></th>
+                            <th scope="row"><?php _e('Order ID', 'soob-plugin'); ?></th>
                             <td><strong>#<?php echo $booking->order_id; ?></strong></td>
                         </tr>
                         <tr>
-                            <th scope="row"><?php _e('Purchase Date', 'hamdy-plugin'); ?></th>
+                            <th scope="row"><?php _e('Purchase Date', 'soob-plugin'); ?></th>
                             <td><?php echo $purchase_date; ?></td>
                         </tr>
                     </table>
                 </div>
                 
                 <!-- Editable Student Information -->
-                <div class="hamdy-form-section">
-                    <h3><?php _e('Student Information', 'hamdy-plugin'); ?></h3>
+                <div class="soob-form-section">
+                    <h3><?php _e('Student Information', 'soob-plugin'); ?></h3>
                     <table class="form-table">
                         <tr>
                             <th scope="row">
-                                <label for="student_name"><?php _e('Student Name', 'hamdy-plugin'); ?></label>
+                                <label for="student_name"><?php _e('Student Name', 'soob-plugin'); ?></label>
                             </th>
                             <td>
                                 <input type="text" id="student_name" name="student_name"
                                        value="<?php echo esc_attr($customer_name); ?>"
-                                       class="regular-text hamdy-editable-field" />
-                                <p class="description"><?php _e('The name of the student taking the course.', 'hamdy-plugin'); ?></p>
+                                       class="regular-text soob-editable-field" />
+                                <p class="description"><?php _e('The name of the student taking the course.', 'soob-plugin'); ?></p>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row">
-                                <label for="customer_gender"><?php _e('Gender', 'hamdy-plugin'); ?></label>
+                                <label for="customer_gender"><?php _e('Gender', 'soob-plugin'); ?></label>
                             </th>
                             <td>
-                                <select id="customer_gender" name="customer_gender" class="hamdy-editable-field">
-                                    <option value="male" <?php selected($booking->customer_gender, 'male'); ?>><?php _e('Male', 'hamdy-plugin'); ?></option>
-                                    <option value="female" <?php selected($booking->customer_gender, 'female'); ?>><?php _e('Female', 'hamdy-plugin'); ?></option>
+                                <select id="customer_gender" name="customer_gender" class="soob-editable-field">
+                                    <option value="male" <?php selected($booking->customer_gender, 'male'); ?>><?php _e('Male', 'soob-plugin'); ?></option>
+                                    <option value="female" <?php selected($booking->customer_gender, 'female'); ?>><?php _e('Female', 'soob-plugin'); ?></option>
                                 </select>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row">
-                                <label for="customer_age"><?php _e('Age', 'hamdy-plugin'); ?></label>
+                                <label for="customer_age"><?php _e('Age', 'soob-plugin'); ?></label>
                             </th>
                             <td>
                                 <input type="number" id="customer_age" name="customer_age"
                                        value="<?php echo esc_attr($booking->customer_age); ?>"
-                                       min="1" max="100" class="small-text hamdy-editable-field" />
-                                <p class="description"><?php _e('Student age in years.', 'hamdy-plugin'); ?></p>
+                                       min="1" max="100" class="small-text soob-editable-field" />
+                                <p class="description"><?php _e('Student age in years.', 'soob-plugin'); ?></p>
                             </td>
                         </tr>
                     </table>
                 </div>
                 
                 <!-- Booking Management -->
-                <div class="hamdy-form-section">
-                    <h3><?php _e('Booking Management', 'hamdy-plugin'); ?></h3>
+                <div class="soob-form-section">
+                    <h3><?php _e('Booking Management', 'soob-plugin'); ?></h3>
                     <table class="form-table">
                         <tr>
                             <th scope="row">
-                                <label for="booking_status"><?php _e('Booking Status', 'hamdy-plugin'); ?></label>
+                                <label for="booking_status"><?php _e('Booking Status', 'soob-plugin'); ?></label>
                             </th>
                             <td>
-                                <select id="booking_status" name="booking_status" class="hamdy-editable-field">
-                                    <option value="pending" <?php selected($booking->status, 'pending'); ?>><?php _e('Pending', 'hamdy-plugin'); ?></option>
-                                    <option value="approved" <?php selected($booking->status, 'approved'); ?>><?php _e('Approved', 'hamdy-plugin'); ?></option>
-                                    <option value="canceled" <?php selected($booking->status, 'canceled'); ?>><?php _e('Canceled', 'hamdy-plugin'); ?></option>
+                                <select id="booking_status" name="booking_status" class="soob-editable-field">
+                                    <option value="pending" <?php selected($booking->status, 'pending'); ?>><?php _e('Pending', 'soob-plugin'); ?></option>
+                                    <option value="approved" <?php selected($booking->status, 'approved'); ?>><?php _e('Approved', 'soob-plugin'); ?></option>
+                                    <option value="canceled" <?php selected($booking->status, 'canceled'); ?>><?php _e('Canceled', 'soob-plugin'); ?></option>
                                 </select>
-                                <p class="description"><?php _e('Current status of the booking.', 'hamdy-plugin'); ?></p>
+                                <p class="description"><?php _e('Current status of the booking.', 'soob-plugin'); ?></p>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row">
-                                <label for="course_start_date"><?php _e('Course Start Date', 'hamdy-plugin'); ?></label>
+                                <label for="course_start_date"><?php _e('Course Start Date', 'soob-plugin'); ?></label>
                             </th>
                             <td>
                                 <input type="date" id="course_start_date" name="course_start_date"
                                        value="<?php echo esc_attr($booking->booking_date); ?>"
-                                       class="hamdy-editable-field hamdy-date-picker" />
-                                <p class="description"><?php _e('When the course will start.', 'hamdy-plugin'); ?></p>
+                                       class="soob-editable-field soob-date-picker" />
+                                <p class="description"><?php _e('When the course will start.', 'soob-plugin'); ?></p>
                             </td>
                         </tr>
                         <tr>
                             <th scope="row">
-                                <label for="assigned_teacher"><?php _e('Assigned Teacher', 'hamdy-plugin'); ?></label>
+                                <label for="assigned_teacher"><?php _e('Assigned Teacher', 'soob-plugin'); ?></label>
                             </th>
                             <td>
-                                <select id="assigned_teacher" name="assigned_teacher" class="hamdy-editable-field">
-                                    <option value=""><?php _e('Select a teacher...', 'hamdy-plugin'); ?></option>
+                                <select id="assigned_teacher" name="assigned_teacher" class="soob-editable-field">
+                                    <option value=""><?php _e('Select a teacher...', 'soob-plugin'); ?></option>
                                     <?php foreach ($teachers as $teacher): ?>
                                         <option value="<?php echo $teacher->id; ?>"
                                                 <?php selected($booking->teacher_id, $teacher->id); ?>>
@@ -608,48 +608,48 @@ class Hamdy_Admin
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
-                                <p class="description"><?php _e('Teacher assigned to this booking.', 'hamdy-plugin'); ?></p>
+                                <p class="description"><?php _e('Teacher assigned to this booking.', 'soob-plugin'); ?></p>
                             </td>
                         </tr>
                     </table>
                 </div>
                 
                 <!-- Class Sessions -->
-                <div class="hamdy-form-section">
-                    <h3><?php _e('Class Sessions', 'hamdy-plugin'); ?></h3>
-                    <div id="hamdy-sessions-container">
+                <div class="soob-form-section">
+                    <h3><?php _e('Class Sessions', 'soob-plugin'); ?></h3>
+                    <div id="soob-sessions-container">
                         <?php if (!empty($selected_slots)): ?>
                             <?php foreach ($selected_slots as $index => $slot): ?>
-                                <div class="hamdy-session-row" data-index="<?php echo $index; ?>">
+                                <div class="soob-session-row" data-index="<?php echo $index; ?>">
                                     <table class="form-table">
                                         <tr>
-                                            <th scope="row"><?php _e('Day of Week', 'hamdy-plugin'); ?></th>
+                                            <th scope="row"><?php _e('Day of Week', 'soob-plugin'); ?></th>
                                             <td>
-                                                <select name="sessions[<?php echo $index; ?>][day]" class="hamdy-session-day">
-                                                    <option value="sunday" <?php selected($slot['day'], 'sunday'); ?>><?php _e('Sunday', 'hamdy-plugin'); ?></option>
-                                                    <option value="monday" <?php selected($slot['day'], 'monday'); ?>><?php _e('Monday', 'hamdy-plugin'); ?></option>
-                                                    <option value="tuesday" <?php selected($slot['day'], 'tuesday'); ?>><?php _e('Tuesday', 'hamdy-plugin'); ?></option>
-                                                    <option value="wednesday" <?php selected($slot['day'], 'wednesday'); ?>><?php _e('Wednesday', 'hamdy-plugin'); ?></option>
-                                                    <option value="thursday" <?php selected($slot['day'], 'thursday'); ?>><?php _e('Thursday', 'hamdy-plugin'); ?></option>
-                                                    <option value="friday" <?php selected($slot['day'], 'friday'); ?>><?php _e('Friday', 'hamdy-plugin'); ?></option>
-                                                    <option value="saturday" <?php selected($slot['day'], 'saturday'); ?>><?php _e('Saturday', 'hamdy-plugin'); ?></option>
+                                                <select name="sessions[<?php echo $index; ?>][day]" class="soob-session-day">
+                                                    <option value="sunday" <?php selected($slot['day'], 'sunday'); ?>><?php _e('Sunday', 'soob-plugin'); ?></option>
+                                                    <option value="monday" <?php selected($slot['day'], 'monday'); ?>><?php _e('Monday', 'soob-plugin'); ?></option>
+                                                    <option value="tuesday" <?php selected($slot['day'], 'tuesday'); ?>><?php _e('Tuesday', 'soob-plugin'); ?></option>
+                                                    <option value="wednesday" <?php selected($slot['day'], 'wednesday'); ?>><?php _e('Wednesday', 'soob-plugin'); ?></option>
+                                                    <option value="thursday" <?php selected($slot['day'], 'thursday'); ?>><?php _e('Thursday', 'soob-plugin'); ?></option>
+                                                    <option value="friday" <?php selected($slot['day'], 'friday'); ?>><?php _e('Friday', 'soob-plugin'); ?></option>
+                                                    <option value="saturday" <?php selected($slot['day'], 'saturday'); ?>><?php _e('Saturday', 'soob-plugin'); ?></option>
                                                 </select>
                                             </td>
-                                            <th scope="row"><?php _e('Start Time', 'hamdy-plugin'); ?></th>
+                                            <th scope="row"><?php _e('Start Time', 'soob-plugin'); ?></th>
                                             <td>
                                                 <input type="time" name="sessions[<?php echo $index; ?>][start_time]"
                                                        value="<?php echo esc_attr($slot['start_time']); ?>"
-                                                       class="hamdy-session-start-time" />
+                                                       class="soob-session-start-time" />
                                             </td>
-                                            <th scope="row"><?php _e('End Time', 'hamdy-plugin'); ?></th>
+                                            <th scope="row"><?php _e('End Time', 'soob-plugin'); ?></th>
                                             <td>
                                                 <input type="time" name="sessions[<?php echo $index; ?>][end_time]"
                                                        value="<?php echo esc_attr($slot['end_time']); ?>"
-                                                       class="hamdy-session-end-time" />
+                                                       class="soob-session-end-time" />
                                             </td>
                                             <td>
-                                                <button type="button" class="button button-secondary hamdy-remove-session">
-                                                    <?php _e('Remove', 'hamdy-plugin'); ?>
+                                                <button type="button" class="button button-secondary soob-remove-session">
+                                                    <?php _e('Remove', 'soob-plugin'); ?>
                                                 </button>
                                             </td>
                                         </tr>
@@ -657,58 +657,58 @@ class Hamdy_Admin
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <p class="hamdy-no-sessions"><?php _e('No sessions scheduled yet.', 'hamdy-plugin'); ?></p>
+                            <p class="soob-no-sessions"><?php _e('No sessions scheduled yet.', 'soob-plugin'); ?></p>
                         <?php endif; ?>
                     </div>
                     
                     <p>
-                        <button type="button" id="hamdy-add-session" class="button button-secondary">
-                            <?php _e('Add Session', 'hamdy-plugin'); ?>
+                        <button type="button" id="soob-add-session" class="button button-secondary">
+                            <?php _e('Add Session', 'soob-plugin'); ?>
                         </button>
                     </p>
                 </div>
                 
                 <!-- Save Button -->
                 <p class="submit">
-                    <input type="submit" name="hamdy_save_booking" class="button-primary"
-                           value="<?php _e('Save Changes', 'hamdy-plugin'); ?>" />
-                    <a href="<?php echo admin_url('admin.php?page=hamdy-bookings'); ?>" class="button">
-                        <?php _e('Back to Bookings', 'hamdy-plugin'); ?>
+                    <input type="submit" name="soob_save_booking" class="button-primary"
+                           value="<?php _e('Save Changes', 'soob-plugin'); ?>" />
+                    <a href="<?php echo admin_url('admin.php?page=soob-bookings'); ?>" class="button">
+                        <?php _e('Back to Bookings', 'soob-plugin'); ?>
                     </a>
                 </p>
             </form>
         </div>
         
         <!-- Session Template (hidden) -->
-        <script type="text/template" id="hamdy-session-template">
-            <div class="hamdy-session-row" data-index="{{INDEX}}">
+        <script type="text/template" id="soob-session-template">
+            <div class="soob-session-row" data-index="{{INDEX}}">
                 <table class="form-table">
                     <tr>
-                        <th scope="row"><?php _e('Day of Week', 'hamdy-plugin'); ?></th>
+                        <th scope="row"><?php _e('Day of Week', 'soob-plugin'); ?></th>
                         <td>
-                            <select name="sessions[{{INDEX}}][day]" class="hamdy-session-day">
-                                <option value="sunday"><?php _e('Sunday', 'hamdy-plugin'); ?></option>
-                                <option value="monday"><?php _e('Monday', 'hamdy-plugin'); ?></option>
-                                <option value="tuesday"><?php _e('Tuesday', 'hamdy-plugin'); ?></option>
-                                <option value="wednesday"><?php _e('Wednesday', 'hamdy-plugin'); ?></option>
-                                <option value="thursday"><?php _e('Thursday', 'hamdy-plugin'); ?></option>
-                                <option value="friday"><?php _e('Friday', 'hamdy-plugin'); ?></option>
-                                <option value="saturday"><?php _e('Saturday', 'hamdy-plugin'); ?></option>
+                            <select name="sessions[{{INDEX}}][day]" class="soob-session-day">
+                                <option value="sunday"><?php _e('Sunday', 'soob-plugin'); ?></option>
+                                <option value="monday"><?php _e('Monday', 'soob-plugin'); ?></option>
+                                <option value="tuesday"><?php _e('Tuesday', 'soob-plugin'); ?></option>
+                                <option value="wednesday"><?php _e('Wednesday', 'soob-plugin'); ?></option>
+                                <option value="thursday"><?php _e('Thursday', 'soob-plugin'); ?></option>
+                                <option value="friday"><?php _e('Friday', 'soob-plugin'); ?></option>
+                                <option value="saturday"><?php _e('Saturday', 'soob-plugin'); ?></option>
                             </select>
                         </td>
-                        <th scope="row"><?php _e('Start Time', 'hamdy-plugin'); ?></th>
+                        <th scope="row"><?php _e('Start Time', 'soob-plugin'); ?></th>
                         <td>
                             <input type="time" name="sessions[{{INDEX}}][start_time]"
-                                   value="" class="hamdy-session-start-time" />
+                                   value="" class="soob-session-start-time" />
                         </td>
-                        <th scope="row"><?php _e('End Time', 'hamdy-plugin'); ?></th>
+                        <th scope="row"><?php _e('End Time', 'soob-plugin'); ?></th>
                         <td>
                             <input type="time" name="sessions[{{INDEX}}][end_time]"
-                                   value="" class="hamdy-session-end-time" />
+                                   value="" class="soob-session-end-time" />
                         </td>
                         <td>
-                            <button type="button" class="button button-secondary hamdy-remove-session">
-                                <?php _e('Remove', 'hamdy-plugin'); ?>
+                            <button type="button" class="button button-secondary soob-remove-session">
+                                <?php _e('Remove', 'soob-plugin'); ?>
                             </button>
                         </td>
                     </tr>
@@ -724,27 +724,27 @@ class Hamdy_Admin
     public function ajax_delete_booking()
     {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'hamdy_admin_nonce')) {
-            wp_die(__('Security check failed', 'hamdy-plugin'));
+        if (!wp_verify_nonce($_POST['nonce'], 'soob_admin_nonce')) {
+            wp_die(__('Security check failed', 'soob-plugin'));
         }
         
         // Check permissions
         if (!current_user_can('manage_options')) {
-            wp_die(__('Insufficient permissions', 'hamdy-plugin'));
+            wp_die(__('Insufficient permissions', 'soob-plugin'));
         }
         
         $booking_id = intval($_POST['booking_id']);
         
         if (!$booking_id) {
-            wp_send_json_error(__('Invalid booking ID', 'hamdy-plugin'));
+            wp_send_json_error(__('Invalid booking ID', 'soob-plugin'));
         }
         
-        $result = Hamdy_Booking::delete($booking_id);
+        $result = SOOB_Booking::delete($booking_id);
         
         if ($result) {
-            wp_send_json_success(__('Booking deleted successfully', 'hamdy-plugin'));
+            wp_send_json_success(__('Booking deleted successfully', 'soob-plugin'));
         } else {
-            wp_send_json_error(__('Failed to delete booking', 'hamdy-plugin'));
+            wp_send_json_error(__('Failed to delete booking', 'soob-plugin'));
         }
     }
     
@@ -754,13 +754,13 @@ class Hamdy_Admin
     public function ajax_get_bookings()
     {
         // Verify nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'hamdy_admin_nonce')) {
-            wp_die(__('Security check failed', 'hamdy-plugin'));
+        if (!wp_verify_nonce($_POST['nonce'], 'soob_admin_nonce')) {
+            wp_die(__('Security check failed', 'soob-plugin'));
         }
         
         // Check permissions
         if (!current_user_can('manage_options')) {
-            wp_die(__('Insufficient permissions', 'hamdy-plugin'));
+            wp_die(__('Insufficient permissions', 'soob-plugin'));
         }
         
         $tab = sanitize_text_field($_POST['tab']);
@@ -778,7 +778,7 @@ class Hamdy_Admin
                 break;
         }
         
-        $bookings = Hamdy_Booking::get_all($filters);
+        $bookings = SOOB_Booking::get_all($filters);
         wp_send_json_success($bookings);
     }
     
@@ -799,23 +799,23 @@ class Hamdy_Admin
         $errors = array();
         
         if (empty($student_name)) {
-            $errors[] = __('Student name is required.', 'hamdy-plugin');
+            $errors[] = __('Student name is required.', 'soob-plugin');
         }
         
         if (!in_array($customer_gender, array('male', 'female'))) {
-            $errors[] = __('Please select a valid gender.', 'hamdy-plugin');
+            $errors[] = __('Please select a valid gender.', 'soob-plugin');
         }
         
         if ($customer_age < 1 || $customer_age > 100) {
-            $errors[] = __('Please enter a valid age between 1 and 100.', 'hamdy-plugin');
+            $errors[] = __('Please enter a valid age between 1 and 100.', 'soob-plugin');
         }
         
         if (!in_array($booking_status, array('pending', 'approved', 'canceled'))) {
-            $errors[] = __('Please select a valid booking status.', 'hamdy-plugin');
+            $errors[] = __('Please select a valid booking status.', 'soob-plugin');
         }
         
         if (!empty($course_start_date) && !strtotime($course_start_date)) {
-            $errors[] = __('Please enter a valid course start date.', 'hamdy-plugin');
+            $errors[] = __('Please enter a valid course start date.', 'soob-plugin');
         }
         
         // Process sessions
@@ -853,12 +853,12 @@ class Hamdy_Admin
         );
         
         // Update booking
-        $result = Hamdy_Booking::update($booking_id, $update_data);
+        $result = SOOB_Booking::update($booking_id, $update_data);
         
         if ($result !== false) {
-            echo '<div class="notice notice-success"><p>' . __('Booking updated successfully!', 'hamdy-plugin') . '</p></div>';
+            echo '<div class="notice notice-success"><p>' . __('Booking updated successfully!', 'soob-plugin') . '</p></div>';
         } else {
-            echo '<div class="notice notice-error"><p>' . __('Failed to update booking. Please try again.', 'hamdy-plugin') . '</p></div>';
+            echo '<div class="notice notice-error"><p>' . __('Failed to update booking. Please try again.', 'soob-plugin') . '</p></div>';
         }
     }
 }

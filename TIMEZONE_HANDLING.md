@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the comprehensive timezone handling system implemented in the Hamdy Booking Plugin. The system ensures proper timezone conversion between user input, storage, and display across all interfaces.
+This document outlines the comprehensive timezone handling system implemented in the Soob Booking Plugin. The system ensures proper timezone conversion between user input, storage, and display across all interfaces.
 
 ## Key Principles
 
@@ -99,7 +99,7 @@ availability = {
 ### Booking Storage
 ```sql
 -- Booking times stored in UTC
-booking_time_utc = "2024-01-15 14:00:00"  -- UTC timestamp
+purchase_at_utc = "2024-01-15 14:00:00"  -- UTC timestamp
 customer_timezone = "America/New_York"     -- For display conversion
 ```
 
@@ -129,17 +129,17 @@ customer_timezone = "America/New_York"     -- For display conversion
 
 #### Frontend Files
 - [`assets/js/checkout.js`](assets/js/checkout.js): Auto-detection and weekly slots
-- [`public/class-hamdy-checkout.php`](public/class-hamdy-checkout.php): UTC conversion logic
+- [`public/class-soob-checkout.php`](public/class-soob-checkout.php): UTC conversion logic
 
 #### Admin Files
-- [`admin/class-hamdy-admin-teachers.php`](admin/class-hamdy-admin-teachers.php): Timezone input and UTC conversion
-- [`admin/class-hamdy-admin-schedule.php`](admin/class-hamdy-admin-schedule.php): Schedule display with timezone conversion
+- [`admin/class-soob-admin-teachers.php`](admin/class-soob-admin-teachers.php): Timezone input and UTC conversion
+- [`admin/class-soob-admin-schedule.php`](admin/class-soob-admin-schedule.php): Schedule display with timezone conversion
 - [`assets/js/admin-schedule.js`](assets/js/admin-schedule.js): AJAX handling with timezone parameter
 - [`assets/css/admin-schedule.css`](assets/css/admin-schedule.css): Styling for schedule grid
 
 #### Core Files
-- [`includes/class-hamdy-woocommerce.php`](includes/class-hamdy-woocommerce.php): Expanded timezone options
-- [`includes/class-hamdy-teacher.php`](includes/class-hamdy-teacher.php): UTC storage methods
+- [`includes/class-soob-woocommerce.php`](includes/class-soob-woocommerce.php): Expanded timezone options
+- [`includes/class-soob-teacher.php`](includes/class-soob-teacher.php): UTC storage methods
 
 ### Key Methods
 
@@ -236,7 +236,7 @@ error_log('Display time: ' . $display_time->format('Y-m-d H:i:s'));
 #### 3. Database Inspection
 ```sql
 -- Verify UTC storage
-SELECT availability FROM wp_hamdy_teachers WHERE id = 1;
+SELECT availability FROM wp_soob_teachers WHERE id = 1;
 ```
 
 ## Conclusion

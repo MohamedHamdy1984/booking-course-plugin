@@ -1,4 +1,4 @@
-Perfect! Now I have a clear understanding of the requirements. Let me create a comprehensive development plan for the `hamdy-plugin`. Based on your answers, I understand that:
+Perfect! Now I have a clear understanding of the requirements. Let me create a comprehensive development plan for the `soob-plugin`. Based on your answers, I understand that:
 
 1. Customers can book multiple time slots in a single order
 2. Admin manually assigns teachers after orders are placed
@@ -9,12 +9,12 @@ Here's the detailed development plan:
 ## 1. Plugin Structure & File Organization
 
 ```
-hamdy-plugin/
-├── hamdy-plugin.php                 # Main plugin file
+soob-plugin/
+├── soob-plugin.php                 # Main plugin file
 ├── uninstall.php                    # Cleanup on uninstall
 ├── README.md                        # Documentation
 ├── includes/
-│   ├── class-hamdy-plugin.php       # Main plugin class
+│   ├── class-soob-plugin.php       # Main plugin class
 │   ├── class-activator.php          # Plugin activation
 │   ├── class-deactivator.php        # Plugin deactivation
 │   ├── class-database.php           # Database operations
@@ -74,7 +74,7 @@ hamdy-plugin/
 
 ```sql
 -- Teachers table
-CREATE TABLE {prefix}hamdy_teachers (
+CREATE TABLE {prefix}soob_teachers (
     id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
     user_id bigint(20) unsigned NOT NULL,
     name varchar(255) NOT NULL,
@@ -92,7 +92,7 @@ CREATE TABLE {prefix}hamdy_teachers (
 );
 
 -- Teacher availability slots
-CREATE TABLE {prefix}hamdy_teacher_availability (
+CREATE TABLE {prefix}soob_teacher_availability (
     id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
     teacher_id bigint(20) unsigned NOT NULL,
     day_of_week tinyint(1) NOT NULL, -- 0=Sunday, 1=Monday, etc.
@@ -104,11 +104,11 @@ CREATE TABLE {prefix}hamdy_teacher_availability (
     PRIMARY KEY (id),
     KEY teacher_id (teacher_id),
     KEY day_of_week (day_of_week),
-    FOREIGN KEY (teacher_id) REFERENCES {prefix}hamdy_teachers(id) ON DELETE CASCADE
+    FOREIGN KEY (teacher_id) REFERENCES {prefix}soob_teachers(id) ON DELETE CASCADE
 );
 
 -- Bookings table (linked to WooCommerce orders)
-CREATE TABLE {prefix}hamdy_bookings (
+CREATE TABLE {prefix}soob_bookings (
     id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
     order_id bigint(20) unsigned NOT NULL,
     product_id bigint(20) unsigned NOT NULL,
@@ -126,11 +126,11 @@ CREATE TABLE {prefix}hamdy_bookings (
     KEY customer_id (customer_id),
     KEY teacher_id (teacher_id),
     KEY booking_status (booking_status),
-    FOREIGN KEY (teacher_id) REFERENCES {prefix}hamdy_teachers(id) ON DELETE SET NULL
+    FOREIGN KEY (teacher_id) REFERENCES {prefix}soob_teachers(id) ON DELETE SET NULL
 );
 
 -- Scheduled sessions (individual time slots from bookings)
-CREATE TABLE {prefix}hamdy_sessions (
+CREATE TABLE {prefix}soob_sessions (
     id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
     booking_id bigint(20) unsigned NOT NULL,
     teacher_id bigint(20) unsigned NULL,
@@ -148,8 +148,8 @@ CREATE TABLE {prefix}hamdy_sessions (
     KEY teacher_id (teacher_id),
     KEY session_date (session_date),
     KEY session_status (session_status),
-    FOREIGN KEY (booking_id) REFERENCES {prefix}hamdy_bookings(id) ON DELETE CASCADE,
-    FOREIGN KEY (teacher_id) REFERENCES {prefix}hamdy_teachers(id) ON DELETE SET NULL
+    FOREIGN KEY (booking_id) REFERENCES {prefix}soob_bookings(id) ON DELETE CASCADE,
+    FOREIGN KEY (teacher_id) REFERENCES {prefix}soob_teachers(id) ON DELETE SET NULL
 );
 ```
 
@@ -217,12 +217,12 @@ register_deactivation_hook(__FILE__, 'cleanup_plugin_data');
 ### Custom Hooks for Extensibility
 ```php
 // Allow other plugins to modify booking data
-do_action('hamdy_before_booking_save', $booking_data);
-do_action('hamdy_after_booking_created', $booking_id);
+do_action('soob_before_booking_save', $booking_data);
+do_action('soob_after_booking_created', $booking_id);
 
 // Teacher assignment hooks
-do_action('hamdy_teacher_assigned', $booking_id, $teacher_id);
-do_action('hamdy_session_scheduled', $session_id);
+do_action('soob_teacher_assigned', $booking_id, $teacher_id);
+do_action('soob_session_scheduled', $session_id);
 ```
 
 ## 5. Frontend vs Backend Responsibilities
@@ -294,8 +294,8 @@ class DatabaseHelper {
 - Plugin activation/deactivation hooks
 
 **Key Files:**
-- [`hamdy-plugin.php`](hamdy-plugin.php:1)
-- [`includes/class-hamdy-plugin.php`](includes/class-hamdy-plugin.php:1)
+- [`soob-plugin.php`](soob-plugin.php:1)
+- [`includes/class-soob-plugin.php`](includes/class-soob-plugin.php:1)
 - [`includes/class-database.php`](includes/class-database.php:1)
 - [`includes/models/`](includes/models/:1) classes
 
@@ -415,11 +415,11 @@ graph TB
     T --> X
 ```
 
-This comprehensive plan provides a solid foundation for building the `hamdy-plugin` with clear separation of concerns, scalable architecture, and phased implementation approach. The modular structure allows for easy maintenance and future enhancements.
+This comprehensive plan provides a solid foundation for building the `soob-plugin` with clear separation of concerns, scalable architecture, and phased implementation approach. The modular structure allows for easy maintenance and future enhancements.
 
 Would you like me to proceed with implementing this plan, or would you like to discuss any modifications to the architecture or implementation approach?
 
-I've created a comprehensive development plan for the `hamdy-plugin` WordPress plugin that implements one-to-one live course booking functionality. Here's what the plan includes:
+I've created a comprehensive development plan for the `soob-plugin` WordPress plugin that implements one-to-one live course booking functionality. Here's what the plan includes:
 
 ## Complete Plugin Architecture
 

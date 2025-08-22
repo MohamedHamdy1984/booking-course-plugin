@@ -1,10 +1,10 @@
 jQuery(document).ready(function($) {
     'use strict';
     
-    var $timezoneField = $('#hamdy_timezone');
-    var $genderField = $('#hamdy_gender');
-    var $slotsWrapper = $('#hamdy_time_slots_wrapper');
-    var $slotsContainer = $('#hamdy_time_slots_container');
+    var $timezoneField = $('#soob_timezone');
+    var $genderField = $('#soob_gender');
+    var $slotsWrapper = $('#soob_time_slots_wrapper');
+    var $slotsContainer = $('#soob_time_slots_container');
     
     // Initialize checkout functionality
     function initCheckout() {
@@ -15,13 +15,13 @@ jQuery(document).ready(function($) {
         $timezoneField.add($genderField).on('change', loadTimeSlots);
         
         // Handle day tab clicks
-        $(document).on('click', '.hamdy-day-tab:not(.disabled)', function() {
+        $(document).on('click', '.soob-day-tab:not(.disabled)', function() {
             var dayKey = $(this).data('day');
             switchToDay(dayKey);
         });
         
         // Handle slot selection
-        $(document).on('change', 'input[name="hamdy_time_slots[]"]', function() {
+        $(document).on('change', 'input[name="soob_time_slots[]"]', function() {
             updateSelectedSlots();
         });
     }
@@ -118,22 +118,22 @@ jQuery(document).ready(function($) {
         var gender = $genderField.val();
         
         if (!gender) {
-            $slotsWrapper.html('<p>' + hamdy_checkout_ajax.strings.select_gender + '</p>');
+            $slotsWrapper.html('<p>' + soob_checkout_ajax.strings.select_gender + '</p>');
             return;
         }
         if (!timezone) {
-            $slotsWrapper.html('<p>' + hamdy_checkout_ajax.strings.select_timezone + '</p>');
+            $slotsWrapper.html('<p>' + soob_checkout_ajax.strings.select_timezone + '</p>');
             return;
         }
         
-        $slotsWrapper.html('<p>' + hamdy_checkout_ajax.strings.loading + '</p>');
+        $slotsWrapper.html('<p>' + soob_checkout_ajax.strings.loading + '</p>');
         
         $.ajax({
-            url: hamdy_checkout_ajax.ajax_url,
+            url: soob_checkout_ajax.ajax_url,
             type: 'POST',
             data: {
-                action: 'hamdy_get_checkout_slots',
-                nonce: hamdy_checkout_ajax.nonce,
+                action: 'soob_get_checkout_slots',
+                nonce: soob_checkout_ajax.nonce,
                 gender: gender,
                 timezone: timezone
             },
@@ -141,11 +141,11 @@ jQuery(document).ready(function($) {
                 if (response.success) {
                     renderTimeSlots(response.data.days);
                 } else {
-                    $slotsWrapper.html('<p class="error">' + (response.data.message || hamdy_checkout_ajax.strings.error) + '</p>');
+                    $slotsWrapper.html('<p class="error">' + (response.data.message || soob_checkout_ajax.strings.error) + '</p>');
                 }
             },
             error: function() {
-                $slotsWrapper.html('<p class="error">' + hamdy_checkout_ajax.strings.error + '</p>');
+                $slotsWrapper.html('<p class="error">' + soob_checkout_ajax.strings.error + '</p>');
             }
         });
     }
@@ -153,33 +153,33 @@ jQuery(document).ready(function($) {
     // Render time slots HTML
     function renderTimeSlots(days) {
         if (!days || days.length === 0) {
-            $slotsWrapper.html('<p>' + hamdy_checkout_ajax.strings.no_slots + '</p>');
+            $slotsWrapper.html('<p>' + soob_checkout_ajax.strings.no_slots + '</p>');
             return;
         }
         
-        var html = '<div class="hamdy-time-slots-container">';
+        var html = '<div class="soob-time-slots-container">';
         
         // Days tabs
-        html += '<div class="hamdy-days-tabs">';
+        html += '<div class="soob-days-tabs">';
         $.each(days, function(index, day) {
             var activeClass = index === 0 ? ' active' : '';
             var disabledClass = !day.has_slots ? ' disabled' : '';
             
-            html += '<button type="button" class="hamdy-day-tab' + activeClass + disabledClass + '" data-day="' + day.day_key + '">';
+            html += '<button type="button" class="soob-day-tab' + activeClass + disabledClass + '" data-day="' + day.day_key + '">';
             html += '<span class="day-name">' + day.day_name + '</span>';
             html += '</button>';
         });
         html += '</div>';
         
         // Time slots content
-        html += '<div class="hamdy-slots-content">';
+        html += '<div class="soob-slots-content">';
         $.each(days, function(index, day) {
             var activeClass = index === 0 ? ' active' : '';
             
-            html += '<div class="hamdy-day-slots' + activeClass + '" data-day="' + day.day_key + '">';
+            html += '<div class="soob-day-slots' + activeClass + '" data-day="' + day.day_key + '">';
             
             if (day.has_slots) {
-                html += '<div class="hamdy-slots-grid">';
+                html += '<div class="soob-slots-grid">';
                 $.each(day.slots, function(slotIndex, slot) {
                     var slotData = {
                         day: day.day_name,
@@ -189,14 +189,14 @@ jQuery(document).ready(function($) {
                         timezone: slot.timezone
                     };
                     
-                    html += '<label class="hamdy-slot-option">';
-                    html += '<input type="checkbox" name="hamdy_time_slots[]" value="' + JSON.stringify(slotData).replace(/"/g, '&quot;') + '">';
+                    html += '<label class="soob-slot-option">';
+                    html += '<input type="checkbox" name="soob_time_slots[]" value="' + JSON.stringify(slotData).replace(/"/g, '&quot;') + '">';
                     html += '<span class="slot-time">' + slot.display + '</span>';
                     html += '</label>';
                 });
                 html += '</div>';
             } else {
-                html += '<p class="hamdy-no-slots">No available slots for this day.</p>';
+                html += '<p class="soob-no-slots">No available slots for this day.</p>';
             }
             
             html += '</div>';
@@ -210,17 +210,17 @@ jQuery(document).ready(function($) {
     
     // Switch to specific day
     function switchToDay(dayKey) {
-        $('.hamdy-day-tab').removeClass('active');
-        $('.hamdy-day-tab[data-day="' + dayKey + '"]').addClass('active');
+        $('.soob-day-tab').removeClass('active');
+        $('.soob-day-tab[data-day="' + dayKey + '"]').addClass('active');
         
-        $('.hamdy-day-slots').removeClass('active');
-        $('.hamdy-day-slots[data-day="' + dayKey + '"]').addClass('active');
+        $('.soob-day-slots').removeClass('active');
+        $('.soob-day-slots[data-day="' + dayKey + '"]').addClass('active');
     }
     
     // Update selected slots for form submission
     function updateSelectedSlots() {
         var selectedSlots = [];
-        $('input[name="hamdy_time_slots[]"]:checked').each(function() {
+        $('input[name="soob_time_slots[]"]:checked').each(function() {
             try {
                 var slotData = JSON.parse($(this).val());
                 selectedSlots.push(slotData);
@@ -230,9 +230,9 @@ jQuery(document).ready(function($) {
         });
         
         // Create or update hidden field for form submission
-        var $hiddenField = $('input[name="hamdy_selected_slots"]');
+        var $hiddenField = $('input[name="soob_selected_slots"]');
         if ($hiddenField.length === 0) {
-            $hiddenField = $('<input type="hidden" name="hamdy_selected_slots">');
+            $hiddenField = $('<input type="hidden" name="soob_selected_slots">');
             $slotsContainer.append($hiddenField);
         }
         

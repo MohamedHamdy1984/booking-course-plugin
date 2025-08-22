@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Hamdy_Admin_Schedule {
+class SOOB_Admin_Schedule {
     
     public function __construct() {
         $this->init_hooks();
@@ -18,26 +18,26 @@ class Hamdy_Admin_Schedule {
      * Initialize hooks
      */
     private function init_hooks() {
-        add_action('wp_ajax_hamdy_get_schedule_data', array($this, 'ajax_get_schedule_data'));
-        add_action('wp_ajax_hamdy_load_schedule', array($this, 'ajax_load_schedule'));
+        add_action('wp_ajax_soob_get_schedule_data', array($this, 'ajax_get_schedule_data'));
+        add_action('wp_ajax_soob_load_schedule', array($this, 'ajax_load_schedule'));
     }
     
     /**
      * Enqueue scripts and styles
-     * called from Hamdy_Admin class
+     * called from SOOB_Admin class
      */
     public function enqueue_scripts() {
-        wp_enqueue_style('hamdy-admin-schedule', HAMDY_PLUGIN_URL . 'assets/css/admin-schedule.css', array(), HAMDY_PLUGIN_VERSION);
-        wp_enqueue_script('hamdy-admin-schedule', HAMDY_PLUGIN_URL . 'assets/js/admin-schedule.js', array('jquery'), HAMDY_PLUGIN_VERSION, true);
+        wp_enqueue_style('soob-admin-schedule', SOOB_PLUGIN_URL . 'assets/css/admin-schedule.css', array(), SOOB_PLUGIN_VERSION);
+        wp_enqueue_script('soob-admin-schedule', SOOB_PLUGIN_URL . 'assets/js/admin-schedule.js', array('jquery'), SOOB_PLUGIN_VERSION, true);
         
         // Localize script for AJAX with unique variable name
-        wp_localize_script('hamdy-admin-schedule', 'hamdy_schedule_ajax', array(
+        wp_localize_script('soob-admin-schedule', 'soob_schedule_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('hamdy_admin_nonce'),
+            'nonce' => wp_create_nonce('soob_admin_nonce'),
             'strings' => array(
-                'loading' => __('Loading schedule...', 'hamdy-plugin'),
-                'no_data' => __('No schedule data available.', 'hamdy-plugin'),
-                'error' => __('An error occurred while loading the schedule.', 'hamdy-plugin'),
+                'loading' => __('Loading schedule...', 'soob-plugin'),
+                'no_data' => __('No schedule data available.', 'soob-plugin'),
+                'error' => __('An error occurred while loading the schedule.', 'soob-plugin'),
             )
         ));
     }
@@ -48,30 +48,30 @@ class Hamdy_Admin_Schedule {
     public function display_page() {
         ?>
         <div class="wrap">
-            <h1><?php _e('Schedule Overview', 'hamdy-plugin'); ?></h1>
+            <h1><?php _e('Schedule Overview', 'soob-plugin'); ?></h1>
             
             <!-- Timezone selector for admin -->
-            <div class="hamdy-timezone-selector" style="margin-bottom: 20px;">
-                <label for="hamdy_display_timezone"><?php _e('Display times in timezone:', 'hamdy-plugin'); ?></label>
-                <select id="hamdy_display_timezone" name="hamdy_display_timezone">
+            <div class="soob-timezone-selector" style="margin-bottom: 20px;">
+                <label for="soob_display_timezone"><?php _e('Display times in timezone:', 'soob-plugin'); ?></label>
+                <select id="soob_display_timezone" name="soob_display_timezone">
                     <?php
-                    $woocommerce = new Hamdy_WooCommerce();
+                    $woocommerce = new SOOB_WooCommerce();
                     $timezones = $woocommerce->get_timezone_options();
                     foreach ($timezones as $value => $label) {
                         echo '<option value="' . esc_attr($value) . '">' . esc_html($label) . '</option>';
                     }
                     ?>
                 </select>
-                <p class="description"><?php _e('Times are stored in UTC and will be converted to the selected timezone for display.', 'hamdy-plugin'); ?></p>
+                <p class="description"><?php _e('Times are stored in UTC and will be converted to the selected timezone for display.', 'soob-plugin'); ?></p>
             </div>
             
-            <div class="hamdy-schedule-tabs">
+            <div class="soob-schedule-tabs">
                 <nav class="nav-tab-wrapper">
-                    <a href="#male" class="nav-tab" data-audience="male"><?php _e('Male', 'hamdy-plugin'); ?></a>
-                    <a href="#female" class="nav-tab" data-audience="female"><?php _e('Female', 'hamdy-plugin'); ?></a>
+                    <a href="#male" class="nav-tab" data-audience="male"><?php _e('Male', 'soob-plugin'); ?></a>
+                    <a href="#female" class="nav-tab" data-audience="female"><?php _e('Female', 'soob-plugin'); ?></a>
                 </nav>
                 
-                <div id="schedule-content" class="hamdy-tab-content">
+                <div id="schedule-content" class="soob-tab-content">
                     <!-- Content will be loaded via AJAX -->
                 </div>
             </div>
@@ -87,48 +87,48 @@ class Hamdy_Admin_Schedule {
      */
     private function display_schedule_grid($audience, $display_timezone = 'UTC') {
         $days = array(
-            'sunday' => __('Sunday', 'hamdy-plugin'),
-            'monday' => __('Monday', 'hamdy-plugin'),
-            'tuesday' => __('Tuesday', 'hamdy-plugin'),
-            'wednesday' => __('Wednesday', 'hamdy-plugin'),
-            'thursday' => __('Thursday', 'hamdy-plugin'),
-            'friday' => __('Friday', 'hamdy-plugin'),
-            'saturday' => __('Saturday', 'hamdy-plugin')
+            'sunday' => __('Sunday', 'soob-plugin'),
+            'monday' => __('Monday', 'soob-plugin'),
+            'tuesday' => __('Tuesday', 'soob-plugin'),
+            'wednesday' => __('Wednesday', 'soob-plugin'),
+            'thursday' => __('Thursday', 'soob-plugin'),
+            'friday' => __('Friday', 'soob-plugin'),
+            'saturday' => __('Saturday', 'soob-plugin')
         );
         
         // Get availability data for this audience with timezone conversion
         $availability_data = $this->get_availability_for_audience($audience, $display_timezone);
         
         // Display timezone indicator
-        echo '<div class="hamdy-timezone-indicator">';
-        echo '<strong>' . __('Displaying times in:', 'hamdy-plugin') . '</strong> ' . esc_html($display_timezone);
+        echo '<div class="soob-timezone-indicator">';
+        echo '<strong>' . __('Displaying times in:', 'soob-plugin') . '</strong> ' . esc_html($display_timezone);
         echo '</div>';
         
         // Check if there's any availability data
         if (empty($availability_data)) {
-            echo '<div class="hamdy-no-data">';
-            echo '<h3>' . __('No teachers available', 'hamdy-plugin') . '</h3>';
-            echo '<p>' . sprintf(__('There are currently no active teachers available for %s.', 'hamdy-plugin'), $this->get_audience_label($audience)) . '</p>';
-            echo '<p><a href="' . admin_url('admin.php?page=hamdy-teachers&action=add') . '" class="button button-primary">' . __('Add Teacher', 'hamdy-plugin') . '</a></p>';
+            echo '<div class="soob-no-data">';
+            echo '<h3>' . __('No teachers available', 'soob-plugin') . '</h3>';
+            echo '<p>' . sprintf(__('There are currently no active teachers available for %s.', 'soob-plugin'), $this->get_audience_label($audience)) . '</p>';
+            echo '<p><a href="' . admin_url('admin.php?page=soob-teachers&action=add') . '" class="button button-primary">' . __('Add Teacher', 'soob-plugin') . '</a></p>';
             echo '</div>';
             return;
         }
         
         // Display legend
-        echo '<div class="hamdy-legend">';
-        echo '<div class="hamdy-legend-item">';
-        echo '<div class="hamdy-legend-color hamdy-legend-available"></div>';
-        echo '<span>' . __('Available', 'hamdy-plugin') . '</span>';
+        echo '<div class="soob-legend">';
+        echo '<div class="soob-legend-item">';
+        echo '<div class="soob-legend-color soob-legend-available"></div>';
+        echo '<span>' . __('Available', 'soob-plugin') . '</span>';
         echo '</div>';
-        echo '<div class="hamdy-legend-item">';
-        echo '<div class="hamdy-legend-color hamdy-legend-unavailable"></div>';
-        echo '<span>' . __('Unavailable', 'hamdy-plugin') . '</span>';
+        echo '<div class="soob-legend-item">';
+        echo '<div class="soob-legend-color soob-legend-unavailable"></div>';
+        echo '<span>' . __('Unavailable', 'soob-plugin') . '</span>';
         echo '</div>';
         echo '</div>';
         
         // Timezone notice header
-        echo '<div class="hamdy-timezone-notice">';
-        echo '<p><strong>' . __('All times are shown in:', 'hamdy-plugin') . '</strong> ';
+        echo '<div class="soob-timezone-notice">';
+        echo '<p><strong>' . __('All times are shown in:', 'soob-plugin') . '</strong> ';
         
         // Get timezone name and UTC offset
         try {
@@ -151,18 +151,18 @@ class Hamdy_Admin_Schedule {
         echo '</p>';
         echo '</div>';
         
-        echo '<div class="hamdy-schedule-grid">';
+        echo '<div class="soob-schedule-grid">';
         
         foreach ($days as $day_key => $day_name) {
-            echo '<div class="hamdy-day-header">' . $day_name . '</div>';
-            echo '<div class="hamdy-day-slots hamdy-day-row" data-day="' . $day_key . '">';
+            echo '<div class="soob-day-header">' . $day_name . '</div>';
+            echo '<div class="soob-day-slots soob-day-row" data-day="' . $day_key . '">';
             
             for ($hour = 0; $hour < 24; $hour++) {
                 $time_slot = sprintf('%02d:00', $hour);
                 $is_available = isset($availability_data[$day_key]) && in_array($time_slot, $availability_data[$day_key]);
                 $class = $is_available ? 'available' : 'unavailable';
                 
-                echo '<div class="hamdy-time-slot ' . $class . '" data-hour="' . sprintf('%02d', $hour) . '" data-day="' . $day_key . '" data-time="' . $time_slot . '">';
+                echo '<div class="soob-time-slot ' . $class . '" data-hour="' . sprintf('%02d', $hour) . '" data-day="' . $day_key . '" data-time="' . $time_slot . '">';
                 echo sprintf('%02d', $hour);
                 echo '</div>';
             }
@@ -179,7 +179,7 @@ class Hamdy_Admin_Schedule {
     private function get_availability_for_audience($audience, $display_timezone = 'UTC') {
         global $wpdb;
         
-        $table = $wpdb->prefix . 'hamdy_teachers';
+        $table = $wpdb->prefix . 'soob_teachers';
         
         // Validate audience
         if (!in_array($audience, ['male', 'female'])) {
@@ -262,10 +262,10 @@ class Hamdy_Admin_Schedule {
      * AJAX: Get schedule data
      */
     public function ajax_get_schedule_data() {
-        check_ajax_referer('hamdy_admin_nonce', 'nonce');
+        check_ajax_referer('soob_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have sufficient permissions.', 'hamdy-plugin'));
+            wp_die(__('You do not have sufficient permissions.', 'soob-plugin'));
         }
         
         $audience = sanitize_text_field($_POST['audience']);
@@ -279,10 +279,10 @@ class Hamdy_Admin_Schedule {
      * AJAX: Load schedule (returns HTML for display)
      */
     public function ajax_load_schedule() {
-        check_ajax_referer('hamdy_admin_nonce', 'nonce');
+        check_ajax_referer('soob_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have sufficient permissions.', 'hamdy-plugin'));
+            wp_die(__('You do not have sufficient permissions.', 'soob-plugin'));
         }
         
         $audience = sanitize_text_field($_POST['audience']);
@@ -365,11 +365,11 @@ class Hamdy_Admin_Schedule {
     private function get_audience_label($audience) {
         switch ($audience) {
             case 'male':
-                return __('male teachers', 'hamdy-plugin');
+                return __('male teachers', 'soob-plugin');
             case 'female':
-                return __('female teachers', 'hamdy-plugin');
+                return __('female teachers', 'soob-plugin');
             default:
-                return __('this audience', 'hamdy-plugin');
+                return __('this audience', 'soob-plugin');
         }
     }
 }

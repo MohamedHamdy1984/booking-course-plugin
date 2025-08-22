@@ -1,17 +1,17 @@
-/* General Admin Styles for Hamdy Plugin */
+/* General Admin Styles for Soob Plugin */
 
-.hamdy-dashboard {
+.soob-dashboard {
     margin-top: 20px;
 }
 
-.hamdy-stats-grid {
+.soob-stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
     margin-bottom: 30px;
 }
 
-.hamdy-stat-card {
+.soob-stat-card {
     background: #fff;
     border: 1px solid #e1e1e1;
     border-radius: 6px;
@@ -20,7 +20,7 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.hamdy-stat-card h3 {
+.soob-stat-card h3 {
     margin: 0 0 10px 0;
     font-size: 14px;
     color: #666;
@@ -28,28 +28,28 @@
     font-weight: 600;
 }
 
-.hamdy-stat-number {
+.soob-stat-number {
     font-size: 32px;
     font-weight: 700;
     color: #0073aa;
     margin: 0;
 }
 
-.hamdy-recent-bookings {
+.soob-recent-bookings {
     background: #fff;
     border: 1px solid #e1e1e1;
     border-radius: 6px;
     padding: 20px;
 }
 
-.hamdy-recent-bookings h2 {
+.soob-recent-bookings h2 {
     margin-top: 0;
     margin-bottom: 20px;
     font-size: 18px;
     color: #333;
 }
 
-.hamdy-bookings-list {
+.soob-bookings-list {
     background: #fff;
     border: 1px solid #e1e1e1;
     border-radius: 6px;
@@ -57,7 +57,7 @@
 }
 
 /* Status indicators */
-.hamdy-status {
+.soob-status {
     padding: 4px 8px;
     border-radius: 3px;
     font-size: 12px;
@@ -65,38 +65,38 @@
     text-transform: uppercase;
 }
 
-.hamdy-status-pending {
+.soob-status-pending {
     background: #fff3cd;
     color: #856404;
 }
 
-.hamdy-status-confirmed {
+.soob-status-confirmed {
     background: #d4edda;
     color: #155724;
 }
 
-.hamdy-status-completed {
+.soob-status-completed {
     background: #d1ecf1;
     color: #0c5460;
 }
 
-.hamdy-status-cancelled {
+.soob-status-cancelled {
     background: #f8d7da;
     color: #721c24;
 }
 
-.hamdy-status-active {
+.soob-status-active {
     background: #d4edda;
     color: #155724;
 }
 
-.hamdy-status-inactive {
+.soob-status-inactive {
     background: #f8d7da;
     color: #721c24;
 }
 
 /* Form elements */
-.hamdy-form-section {
+.soob-form-section {
     background: #fff;
     border: 1px solid #e1e1e1;
     border-radius: 6px;
@@ -104,7 +104,7 @@
     margin-bottom: 20px;
 }
 
-.hamdy-form-section h3 {
+.soob-form-section h3 {
     margin-top: 0;
     margin-bottom: 15px;
     font-size: 16px;
@@ -112,45 +112,45 @@
 }
 
 /* Notices and alerts */
-.hamdy-notice {
+.soob-notice {
     padding: 12px 15px;
     border-radius: 4px;
     margin: 15px 0;
 }
 
-.hamdy-notice-success {
+.soob-notice-success {
     background: #d4edda;
     color: #155724;
     border: 1px solid #c3e6cb;
 }
 
-.hamdy-notice-error {
+.soob-notice-error {
     background: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
 
-.hamdy-notice-warning {
+.soob-notice-warning {
     background: #fff3cd;
     color: #856404;
     border: 1px solid #ffeaa7;
 }
 
-.hamdy-notice-info {
+.soob-notice-info {
     background: #d1ecf1;
     color: #0c5460;
     border: 1px solid #bee5eb;
 }
 
 /* Loading states */
-.hamdy-loading {
+.soob-loading {
     text-align: center;
     padding: 40px;
     color: #666;
     font-style: italic;
 }
 
-.hamdy-loading::before {
+.soob-loading::before {
     content: "";
     display: inline-block;
     width: 20px;
@@ -158,48 +158,48 @@
     border: 2px solid #ddd;
     border-top: 2px solid #0073aa;
     border-radius: 50%;
-    animation: hamdy-spin 1s linear infinite;
+    animation: soob-spin 1s linear infinite;
     margin-right: 10px;
     vertical-align: middle;
 }
 
-@keyframes hamdy-spin {
+@keyframes soob-spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
-    .hamdy-stats-grid {
+    .soob-stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (max-width: 480px) {
-    .hamdy-stats-grid {
+    .soob-stats-grid {
         grid-template-columns: 1fr;
     }
     
-    .hamdy-stat-card {
+    .soob-stat-card {
         padding: 15px;
     }
     
-    .hamdy-stat-number {
+    .soob-stat-number {
         font-size: 24px;
     }
 }
 
 /* Booking Management Styles */
-.hamdy-bookings-tabs {
+.soob-bookings-tabs {
     margin-bottom: 20px;
 }
 
-.hamdy-bookings-tabs .nav-tab-wrapper {
+.soob-bookings-tabs .nav-tab-wrapper {
     border-bottom: 1px solid #ccd0d4;
     margin-bottom: 0;
 }
 
-.hamdy-bookings-tabs .nav-tab {
+.soob-bookings-tabs .nav-tab {
     position: relative;
     background: #f1f1f1;
     border: 1px solid #ccd0d4;
@@ -207,19 +207,19 @@
     text-decoration: none;
 }
 
-.hamdy-bookings-tabs .nav-tab:hover {
+.soob-bookings-tabs .nav-tab:hover {
     background: #fafafa;
     color: #0073aa;
 }
 
-.hamdy-bookings-tabs .nav-tab-active {
+.soob-bookings-tabs .nav-tab-active {
     background: #fff !important;
     border-bottom: 1px solid #fff !important;
     color: #000 !important;
     font-weight: 600;
 }
 
-.hamdy-bookings-tabs .nav-tab-active::after {
+.soob-bookings-tabs .nav-tab-active::after {
     content: "";
     position: absolute;
     bottom: -1px;
@@ -229,34 +229,34 @@
     background: #0073aa;
 }
 
-.hamdy-bookings-table {
+.soob-bookings-table {
     margin-top: 0;
 }
 
-.hamdy-bookings-table tr.expiring {
+.soob-bookings-table tr.expiring {
     background-color: #fff3cd !important;
 }
 
-.hamdy-bookings-table tr.expiring:hover {
+.soob-bookings-table tr.expiring:hover {
     background-color: #ffeaa7 !important;
 }
 
-.hamdy-bookings-table .hamdy-delete-booking {
+.soob-bookings-table .soob-delete-booking {
     color: #a00;
     border-color: #a00;
 }
 
-.hamdy-bookings-table .hamdy-delete-booking:hover {
+.soob-bookings-table .soob-delete-booking:hover {
     background-color: #a00;
     color: #fff;
 }
 
-.hamdy-bookings-table .hamdy-edit-booking {
+.soob-bookings-table .soob-edit-booking {
     margin-right: 5px;
 }
 
 /* Tab content styling */
-.hamdy-bookings-list {
+.soob-bookings-list {
     background: #fff;
     border: 1px solid #e1e1e1;
     border-radius: 6px;
@@ -265,11 +265,11 @@
 }
 
 /* Expiring soon indicator */
-.hamdy-bookings-table tr.expiring td {
+.soob-bookings-table tr.expiring td {
     position: relative;
 }
 
-.hamdy-bookings-table tr.expiring td:first-child::before {
+.soob-bookings-table tr.expiring td:first-child::before {
     content: "⚠";
     color: #856404;
     font-weight: bold;
@@ -277,7 +277,7 @@
 }
 
 /* Action buttons styling */
-.hamdy-bookings-table .button-small {
+.soob-bookings-table .button-small {
     padding: 2px 8px;
     font-size: 11px;
     line-height: 1.4;
@@ -285,39 +285,39 @@
 }
 
 /* Loading state for AJAX operations */
-.hamdy-bookings-table tr.deleting {
+.soob-bookings-table tr.deleting {
     opacity: 0.5;
     pointer-events: none;
 }
 
-.hamdy-bookings-table tr.deleting td {
+.soob-bookings-table tr.deleting td {
     background-color: #f8f9fa;
 }
 
 /* Responsive design for booking table */
 @media (max-width: 768px) {
-    .hamdy-bookings-table {
+    .soob-bookings-table {
         font-size: 12px;
     }
     
-    .hamdy-bookings-table th,
-    .hamdy-bookings-table td {
+    .soob-bookings-table th,
+    .soob-bookings-table td {
         padding: 8px 4px;
     }
     
-    .hamdy-bookings-table .button-small {
+    .soob-bookings-table .button-small {
         padding: 1px 4px;
         font-size: 10px;
     }
 }
 
 @media (max-width: 600px) {
-    .hamdy-bookings-tabs .nav-tab {
+    .soob-bookings-tabs .nav-tab {
         font-size: 12px;
         padding: 8px 12px;
     }
     
-    .hamdy-bookings-table {
+    .soob-bookings-table {
         display: block;
         overflow-x: auto;
         white-space: nowrap;
@@ -325,17 +325,17 @@
 }
 
 /* Edit booking page styles */
-.hamdy-edit-booking-page .form-table th {
+.soob-edit-booking-page .form-table th {
     width: 150px;
     font-weight: 600;
 }
 
-.hamdy-edit-booking-page .form-table td {
+.soob-edit-booking-page .form-table td {
     padding-left: 20px;
 }
 
 /* Enhanced status indicators */
-.hamdy-status {
+.soob-status {
     display: inline-block;
     min-width: 60px;
     text-align: center;
@@ -353,7 +353,7 @@
 }
 
 /* Confirmation dialog styles */
-.hamdy-confirm-dialog {
+.soob-confirm-dialog {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -367,21 +367,21 @@
     min-width: 300px;
 }
 
-.hamdy-confirm-dialog h3 {
+.soob-confirm-dialog h3 {
     margin-top: 0;
     color: #d63384;
 }
 
-.hamdy-confirm-dialog .button-group {
+.soob-confirm-dialog .button-group {
     text-align: right;
     margin-top: 15px;
 }
 
-.hamdy-confirm-dialog .button-group .button {
+.soob-confirm-dialog .button-group .button {
     margin-left: 10px;
 }
 
-.hamdy-dialog-overlay {
+.soob-dialog-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -392,11 +392,11 @@
 }
 
 /* Additional animations and hover effects */
-.hamdy-bookings-table tbody tr.hover-highlight {
+.soob-bookings-table tbody tr.hover-highlight {
     background-color: #f8f9fa;
 }
 
-.hamdy-bookings-table tbody tr.highlight-animation {
+.soob-bookings-table tbody tr.highlight-animation {
     animation: highlightPulse 2s ease-in-out;
 }
 
@@ -407,20 +407,20 @@
 }
 
 /* Smooth transitions for all interactive elements */
-.hamdy-bookings-table tbody tr,
-.hamdy-bookings-table .button,
+.soob-bookings-table tbody tr,
+.soob-bookings-table .button,
 .nav-tab {
     transition: all 0.2s ease-in-out;
 }
 
 /* Enhanced button states */
-.hamdy-bookings-table .button:disabled {
+.soob-bookings-table .button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
 /* Loading spinner for buttons */
-.hamdy-bookings-table .button.loading::before {
+.soob-bookings-table .button.loading::before {
     content: "";
     display: inline-block;
     width: 12px;
@@ -428,17 +428,17 @@
     border: 2px solid #ddd;
     border-top: 2px solid #0073aa;
     border-radius: 50%;
-    animation: hamdy-spin 1s linear infinite;
+    animation: soob-spin 1s linear infinite;
     margin-right: 5px;
     vertical-align: middle;
 }
 
 /* Tab active state enhancement */
-.hamdy-bookings-tabs .nav-tab-active {
+.soob-bookings-tabs .nav-tab-active {
     position: relative;
 }
 
-.hamdy-bookings-tabs .nav-tab-active::after {
+.soob-bookings-tabs .nav-tab-active::after {
     content: "";
     position: absolute;
     bottom: -1px;
@@ -449,7 +449,7 @@
 }
 
 /* Fade in animation for new content */
-.hamdy-bookings-list {
+.soob-bookings-list {
     animation: fadeIn 0.3s ease-in-out;
 }
 
@@ -459,17 +459,17 @@
 }
 
 /* Enhanced expiring row styling */
-.hamdy-bookings-table tr.expiring {
+.soob-bookings-table tr.expiring {
     border-left: 4px solid #856404;
 }
 
-.hamdy-bookings-table tr.expiring td:first-child {
+.soob-bookings-table tr.expiring td:first-child {
     font-weight: 600;
 }
 
 /* Responsive improvements */
 @media (max-width: 480px) {
-    .hamdy-bookings-tabs .nav-tab {
+    .soob-bookings-tabs .nav-tab {
         display: block;
         width: 100%;
         text-align: center;
@@ -477,50 +477,50 @@
         border-radius: 4px;
     }
     
-    .hamdy-bookings-tabs .nav-tab-wrapper {
+    .soob-bookings-tabs .nav-tab-wrapper {
         border: none;
     }
     
-    .hamdy-confirm-dialog {
+    .soob-confirm-dialog {
         width: 90%;
         max-width: 300px;
     }
 }
 
 /* Booking Editor Styles */
-.hamdy-edit-booking-page .hamdy-form-section {
+.soob-edit-booking-page .soob-form-section {
     margin-bottom: 25px;
 }
 
-.hamdy-edit-booking-page .hamdy-form-section h3 {
+.soob-edit-booking-page .soob-form-section h3 {
     border-bottom: 2px solid #0073aa;
     padding-bottom: 8px;
     margin-bottom: 20px;
     color: #0073aa;
 }
 
-.hamdy-edit-booking-page .form-table th {
+.soob-edit-booking-page .form-table th {
     width: 200px;
     font-weight: 600;
     color: #333;
 }
 
-.hamdy-edit-booking-page .form-table td {
+.soob-edit-booking-page .form-table td {
     padding-left: 20px;
 }
 
-.hamdy-editable-field {
+.soob-editable-field {
     border: 2px solid #ddd;
     transition: border-color 0.3s ease;
 }
 
-.hamdy-editable-field:focus {
+.soob-editable-field:focus {
     border-color: #0073aa;
     box-shadow: 0 0 5px rgba(0, 115, 170, 0.3);
 }
 
 /* Session Management Styles */
-.hamdy-session-row {
+.soob-session-row {
     background: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 6px;
@@ -529,58 +529,58 @@
     position: relative;
 }
 
-.hamdy-session-row:hover {
+.soob-session-row:hover {
     background: #f5f5f5;
     border-color: #0073aa;
 }
 
-.hamdy-session-row .form-table {
+.soob-session-row .form-table {
     margin: 0;
 }
 
-.hamdy-session-row .form-table th {
+.soob-session-row .form-table th {
     width: auto;
     padding: 8px 15px 8px 0;
     font-size: 13px;
     font-weight: 600;
 }
 
-.hamdy-session-row .form-table td {
+.soob-session-row .form-table td {
     padding: 8px 15px 8px 0;
 }
 
-.hamdy-session-day,
-.hamdy-session-start-time,
-.hamdy-session-end-time {
+.soob-session-day,
+.soob-session-start-time,
+.soob-session-end-time {
     min-width: 120px;
 }
 
-.hamdy-remove-session {
+.soob-remove-session {
     background: #dc3545;
     border-color: #dc3545;
     color: white;
 }
 
-.hamdy-remove-session:hover {
+.soob-remove-session:hover {
     background: #c82333;
     border-color: #bd2130;
     color: white;
 }
 
-#hamdy-add-session {
+#soob-add-session {
     background: #28a745;
     border-color: #28a745;
     color: white;
     font-weight: 600;
 }
 
-#hamdy-add-session:hover {
+#soob-add-session:hover {
     background: #218838;
     border-color: #1e7e34;
     color: white;
 }
 
-.hamdy-no-sessions {
+.soob-no-sessions {
     text-align: center;
     padding: 30px;
     color: #666;
@@ -591,18 +591,18 @@
 }
 
 /* Status indicators in edit form */
-.hamdy-edit-booking-page .hamdy-status {
+.soob-edit-booking-page .soob-status {
     font-size: 14px;
     padding: 6px 12px;
 }
 
 /* Form validation styles */
-.hamdy-field-error {
+.soob-field-error {
     border-color: #dc3545 !important;
     box-shadow: 0 0 5px rgba(220, 53, 69, 0.3) !important;
 }
 
-.hamdy-error-message {
+.soob-error-message {
     color: #dc3545;
     font-size: 12px;
     margin-top: 5px;
@@ -610,21 +610,21 @@
 }
 
 /* Success/Error notices in edit form */
-.hamdy-edit-booking-page .notice {
+.soob-edit-booking-page .notice {
     margin: 15px 0;
 }
 
-.hamdy-edit-booking-page .notice ul {
+.soob-edit-booking-page .notice ul {
     margin: 0;
     padding-left: 20px;
 }
 
-.hamdy-edit-booking-page .notice li {
+.soob-edit-booking-page .notice li {
     margin: 5px 0;
 }
 
 /* Improved form layout */
-.hamdy-booking-edit-form .submit {
+.soob-booking-edit-form .submit {
     background: #f9f9f9;
     border-top: 1px solid #ddd;
     padding: 20px;
@@ -632,7 +632,7 @@
     border-radius: 0 0 6px 6px;
 }
 
-.hamdy-booking-edit-form .button-primary {
+.soob-booking-edit-form .button-primary {
     font-size: 14px;
     padding: 8px 20px;
     height: auto;
@@ -641,54 +641,54 @@
 
 /* Responsive design for edit form */
 @media (max-width: 768px) {
-    .hamdy-edit-booking-page .form-table th {
+    .soob-edit-booking-page .form-table th {
         width: 120px;
         font-size: 12px;
     }
     
-    .hamdy-session-row .form-table th {
+    .soob-session-row .form-table th {
         display: block;
         width: 100%;
         padding: 5px 0;
     }
     
-    .hamdy-session-row .form-table td {
+    .soob-session-row .form-table td {
         display: block;
         width: 100%;
         padding: 5px 0 10px 0;
     }
     
-    .hamdy-session-day,
-    .hamdy-session-start-time,
-    .hamdy-session-end-time {
+    .soob-session-day,
+    .soob-session-start-time,
+    .soob-session-end-time {
         width: 100%;
         min-width: auto;
     }
 }
 
 @media (max-width: 480px) {
-    .hamdy-edit-booking-page .hamdy-form-section {
+    .soob-edit-booking-page .soob-form-section {
         padding: 15px;
     }
     
-    .hamdy-edit-booking-page .form-table th,
-    .hamdy-edit-booking-page .form-table td {
+    .soob-edit-booking-page .form-table th,
+    .soob-edit-booking-page .form-table td {
         display: block;
         width: 100%;
         padding: 8px 0;
     }
     
-    .hamdy-editable-field {
+    .soob-editable-field {
         width: 100%;
     }
     
-    .hamdy-session-row {
+    .soob-session-row {
         padding: 10px;
     }
 }
 
 /* Animation for adding/removing sessions */
-.hamdy-session-row {
+.soob-session-row {
     animation: slideIn 0.3s ease-out;
 }
 
@@ -703,7 +703,7 @@
     }
 }
 
-.hamdy-session-removing {
+.soob-session-removing {
     animation: slideOut 0.3s ease-in forwards;
 }
 
