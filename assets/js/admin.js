@@ -20,7 +20,7 @@ jQuery(document).ready(function($) {
     
     // Auto-save functionality for forms
     var autoSaveTimeout;
-    $('.soob-teacher-form input, .soob-teacher-form select, .soob-teacher-form textarea').on('input change', function() {
+    $('.soob-provider-form input, .soob-provider-form select, .soob-provider-form textarea').on('input change', function() {
         clearTimeout(autoSaveTimeout);
         autoSaveTimeout = setTimeout(function() {
             // Auto-save logic can be implemented here
@@ -45,7 +45,7 @@ jQuery(document).ready(function($) {
     }
     
     // Search functionality
-    $('#teacher-search-input').on('keyup', function() {
+    $('#provider-search-input').on('keyup', function() {
         var value = $(this).val().toLowerCase();
         $('.wp-list-table tbody tr').filter(function() {
             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
@@ -75,12 +75,12 @@ jQuery(document).ready(function($) {
         });
     }
     
-    // Media uploader for teacher photos
+    // Media uploader for provider photos
     $('.soob-upload-photo').on('click', function(e) {
         e.preventDefault();
         
         var mediaUploader = wp.media({
-            title: 'Select Teacher Photo',
+            title: 'Select Provider Photo',
             button: {
                 text: 'Use this photo'
             },
@@ -89,7 +89,7 @@ jQuery(document).ready(function($) {
         
         mediaUploader.on('select', function() {
             var attachment = mediaUploader.state().get('selection').first().toJSON();
-            $('#teacher_photo').val(attachment.url);
+            $('#provider_photo').val(attachment.url);
             $('.soob-current-photo img').attr('src', attachment.url);
         });
         
@@ -147,7 +147,7 @@ jQuery(document).ready(function($) {
         // Ctrl/Cmd + S to save
         if ((e.ctrlKey || e.metaKey) && e.which === 83) {
             e.preventDefault();
-            $('.soob-teacher-form').submit();
+            $('.soob-provider-form').submit();
         }
         
         // Escape to close modals
@@ -161,7 +161,7 @@ jQuery(document).ready(function($) {
     
     function initializePage() {
         // Set focus on first input
-        $('.soob-teacher-form input:first').focus();
+        $('.soob-provider-form input:first').focus();
         
         // Initialize any third-party plugins
         if ($.fn.datepicker) {
@@ -449,10 +449,10 @@ jQuery(document).ready(function($) {
         $('.soob-field-error').removeClass('soob-field-error');
         $('.soob-error-message').remove();
         
-        // Validate student name
-        var $studentName = $('#student_name');
-        if ($studentName.val().trim() === '') {
-            showFieldError($studentName, 'Student name is required.');
+        // Validate client name
+        var $clientName = $('#client_name');
+        if ($clientName.val().trim() === '') {
+            showFieldError($clientName, 'Cient name is required.');
             hasErrors = true;
         }
         
@@ -520,8 +520,8 @@ jQuery(document).ready(function($) {
         $field.siblings('.soob-error-message').remove();
         
         // Validate specific fields
-        if ($field.attr('id') === 'student_name' && $field.val().trim() === '') {
-            showFieldError($field, 'Student name is required.');
+        if ($field.attr('id') === 'client_name' && $field.val().trim() === '') {
+            showFieldError($field, 'Cient name is required.');
         } else if ($field.attr('id') === 'customer_age') {
             var age = parseInt($field.val());
             if (isNaN(age) || age < 1 || age > 100) {

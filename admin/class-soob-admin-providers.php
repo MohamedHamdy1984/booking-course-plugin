@@ -1,6 +1,6 @@
 <?php
 /**
- * Teachers admin management class
+ * Providers admin management class
  */
 
 // Prevent direct access
@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class SOOB_Admin_Teachers {
+class SOOB_Admin_Providers {
     
     public function __construct() {
         $this->init_hooks();
@@ -18,74 +18,75 @@ class SOOB_Admin_Teachers {
      * Initialize hooks
      */
     private function init_hooks() {
-        add_action('wp_ajax_soob_save_teacher', array($this, 'ajax_save_teacher'));
-        add_action('wp_ajax_soob_delete_teacher', array($this, 'ajax_delete_teacher'));
-        add_action('wp_ajax_soob_get_teacher', array($this, 'ajax_get_teacher'));
+        add_action('wp_ajax_soob_save_provider', array($this, 'ajax_save_provider'));
+        add_action('wp_ajax_soob_delete_provider', array($this, 'ajax_delete_provider'));
+        add_action('wp_ajax_soob_get_provider', array($this, 'ajax_get_provider'));
     }
     
     /**
-     * Enqueue scripts and styles for teachers page
+     * Enqueue scripts and styles for providers page
      */
     public function enqueue_scripts() {
-        // Enqueue admin teachers styles if needed
-        wp_enqueue_style('soob-admin-teachers', SOOB_PLUGIN_URL . 'assets/css/admin-teachers.css', array(), SOOB_PLUGIN_VERSION);
+        // Enqueue admin providers styles if needed
+        wp_enqueue_style('soob-admin-providers', SOOB_PLUGIN_URL . 'assets/css/admin-providers.css', array(), SOOB_PLUGIN_VERSION);
         
-        // Enqueue admin teachers JavaScript if needed
-        wp_enqueue_script('soob-admin-teachers', SOOB_PLUGIN_URL . 'assets/js/admin-teachers.js', array('jquery'), SOOB_PLUGIN_VERSION, true);
+        // Enqueue admin providers JavaScript if needed
+        wp_enqueue_script('soob-admin-providers', SOOB_PLUGIN_URL . 'assets/js/admin-providers.js', array('jquery'), SOOB_PLUGIN_VERSION, true);
         
         // Localize script for AJAX with unique variable name
-        wp_localize_script('soob-admin-teachers', 'soob_teachers_ajax', array(
+        wp_localize_script('soob-admin-providers', 'soob_providers_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('soob_admin_nonce'),
             'strings' => array(
-                'confirm_delete' => __('Are you sure you want to delete this teacher?', 'soob-plugin'),
+                'confirm_delete' => __('Are you sure you want to delete this provider?', 'soob-plugin'),
                 'loading' => __('Loading...', 'soob-plugin'),
-                'saved' => __('Teacher saved successfully!', 'soob-plugin'),
+                'saved' => __('Provider saved successfully!', 'soob-plugin'),
                 'error' => __('An error occurred. Please try again.', 'soob-plugin'),
             )
         ));
     }
     
     /**
-     * Display teachers page
+     * Display providers page
      */
     public function display_page() {
         $action = isset($_GET['action']) ? $_GET['action'] : 'list';
-        $teacher_id = isset($_GET['teacher_id']) ? intval($_GET['teacher_id']) : 0;
+        $provider_id = isset($_GET['provider_id']) ? intval($_GET['provider_id']) : 0;
         
         switch ($action) {
             case 'add':
-                $this->display_add_teacher_form();
+                $this->display_add_provider_form();
                 break;
             case 'edit':
-                $this->display_edit_teacher_form($teacher_id);
+                $this->display_edit_provider_form($provider_id);
                 break;
             default:
-                $this->display_teachers_list();
+                $this->display_providers_list();
                 break;
         }
     }
     
     /**
-     * Display teachers list
+     * Display providers list
      */
-    private function display_teachers_list() {
-        $teachers = SOOB_Teacher::get_all();
+    private function display_providers_list() {
+        // Changed query to include all statuses instead of only active providers
+        $providers = SOOB_Provider::get_all('');
         ?>
         <div class="wrap">
             <h1>
-                <?php _e('Teachers Management', 'soob-plugin'); ?>
-                <a href="<?php echo admin_url('admin.php?page=soob-teachers&action=add'); ?>" class="page-title-action">
-                    <?php _e('Add New Teacher', 'soob-plugin'); ?>
+                <?php _e('Providers Management', 'soob-plugin'); ?>
+                <a href="<?php echo admin_url('admin.php?page=soob-providers&action=add'); ?>" class="page-title-action">
+                    <?php _e('Add New Provider', 'soob-plugin'); ?>
                 </a>
             </h1>
             
-            <?php if (empty($teachers)): ?>
+            <?php if (empty($providers)): ?>
                 <div class="soob-empty-state">
-                    <h2><?php _e('No teachers found', 'soob-plugin'); ?></h2>
-                    <p><?php _e('Add your first teacher to get started with the booking system.', 'soob-plugin'); ?></p>
-                    <a href="<?php echo admin_url('admin.php?page=soob-teachers&action=add'); ?>" class="button button-primary">
-                        <?php _e('Add New Teacher', 'soob-plugin'); ?>
+                    <h2><?php _e('No providers found', 'soob-plugin'); ?></h2>
+                    <p><?php _e('Add your first provider to get started with the booking system.', 'soob-plugin'); ?></p>
+                    <a href="<?php echo admin_url('admin.php?page=soob-providers&action=add'); ?>" class="button button-primary">
+                        <?php _e('Add New Provider', 'soob-plugin'); ?>
                     </a>
                 </div>
             <?php else: ?>
@@ -100,29 +101,38 @@ class SOOB_Admin_Teachers {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($teachers as $teacher): ?>
+                        <?php foreach ($providers as $provider): ?>
                             <tr>
                                 <td>
-                                    <?php if ($teacher->photo): ?>
-                                        <img src="<?php echo esc_url($teacher->photo); ?>" alt="<?php echo esc_attr($teacher->name); ?>" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                    <?php if ($provider->photo): ?>
+                                        <img src="<?php echo esc_url($provider->photo); ?>" alt="<?php echo esc_attr($provider->name); ?>" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                                     <?php else: ?>
                                         <div class="soob-avatar-placeholder" style="width: 40px; height: 40px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center;">
-                                            <?php echo strtoupper(substr($teacher->name, 0, 1)); ?>
+                                            <?php echo strtoupper(substr($provider->name, 0, 1)); ?>
                                         </div>
                                     <?php endif; ?>
                                 </td>
-                                <td><strong><?php echo esc_html($teacher->name); ?></strong></td>
-                                <td><?php echo ucfirst($teacher->gender); ?></td>
+                                <td><strong><?php echo esc_html($provider->name); ?></strong></td>
+                                <td><?php echo ucfirst($provider->gender); ?></td>
                                 <td>
-                                    <span class="soob-status soob-status-<?php echo $teacher->status; ?>">
-                                        <?php echo ucfirst($teacher->status); ?>
+                                    <?php
+                                    // Map internal status values to exact "Active" or "Inactive" strings
+                                    $status_display = '';
+                                    if ($provider->status === 'active' || $provider->status === '1' || $provider->status == 1) {
+                                        $status_display = __('Active', 'soob-plugin'); // Rendered and escaped the status value with internationalization
+                                    } else {
+                                        $status_display = __('Inactive', 'soob-plugin'); // Rendered and escaped the status value with internationalization
+                                    }
+                                    ?>
+                                    <span class="soob-status soob-status-<?php echo esc_attr($provider->status); ?>">
+                                        <?php echo esc_html($status_display); ?>
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="<?php echo admin_url('admin.php?page=soob-teachers&action=edit&teacher_id=' . $teacher->id); ?>" class="button button-small">
+                                    <a href="<?php echo admin_url('admin.php?page=soob-providers&action=edit&provider_id=' . $provider->id); ?>" class="button button-small">
                                         <?php _e('Edit', 'soob-plugin'); ?>
                                     </a>
-                                    <button class="button button-small button-link-delete soob-delete-teacher" data-teacher-id="<?php echo $teacher->id; ?>">
+                                    <button class="button button-small button-link-delete soob-delete-provider" data-provider-id="<?php echo $provider->id; ?>">
                                         <?php _e('Delete', 'soob-plugin'); ?>
                                     </button>
                                 </td>
@@ -136,42 +146,42 @@ class SOOB_Admin_Teachers {
     }
     
     /**
-     * Display add teacher form
+     * Display add provider form
      */
-    private function display_add_teacher_form() {
+    private function display_add_provider_form() {
         ?>
         <div class="wrap">
-            <h1><?php _e('Add New Teacher', 'soob-plugin'); ?></h1>
+            <h1><?php _e('Add New Provider', 'soob-plugin'); ?></h1>
             
-            <form method="post" class="soob-teacher-form" enctype="multipart/form-data">
-                <?php wp_nonce_field('soob_save_teacher', 'soob_teacher_nonce'); ?>
+            <form method="post" class="soob-provider-form" enctype="multipart/form-data">
+                <?php wp_nonce_field('soob_save_provider', 'soob_provider_nonce'); ?>
                 
                 <table class="form-table">
                     <tr>
                         <th scope="row">
-                            <label for="teacher_name"><?php _e('Name', 'soob-plugin'); ?> *</label>
+                            <label for="provider_name"><?php _e('Name', 'soob-plugin'); ?> *</label>
                         </th>
                         <td>
-                            <input type="text" id="teacher_name" name="teacher_name" class="regular-text" required>
+                            <input type="text" id="provider_name" name="provider_name" class="regular-text" required>
                         </td>
                     </tr>
                     
                     <tr>
                         <th scope="row">
-                            <label for="teacher_photo"><?php _e('Photo', 'soob-plugin'); ?></label>
+                            <label for="provider_photo"><?php _e('Photo', 'soob-plugin'); ?></label>
                         </th>
                         <td>
-                            <input type="url" id="teacher_photo" name="teacher_photo" class="regular-text" placeholder="<?php _e('Photo URL', 'soob-plugin'); ?>">
-                            <p class="description"><?php _e('Enter the URL of the teacher\'s photo or upload via Media Library.', 'soob-plugin'); ?></p>
+                            <input type="url" id="provider_photo" name="provider_photo" class="regular-text" placeholder="<?php _e('Photo URL', 'soob-plugin'); ?>">
+                            <p class="description"><?php _e('Enter the URL of the provider\'s photo or upload via Media Library.', 'soob-plugin'); ?></p>
                         </td>
                     </tr>
                     
                     <tr>
                         <th scope="row">
-                            <label for="teacher_gender"><?php _e('Gender', 'soob-plugin'); ?> *</label>
+                            <label for="provider_gender"><?php _e('Gender', 'soob-plugin'); ?> *</label>
                         </th>
                         <td>
-                            <select id="teacher_gender" name="teacher_gender" required>
+                            <select id="provider_gender" name="provider_gender" required>
                                 <option value=""><?php _e('Select Gender', 'soob-plugin'); ?></option>
                                 <option value="male"><?php _e('Male', 'soob-plugin'); ?></option>
                                 <option value="female"><?php _e('Female', 'soob-plugin'); ?></option>
@@ -182,10 +192,10 @@ class SOOB_Admin_Teachers {
                     
                     <tr>
                         <th scope="row">
-                            <label for="teacher_timezone"><?php _e('Timezone', 'soob-plugin'); ?> *</label>
+                            <label for="provider_timezone"><?php _e('Timezone', 'soob-plugin'); ?> *</label>
                         </th>
                         <td>
-                            <select id="teacher_timezone" name="teacher_timezone" required>
+                            <select id="provider_timezone" name="provider_timezone" required>
                                 <option value=""><?php _e('Select Timezone', 'soob-plugin'); ?></option>
                                 <?php
                                 $woocommerce = new SOOB_WooCommerce();
@@ -195,7 +205,7 @@ class SOOB_Admin_Teachers {
                                 }
                                 ?>
                             </select>
-                            <p class="description"><?php _e('Select the timezone for this teacher\'s availability schedule.', 'soob-plugin'); ?></p>
+                            <p class="description"><?php _e('Select the timezone for this provider\'s availability schedule.', 'soob-plugin'); ?></p>
                         </td>
                     </tr>
                     
@@ -207,16 +217,16 @@ class SOOB_Admin_Teachers {
                             <div class="soob-availability-grid">
                                 <?php $this->display_availability_grid(); ?>
                             </div>
-                            <p class="description"><?php _e('Select the time slots when this teacher is available. Times are in the selected timezone above.', 'soob-plugin'); ?></p>
+                            <p class="description"><?php _e('Select the time slots when this provider is available. Times are in the selected timezone above.', 'soob-plugin'); ?></p>
                         </td>
                     </tr>
                     
                     <tr>
                         <th scope="row">
-                            <label for="teacher_status"><?php _e('Status', 'soob-plugin'); ?></label>
+                            <label for="provider_status"><?php _e('Status', 'soob-plugin'); ?></label>
                         </th>
                         <td>
-                            <select id="teacher_status" name="teacher_status">
+                            <select id="provider_status" name="provider_status">
                                 <option value="active"><?php _e('Active', 'soob-plugin'); ?></option>
                                 <option value="inactive"><?php _e('Inactive', 'soob-plugin'); ?></option>
                             </select>
@@ -225,8 +235,8 @@ class SOOB_Admin_Teachers {
                 </table>
                 
                 <p class="submit">
-                    <input type="submit" name="save_teacher" class="button-primary" value="<?php _e('Add Teacher', 'soob-plugin'); ?>">
-                    <a href="<?php echo admin_url('admin.php?page=soob-teachers'); ?>" class="button">
+                    <input type="submit" name="save_provider" class="button-primary" value="<?php _e('Add Provider', 'soob-plugin'); ?>">
+                    <a href="<?php echo admin_url('admin.php?page=soob-providers'); ?>" class="button">
                         <?php _e('Cancel', 'soob-plugin'); ?>
                     </a>
                 </p>
@@ -238,48 +248,48 @@ class SOOB_Admin_Teachers {
     }
     
     /**
-     * Display edit teacher form
+     * Display edit provider form
      */
-    private function display_edit_teacher_form($teacher_id) {
-        $teacher = SOOB_Teacher::get_by_id($teacher_id);
+    private function display_edit_provider_form($provider_id) {
+        $provider = SOOB_Provider::get_by_id($provider_id);
         
-        if (!$teacher) {
-            echo '<div class="notice notice-error"><p>' . __('Teacher not found.', 'soob-plugin') . '</p></div>';
+        if (!$provider) {
+            echo '<div class="notice notice-error"><p>' . __('Provider not found.', 'soob-plugin') . '</p></div>';
             return;
         }
         
-        $raw_availability = json_decode($teacher->availability, true) ?: array();
+        $raw_availability = json_decode($provider->availability, true) ?: array();
         
         // Convert UTC availability to display timezone (default to admin's browser timezone)
         $display_timezone = 'UTC'; // Will be updated by JavaScript auto-detection
         $availability = $this->convert_availability_from_utc($raw_availability, $display_timezone);
         ?>
         <div class="wrap">
-            <h1><?php _e('Edit Teacher', 'soob-plugin'); ?></h1>
+            <h1><?php _e('Edit Provider', 'soob-plugin'); ?></h1>
             
-            <form method="post" class="soob-teacher-form" enctype="multipart/form-data">
-                <?php wp_nonce_field('soob_save_teacher', 'soob_teacher_nonce'); ?>
-                <input type="hidden" name="teacher_id" value="<?php echo $teacher->id; ?>">
+            <form method="post" class="soob-provider-form" enctype="multipart/form-data">
+                <?php wp_nonce_field('soob_save_provider', 'soob_provider_nonce'); ?>
+                <input type="hidden" name="provider_id" value="<?php echo $provider->id; ?>">
                 
                 <table class="form-table">
                     <tr>
                         <th scope="row">
-                            <label for="teacher_name"><?php _e('Name', 'soob-plugin'); ?> *</label>
+                            <label for="provider_name"><?php _e('Name', 'soob-plugin'); ?> *</label>
                         </th>
                         <td>
-                            <input type="text" id="teacher_name" name="teacher_name" class="regular-text" value="<?php echo esc_attr($teacher->name); ?>" required>
+                            <input type="text" id="provider_name" name="provider_name" class="regular-text" value="<?php echo esc_attr($provider->name); ?>" required>
                         </td>
                     </tr>
                     
                     <tr>
                         <th scope="row">
-                            <label for="teacher_photo"><?php _e('Photo', 'soob-plugin'); ?></label>
+                            <label for="provider_photo"><?php _e('Photo', 'soob-plugin'); ?></label>
                         </th>
                         <td>
-                            <input type="url" id="teacher_photo" name="teacher_photo" class="regular-text" value="<?php echo esc_attr($teacher->photo); ?>" placeholder="<?php _e('Photo URL', 'soob-plugin'); ?>">
-                            <?php if ($teacher->photo): ?>
+                            <input type="url" id="provider_photo" name="provider_photo" class="regular-text" value="<?php echo esc_attr($provider->photo); ?>" placeholder="<?php _e('Photo URL', 'soob-plugin'); ?>">
+                            <?php if ($provider->photo): ?>
                                 <div class="soob-current-photo" style="margin-top: 10px;">
-                                    <img src="<?php echo esc_url($teacher->photo); ?>" alt="<?php echo esc_attr($teacher->name); ?>" style="max-width: 100px; height: auto;">
+                                    <img src="<?php echo esc_url($provider->photo); ?>" alt="<?php echo esc_attr($provider->name); ?>" style="max-width: 100px; height: auto;">
                                 </div>
                             <?php endif; ?>
                         </td>
@@ -287,13 +297,13 @@ class SOOB_Admin_Teachers {
                     
                     <tr>
                         <th scope="row">
-                            <label for="teacher_gender"><?php _e('Gender', 'soob-plugin'); ?> *</label>
+                            <label for="provider_gender"><?php _e('Gender', 'soob-plugin'); ?> *</label>
                         </th>
                         <td>
-                            <select id="teacher_gender" name="teacher_gender" required>
+                            <select id="provider_gender" name="provider_gender" required>
                                 <option value=""><?php _e('Select Gender', 'soob-plugin'); ?></option>
-                                <option value="male" <?php selected($teacher->gender, 'male'); ?>><?php _e('Male', 'soob-plugin'); ?></option>
-                                <option value="female" <?php selected($teacher->gender, 'female'); ?>><?php _e('Female', 'soob-plugin'); ?></option>
+                                <option value="male" <?php selected($provider->gender, 'male'); ?>><?php _e('Male', 'soob-plugin'); ?></option>
+                                <option value="female" <?php selected($provider->gender, 'female'); ?>><?php _e('Female', 'soob-plugin'); ?></option>
                             </select>
                         </td>
                     </tr>
@@ -301,21 +311,21 @@ class SOOB_Admin_Teachers {
                     
                     <tr>
                         <th scope="row">
-                            <label for="teacher_timezone"><?php _e('Timezone', 'soob-plugin'); ?> *</label>
+                            <label for="provider_timezone"><?php _e('Timezone', 'soob-plugin'); ?> *</label>
                         </th>
                         <td>
-                            <select id="teacher_timezone" name="teacher_timezone" required>
+                            <select id="provider_timezone" name="provider_timezone" required>
                                 <option value=""><?php _e('Select Timezone', 'soob-plugin'); ?></option>
                                 <?php
                                 $woocommerce = new SOOB_WooCommerce();
                                 $timezones = $woocommerce->get_timezone_options();
                                 foreach ($timezones as $value => $label) {
-                                    $selected = ($teacher->timezone === $value) ? 'selected' : '';
+                                    $selected = ($provider->timezone === $value) ? 'selected' : '';
                                     echo '<option value="' . esc_attr($value) . '" ' . $selected . '>' . esc_html($label) . '</option>';
                                 }
                                 ?>
                             </select>
-                            <p class="description"><?php _e('Select the timezone for this teacher\'s availability schedule.', 'soob-plugin'); ?></p>
+                            <p class="description"><?php _e('Select the timezone for this provider\'s availability schedule.', 'soob-plugin'); ?></p>
                         </td>
                     </tr>
                     
@@ -327,26 +337,26 @@ class SOOB_Admin_Teachers {
                             <div class="soob-availability-grid">
                                 <?php $this->display_availability_grid($availability); ?>
                             </div>
-                            <p class="description"><?php _e('Select the time slots when this teacher is available. Times are in the selected timezone above.', 'soob-plugin'); ?></p>
+                            <p class="description"><?php _e('Select the time slots when this provider is available. Times are in the selected timezone above.', 'soob-plugin'); ?></p>
                         </td>
                     </tr>
                     
                     <tr>
                         <th scope="row">
-                            <label for="teacher_status"><?php _e('Status', 'soob-plugin'); ?></label>
+                            <label for="provider_status"><?php _e('Status', 'soob-plugin'); ?></label>
                         </th>
                         <td>
-                            <select id="teacher_status" name="teacher_status">
-                                <option value="active" <?php selected($teacher->status, 'active'); ?>><?php _e('Active', 'soob-plugin'); ?></option>
-                                <option value="inactive" <?php selected($teacher->status, 'inactive'); ?>><?php _e('Inactive', 'soob-plugin'); ?></option>
+                            <select id="provider_status" name="provider_status">
+                                <option value="active" <?php selected($provider->status, 'active'); ?>><?php _e('Active', 'soob-plugin'); ?></option>
+                                <option value="inactive" <?php selected($provider->status, 'inactive'); ?>><?php _e('Inactive', 'soob-plugin'); ?></option>
                             </select>
                         </td>
                     </tr>
                 </table>
                 
                 <p class="submit">
-                    <input type="submit" name="save_teacher" class="button-primary" value="<?php _e('Update Teacher', 'soob-plugin'); ?>">
-                    <a href="<?php echo admin_url('admin.php?page=soob-teachers'); ?>" class="button">
+                    <input type="submit" name="save_provider" class="button-primary" value="<?php _e('Update Provider', 'soob-plugin'); ?>">
+                    <a href="<?php echo admin_url('admin.php?page=soob-providers'); ?>" class="button">
                         <?php _e('Cancel', 'soob-plugin'); ?>
                     </a>
                 </p>
@@ -398,45 +408,45 @@ class SOOB_Admin_Teachers {
      * Handle form submission
      */
     private function handle_form_submission() {
-        if (!isset($_POST['save_teacher']) || !wp_verify_nonce($_POST['soob_teacher_nonce'], 'soob_save_teacher')) {
+        if (!isset($_POST['save_provider']) || !wp_verify_nonce($_POST['soob_provider_nonce'], 'soob_save_provider')) {
             return;
         }
         
         // Convert availability times from admin's selected timezone to UTC before saving
-        $admin_timezone = sanitize_text_field($_POST['teacher_timezone']);
+        $admin_timezone = sanitize_text_field($_POST['provider_timezone']);
         $availability = isset($_POST['availability']) ? $_POST['availability'] : array();
         $utc_availability = $this->convert_availability_to_utc($availability, $admin_timezone);
         
-        $teacher_data = array(
-            'name' => sanitize_text_field($_POST['teacher_name']),
-            'photo' => sanitize_url($_POST['teacher_photo']),
-            'gender' => sanitize_text_field($_POST['teacher_gender']),
+        $provider_data = array(
+            'name' => sanitize_text_field($_POST['provider_name']),
+            'photo' => sanitize_url($_POST['provider_photo']),
+            'gender' => sanitize_text_field($_POST['provider_gender']),
             'availability' => $utc_availability,
-            'status' => sanitize_text_field($_POST['teacher_status'])
+            'status' => sanitize_text_field($_POST['provider_status'])
         );
         
-        if (isset($_POST['teacher_id']) && !empty($_POST['teacher_id'])) {
-            // Update existing teacher
-            $result = SOOB_Teacher::update(intval($_POST['teacher_id']), $teacher_data);
-            $message = $result ? __('Teacher updated successfully.', 'soob-plugin') : __('Failed to update teacher.', 'soob-plugin');
+        if (isset($_POST['provider_id']) && !empty($_POST['provider_id'])) {
+            // Update existing provider
+            $result = SOOB_Provider::update(intval($_POST['provider_id']), $provider_data);
+            $message = $result ? __('Provider updated successfully.', 'soob-plugin') : __('Failed to update provider.', 'soob-plugin');
         } else {
-            // Create new teacher
-            $result = SOOB_Teacher::create($teacher_data);
-            $message = $result ? __('Teacher created successfully.', 'soob-plugin') : __('Failed to create teacher.', 'soob-plugin');
+            // Create new provider
+            $result = SOOB_Provider::create($provider_data);
+            $message = $result ? __('Provider created successfully.', 'soob-plugin') : __('Failed to create provider.', 'soob-plugin');
         }
         
         $notice_class = $result ? 'notice-success' : 'notice-error';
         echo '<div class="notice ' . $notice_class . ' is-dismissible"><p>' . $message . '</p></div>';
         
         if ($result) {
-            echo '<script>setTimeout(function(){ window.location.href = "' . admin_url('admin.php?page=soob-teachers') . '"; }, 1500);</script>';
+            echo '<script>setTimeout(function(){ window.location.href = "' . admin_url('admin.php?page=soob-providers') . '"; }, 1500);</script>';
         }
     }
     
     /**
-     * AJAX: Save teacher
+     * AJAX: Save provider
      */
-    public function ajax_save_teacher() {
+    public function ajax_save_provider() {
         check_ajax_referer('soob_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
@@ -444,46 +454,46 @@ class SOOB_Admin_Teachers {
         }
         
         // Handle AJAX save logic here
-        wp_send_json_success(array('message' => __('Teacher saved successfully.', 'soob-plugin')));
+        wp_send_json_success(array('message' => __('Provider saved successfully.', 'soob-plugin')));
     }
     
     /**
-     * AJAX: Delete teacher
+     * AJAX: Delete provider
      */
-    public function ajax_delete_teacher() {
+    public function ajax_delete_provider() {
         check_ajax_referer('soob_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
             wp_die(__('You do not have sufficient permissions.', 'soob-plugin'));
         }
         
-        $teacher_id = intval($_POST['teacher_id']);
-        $result = SOOB_Teacher::delete($teacher_id);
+        $provider_id = intval($_POST['provider_id']);
+        $result = SOOB_Provider::delete($provider_id);
         
         if ($result) {
-            wp_send_json_success(array('message' => __('Teacher deleted successfully.', 'soob-plugin')));
+            wp_send_json_success(array('message' => __('Provider deleted successfully.', 'soob-plugin')));
         } else {
-            wp_send_json_error(array('message' => __('Failed to delete teacher.', 'soob-plugin')));
+            wp_send_json_error(array('message' => __('Failed to delete provider.', 'soob-plugin')));
         }
     }
     
     /**
-     * AJAX: Get teacher
+     * AJAX: Get provider
      */
-    public function ajax_get_teacher() {
+    public function ajax_get_provider() {
         check_ajax_referer('soob_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
             wp_die(__('You do not have sufficient permissions.', 'soob-plugin'));
         }
         
-        $teacher_id = intval($_POST['teacher_id']);
-        $teacher = SOOB_Teacher::get_by_id($teacher_id);
+        $provider_id = intval($_POST['provider_id']);
+        $provider = SOOB_Provider::get_by_id($provider_id);
         
-        if ($teacher) {
-            wp_send_json_success($teacher);
+        if ($provider) {
+            wp_send_json_success($provider);
         } else {
-            wp_send_json_error(array('message' => __('Teacher not found.', 'soob-plugin')));
+            wp_send_json_error(array('message' => __('Provider not found.', 'soob-plugin')));
         }
     }
     

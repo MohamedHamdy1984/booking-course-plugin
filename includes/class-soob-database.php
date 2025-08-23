@@ -18,9 +18,9 @@ class SOOB_Database {
         
         $charset_collate = $wpdb->get_charset_collate();
         
-        // Teachers table
-        $teachers_table = $wpdb->prefix . 'soob_teachers';
-        $teachers_sql = "CREATE TABLE $teachers_table (
+        // Providers table
+        $providers_table = $wpdb->prefix . 'soob_providers';
+        $providers_sql = "CREATE TABLE $providers_table (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             name varchar(255) NOT NULL,
             photo varchar(255) DEFAULT '',
@@ -38,7 +38,7 @@ class SOOB_Database {
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             order_id mediumint(9) NOT NULL,
             customer_id mediumint(9) NOT NULL,
-            teacher_id mediumint(9) DEFAULT NULL,
+            provider_id mediumint(9) DEFAULT NULL,
             timezone varchar(100) NOT NULL,
             customer_gender enum('male','female') NOT NULL,
             customer_age int(3) NOT NULL,
@@ -53,14 +53,14 @@ class SOOB_Database {
             PRIMARY KEY (id),
             KEY order_id (order_id),
             KEY customer_id (customer_id),
-            KEY teacher_id (teacher_id),
+            KEY provider_id (provider_id),
             KEY booking_date (booking_date),
             KEY next_renewal_date (next_renewal_date),
             KEY status (status)
         ) $charset_collate;";
         
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        dbDelta($teachers_sql);
+        dbDelta($providers_sql);
         dbDelta($bookings_sql);
     }
     
@@ -70,10 +70,10 @@ class SOOB_Database {
     public static function drop_tables() {
         global $wpdb;
 
-        $teachers_table = $wpdb->prefix . 'soob_teachers';
+        $providers_table = $wpdb->prefix . 'soob_providers';
         $bookings_table = $wpdb->prefix . 'soob_bookings';
 
         $wpdb->query("DROP TABLE IF EXISTS $bookings_table");
-        $wpdb->query("DROP TABLE IF EXISTS $teachers_table");
+        $wpdb->query("DROP TABLE IF EXISTS $providers_table");
     }
 }

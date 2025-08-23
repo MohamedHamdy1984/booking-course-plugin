@@ -2,6 +2,8 @@
   "intelephense.environment.includePaths": [
     "./wordpress/wp-includes",
     "./wordpress/wp-admin",
-    "./wordpress/wp-content/plugins/woocommerce"
+    "./wordpress/wp-content/plugins/woocommerce",
+    "vendor/php-stubs/wordpress-stubs",
+    "vendor/automattic/woocommerce-stubs"
   ]
 }

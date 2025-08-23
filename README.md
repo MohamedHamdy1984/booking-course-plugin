@@ -4,12 +4,12 @@ A simple one-to-one booking system integrated with WooCommerce for live course s
 
 ## Overview
 
-This WordPress plugin allows customers to purchase 1-on-1 live courses as WooCommerce products and select their preferred time slots during checkout. The system includes teacher management, schedule overview, and booking management features.
+This WordPress plugin allows customers to purchase 1-on-1 live courses as WooCommerce products and select their preferred time slots during checkout. The system includes provider management, schedule overview, and booking management features.
 
 ## Features
 
 - **WooCommerce Integration**: Seamless integration with WooCommerce checkout
-- **Teacher Management**: Add/edit teachers with availability schedules
+- **Provider Management**: Add/edit providers with availability schedules
 - **Schedule Overview**: Visual weekly schedule by audience type (Men, Women, Children)
 - **Timezone Support**: Automatic timezone conversion for customers
 - **Booking Management**: Track and manage all bookings
@@ -22,12 +22,12 @@ soob-plugin/
 ├── soob-plugin.php          # Main plugin file
 ├── includes/                 # Core functionality
 │   ├── class-soob-database.php
-│   ├── class-soob-teacher.php
+│   ├── class-soob-provider.php
 │   ├── class-soob-booking.php
 │   └── class-soob-woocommerce.php
 ├── admin/                    # Admin functionality
 │   ├── class-soob-admin.php
-│   ├── class-soob-admin-teachers.php
+│   ├── class-soob-admin-providers.php
 │   └── class-soob-admin-schedule.php
 ├── public/                   # Public functionality
 │   ├── class-soob-public.php
@@ -47,7 +47,7 @@ soob-plugin/
 1. Upload the plugin folder to `/wp-content/plugins/`
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Ensure WooCommerce is installed and activated
-4. Configure teachers and their availability in the admin panel
+4. Configure providers and their availability in the admin panel
 
 ## Requirements
 
@@ -57,10 +57,10 @@ soob-plugin/
 
 ## Admin Features
 
-### Teachers Management
-- Add/edit teachers with photos, gender, and age group
+### Providers Management
+- Add/edit providers with photos, gender, and age group
 - Set weekly availability schedules
-- Activate/deactivate teachers
+- Activate/deactivate providers
 
 ### Schedule Overview
 - Visual weekly calendar showing availability
@@ -70,7 +70,7 @@ soob-plugin/
 
 ### Booking Management
 - View all bookings with customer details
-- Filter by status, date, and teacher
+- Filter by status, date, and provider
 - Order integration with WooCommerce
 
 ## Customer Experience
@@ -86,13 +86,13 @@ soob-plugin/
 ### Time Slot Selection
 - Tabbed interface showing days of the week
 - Available slots displayed as selectable cards
-- Real-time availability based on teacher schedules
+- Real-time availability based on provider schedules
 - Timezone conversion for accurate display
 
 ## Database Tables
 
-### wp_soob_teachers
-- Teacher information and availability schedules
+### wp_soob_providers
+- Provider information and availability schedules
 - JSON-encoded availability data by day of week
 
 ### wp_soob_bookings
@@ -103,7 +103,7 @@ soob-plugin/
 
 ### Actions
 - `soob_booking_created` - Fired when a new booking is created
-- `soob_teacher_updated` - Fired when teacher data is updated
+- `soob_provider_updated` - Fired when provider data is updated
 
 ### Filters
 - `soob_timezone_options` - Modify available timezone options
@@ -167,8 +167,8 @@ Display available time slots for a specific date and category.
 ### Common Issues
 
 1. **Time slots not showing**
-   - Ensure teachers are added and marked as active
-   - Check teacher availability settings
+   - Ensure providers are added and marked as active
+   - Check provider availability settings
    - Verify WooCommerce product is marked as bookable
 
 2. **Checkout fields not appearing**
@@ -206,7 +206,7 @@ This plugin is licensed under GPL v2 or later.
 
 ### Version 1.0.0
 - Initial release
-- Teacher management system
+- Provider management system
 - Schedule overview interface
 - WooCommerce checkout integration
 - Booking management features

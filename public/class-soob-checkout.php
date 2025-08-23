@@ -75,9 +75,9 @@ class SOOB_Checkout
                 wp_send_json_error(array('message' => __('Please select a Time Zone.', 'soob-plugin')));
             }
 
-            // Check if Teacher class exists
-            if (!class_exists('SOOB_Teacher')) {
-                wp_send_json_error(array('message' => __('Teacher class not found.', 'soob-plugin')));
+            // Check if Provider class exists
+            if (!class_exists('SOOB_Provider')) {
+                wp_send_json_error(array('message' => __('Provider class not found.', 'soob-plugin')));
             }
 
             // Get weekly recurring schedule (Sunday to Saturday)
@@ -94,7 +94,7 @@ class SOOB_Checkout
 
             foreach ($days_of_week as $day_key => $day_name) {
                 // Get available slots for this day
-                $available_slots = SOOB_Teacher::get_available_slots($gender, $day_key);
+                $available_slots = SOOB_Provider::get_available_slots($gender, $day_key);
 
                 // If no slots from database, show empty state
                 if (empty($available_slots)) {
@@ -236,7 +236,7 @@ class SOOB_Checkout
     }
 
     /**
-     * Get demo slots for testing when no teachers are configured
+     * Get demo slots for testing when no providers are configured
      */
     private function get_demo_slots()
     {

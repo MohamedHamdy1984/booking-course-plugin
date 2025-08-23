@@ -1,13 +1,13 @@
 jQuery(document).ready(function($) {
-    // Handle teacher deletion
-    $('.soob-delete-teacher').on('click', function(e) {
+    // Handle provider deletion
+    $('.soob-delete-provider').on('click', function(e) {
         e.preventDefault();
         
-        if (!confirm('Are you sure you want to delete this teacher?')) {
+        if (!confirm('Are you sure you want to delete this provider?')) {
             return;
         }
         
-        var teacherId = $(this).data('teacher-id');
+        var providerId = $(this).data('provider-id');
         var $button = $(this);
         
         $button.prop('disabled', true).text('Deleting...');
@@ -16,8 +16,8 @@ jQuery(document).ready(function($) {
             url: soob_admin_ajax.ajax_url,
             type: 'POST',
             data: {
-                action: 'soob_delete_teacher',
-                teacher_id: teacherId,
+                action: 'soob_delete_provider',
+                provider_id: providerId,
                 nonce: soob_admin_ajax.nonce
             },
             success: function(response) {
@@ -26,19 +26,19 @@ jQuery(document).ready(function($) {
                         $(this).remove();
                     });
                 } else {
-                    alert('Error: ' + (response.data.message || 'Failed to delete teacher'));
+                    alert('Error: ' + (response.data.message || 'Failed to delete provider'));
                     $button.prop('disabled', false).text('Delete');
                 }
             },
             error: function() {
-                alert('Error: Failed to delete teacher');
+                alert('Error: Failed to delete provider');
                 $button.prop('disabled', false).text('Delete');
             }
         });
     });
     
     // Handle timezone change for availability display
-    $('#teacher_timezone').on('change', function() {
+    $('#provider_timezone').on('change', function() {
         var selectedTimezone = $(this).val();
         if (selectedTimezone) {
             // Update availability grid display based on timezone
@@ -47,14 +47,14 @@ jQuery(document).ready(function($) {
         }
     });
     
-    // Auto-detect timezone on page load for new teachers
-    if ($('#teacher_timezone').val() === '' && typeof Intl !== 'undefined') {
+    // Auto-detect timezone on page load for new providers
+    if ($('#provider_timezone').val() === '' && typeof Intl !== 'undefined') {
         try {
             var detectedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            $('#teacher_timezone').val(detectedTimezone);
+            $('#provider_timezone').val(detectedTimezone);
         } catch (e) {
             // Fallback to UTC if detection fails
-            $('#teacher_timezone').val('UTC');
+            $('#provider_timezone').val('UTC');
         }
     }
     
@@ -85,22 +85,22 @@ jQuery(document).ready(function($) {
     });
     
     // Enhanced form validation
-    $('.soob-teacher-form').on('submit', function(e) {
-        var name = $('#teacher_name').val().trim();
-        var gender = $('#teacher_gender').val();
+    $('.soob-provider-form').on('submit', function(e) {
+        var name = $('#provider_name').val().trim();
+        var gender = $('#provider_gender').val();
         var hasAvailability = $(this).find('input[name^="availability"]:checked').length > 0;
         
         if (!name) {
             e.preventDefault();
-            showNotice('error', 'Please enter teacher name.');
-            $('#teacher_name').focus();
+            showNotice('error', 'Please enter provider name.');
+            $('#provider_name').focus();
             return false;
         }
         
         if (!gender) {
             e.preventDefault();
-            showNotice('error', 'Please select teacher gender.');
-            $('#teacher_gender').focus();
+            showNotice('error', 'Please select provider gender.');
+            $('#provider_gender').focus();
             return false;
         }
         

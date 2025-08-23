@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 class SOOB_Admin
 {
 
-    private $teachers_admin;
+    private $providers_admin;
     private $schedule_admin;
 
     private $all_bookings = null;
@@ -47,7 +47,7 @@ class SOOB_Admin
         add_action('wp_ajax_soob_get_bookings', array($this, 'ajax_get_bookings'));
 
         // Initialize sub-admin classes
-        $this->teachers_admin = new SOOB_Admin_Teachers();
+        $this->providers_admin = new SOOB_Admin_Providers();
         $this->schedule_admin = new SOOB_Admin_Schedule();
     }
 
@@ -77,11 +77,11 @@ class SOOB_Admin
 
         add_submenu_page(
             'soob-booking',
-            __('Teachers', 'soob-plugin'),
-            __('Teachers', 'soob-plugin'),
+            __('Providers', 'soob-plugin'),
+            __('Providers', 'soob-plugin'),
             'manage_options',
-            'soob-teachers',
-            array($this, 'teachers_page')
+            'soob-providers',
+            array($this, 'providers_page')
         );
 
         add_submenu_page(
@@ -175,10 +175,10 @@ class SOOB_Admin
                 }
                 break;
                 
-            case 'soob-booking_page_soob-teachers':
-                // Load teachers-specific assets
-                if ($this->teachers_admin) {
-                    $this->teachers_admin->enqueue_scripts();
+            case 'soob-booking_page_soob-providers':
+                // Load providers-specific assets
+                if ($this->providers_admin) {
+                    $this->providers_admin->enqueue_scripts();
                 }
                 break;
                 
@@ -212,8 +212,8 @@ class SOOB_Admin
                     </div>
 
                     <div class="soob-stat-card">
-                        <h3><?php _e('Active Teachers', 'soob-plugin'); ?></h3>
-                        <div class="soob-stat-number"><?php echo $this->get_active_teachers(); ?></div>
+                        <h3><?php _e('Active Providers', 'soob-plugin'); ?></h3>
+                        <div class="soob-stat-number"><?php echo $this->get_active_providers(); ?></div>
                     </div>
 
                     <div class="soob-stat-card">
@@ -232,11 +232,11 @@ class SOOB_Admin
     }
 
     /**
-     * Teachers page
+     * Providers page
      */
-    public function teachers_page()
+    public function providers_page()
     {
-        $this->teachers_admin->display_page();
+        $this->providers_admin->display_page();
     }
 
     /**
@@ -311,12 +311,12 @@ class SOOB_Admin
     }
 
     /**
-     * Get active teachers count
+     * Get active providers count
      */
-    private function get_active_teachers()
+    private function get_active_providers()
     {
-        $teachers = SOOB_Teacher::get_all('active');
-        return count($teachers);
+        $providers = SOOB_Provider::get_all('active');
+        return count($providers);
     }
 
     /**
@@ -420,7 +420,7 @@ class SOOB_Admin
         echo '<tr>';
         echo '<th>' . __('ID', 'soob-plugin') . '</th>';
         echo '<th>' . __('WooCommerce Order ID', 'soob-plugin') . '</th>';
-        echo '<th>' . __('Student Name', 'soob-plugin') . '</th>';
+        echo '<th>' . __('Client Name', 'soob-plugin') . '</th>';
         echo '<th>' . __('Gender', 'soob-plugin') . '</th>';
         echo '<th>' . __('Age', 'soob-plugin') . '</th>';
         echo '<th>' . __('Renewal Date', 'soob-plugin') . '</th>';
@@ -498,8 +498,8 @@ class SOOB_Admin
             }
         }
         
-        // Get teachers for dropdown
-        $teachers = SOOB_Teacher::get_all('active');
+        // Get providers for dropdown
+        $providers = SOOB_Provider::get_all('active');
         
         // Parse selected slots
         $selected_slots = json_decode($booking->selected_slots, true) ?: array();
@@ -526,19 +526,19 @@ class SOOB_Admin
                     </table>
                 </div>
                 
-                <!-- Editable Student Information -->
+                <!-- Editable Client Information -->
                 <div class="soob-form-section">
-                    <h3><?php _e('Student Information', 'soob-plugin'); ?></h3>
+                    <h3><?php _e('Client Information', 'soob-plugin'); ?></h3>
                     <table class="form-table">
                         <tr>
                             <th scope="row">
-                                <label for="student_name"><?php _e('Student Name', 'soob-plugin'); ?></label>
+                                <label for="client_name"><?php _e('Client Name', 'soob-plugin'); ?></label>
                             </th>
                             <td>
-                                <input type="text" id="student_name" name="student_name"
+                                <input type="text" id="client_name" name="client_name"
                                        value="<?php echo esc_attr($customer_name); ?>"
                                        class="regular-text soob-editable-field" />
-                                <p class="description"><?php _e('The name of the student taking the course.', 'soob-plugin'); ?></p>
+                                <p class="description"><?php _e('The name of the client taking the course.', 'soob-plugin'); ?></p>
                             </td>
                         </tr>
                         <tr>
@@ -560,7 +560,7 @@ class SOOB_Admin
                                 <input type="number" id="customer_age" name="customer_age"
                                        value="<?php echo esc_attr($booking->customer_age); ?>"
                                        min="1" max="100" class="small-text soob-editable-field" />
-                                <p class="description"><?php _e('Student age in years.', 'soob-plugin'); ?></p>
+                                <p class="description"><?php _e('Client age in years.', 'soob-plugin'); ?></p>
                             </td>
                         </tr>
                     </table>
@@ -596,19 +596,19 @@ class SOOB_Admin
                         </tr>
                         <tr>
                             <th scope="row">
-                                <label for="assigned_teacher"><?php _e('Assigned Teacher', 'soob-plugin'); ?></label>
+                                <label for="assigned_provider"><?php _e('Assigned Provider', 'soob-plugin'); ?></label>
                             </th>
                             <td>
-                                <select id="assigned_teacher" name="assigned_teacher" class="soob-editable-field">
-                                    <option value=""><?php _e('Select a teacher...', 'soob-plugin'); ?></option>
-                                    <?php foreach ($teachers as $teacher): ?>
-                                        <option value="<?php echo $teacher->id; ?>"
-                                                <?php selected($booking->teacher_id, $teacher->id); ?>>
-                                            <?php echo esc_html($teacher->name); ?> (<?php echo ucfirst($teacher->gender); ?>)
+                                <select id="assigned_provider" name="assigned_provider" class="soob-editable-field">
+                                    <option value=""><?php _e('Select a provider...', 'soob-plugin'); ?></option>
+                                    <?php foreach ($providers as $provider): ?>
+                                        <option value="<?php echo $provider->id; ?>"
+                                                <?php selected($booking->provider_id, $provider->id); ?>>
+                                            <?php echo esc_html($provider->name); ?> (<?php echo ucfirst($provider->gender); ?>)
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
-                                <p class="description"><?php _e('Teacher assigned to this booking.', 'soob-plugin'); ?></p>
+                                <p class="description"><?php _e('Provider assigned to this booking.', 'soob-plugin'); ?></p>
                             </td>
                         </tr>
                     </table>
@@ -788,18 +788,18 @@ class SOOB_Admin
     private function handle_booking_save($booking_id)
     {
         // Validate and sanitize input
-        $student_name = sanitize_text_field($_POST['student_name']);
+        $client_name = sanitize_text_field($_POST['client_name']);
         $customer_gender = sanitize_text_field($_POST['customer_gender']);
         $customer_age = intval($_POST['customer_age']);
         $booking_status = sanitize_text_field($_POST['booking_status']);
         $course_start_date = sanitize_text_field($_POST['course_start_date']);
-        $assigned_teacher = intval($_POST['assigned_teacher']);
+        $assigned_provider = intval($_POST['assigned_provider']);
         
         // Validate required fields
         $errors = array();
         
-        if (empty($student_name)) {
-            $errors[] = __('Student name is required.', 'soob-plugin');
+        if (empty($client_name)) {
+            $errors[] = __('Client name is required.', 'soob-plugin');
         }
         
         if (!in_array($customer_gender, array('male', 'female'))) {
@@ -848,7 +848,7 @@ class SOOB_Admin
             'customer_age' => $customer_age,
             'status' => $booking_status,
             'booking_date' => $course_start_date,
-            'teacher_id' => $assigned_teacher > 0 ? $assigned_teacher : null,
+            'provider_id' => $assigned_provider > 0 ? $assigned_provider : null,
             'selected_slots' => wp_json_encode($sessions)
         );
         

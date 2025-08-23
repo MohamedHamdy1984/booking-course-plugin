@@ -7,19 +7,19 @@ This document summarizes all changes made to simplify the booking categories sys
 
 ### 1. Database Structure Updates
 **File:** `includes/class-soob-database.php`
-- **Removed:** `age_group` field from teachers table
+- **Removed:** `age_group` field from providers table
 - **Changed:** Gender enum values from `'man','woman','child'` to `'male','female'`
 - **Updated:** Bookings table to use separate `customer_gender` and `customer_age` fields instead of combined `gender_age_group`
 
-### 2. Teacher Management Simplification
+### 2. Provider Management Simplification
 **Files:** 
-- `includes/class-soob-teacher.php`
-- `admin/class-soob-admin-teachers.php`
+- `includes/class-soob-provider.php`
+- `admin/class-soob-admin-providers.php`
 
 **Changes:**
-- Removed age group functionality from teacher management
+- Removed age group functionality from provider management
 - Simplified `get_available_slots()` method to filter by customer gender only
-- Updated teacher forms to only include gender selection (male/female)
+- Updated provider forms to only include gender selection (male/female)
 - Removed age group validation and helper methods
 
 ### 3. Checkout Form Enhancement
@@ -58,11 +58,11 @@ This document summarizes all changes made to simplify the booking categories sys
 ### 6. Asset File Organization
 **Files:**
 - `assets/js/admin.js`
-- `assets/js/admin-teachers.js`
+- `assets/js/admin-providers.js`
 - `assets/css/admin-*.css`
 
 **Changes:**
-- Consolidated teacher-specific functionality into `admin-teachers.js`
+- Consolidated provider-specific functionality into `admin-providers.js`
 - Removed duplicate code between general admin and specific functionality
 - Maintained proper separation of concerns across asset files
 - Enhanced form validation and user experience
@@ -75,7 +75,7 @@ This document summarizes all changes made to simplify the booking categories sys
 - Added contextual timezone notices in admin schedule view
 
 ### Form Validation
-- Enhanced client-side validation for teacher forms
+- Enhanced client-side validation for provider forms
 - Improved error messaging and user feedback
 - Added real-time availability preview functionality
 
@@ -88,13 +88,13 @@ This document summarizes all changes made to simplify the booking categories sys
 
 ### Core Plugin Files
 1. `includes/class-soob-database.php` - Database schema updates
-2. `includes/class-soob-teacher.php` - Teacher model simplification
+2. `includes/class-soob-provider.php` - Provider model simplification
 3. `includes/class-soob-booking.php` - Booking system updates
 4. `includes/class-soob-woocommerce.php` - WooCommerce integration updates
 
 ### Admin Interface Files
 5. `admin/class-soob-admin.php` - Admin dashboard updates
-6. `admin/class-soob-admin-teachers.php` - Teacher management updates
+6. `admin/class-soob-admin-providers.php` - Provider management updates
 7. `admin/class-soob-admin-schedule.php` - Schedule view improvements
 
 ### Frontend Files
@@ -102,7 +102,7 @@ This document summarizes all changes made to simplify the booking categories sys
 
 ### Asset Files
 9. `assets/js/admin.js` - General admin JavaScript
-10. `assets/js/admin-teachers.js` - Teacher-specific JavaScript
+10. `assets/js/admin-providers.js` - Provider-specific JavaScript
 11. `assets/js/checkout.js` - Checkout form JavaScript
 12. `assets/css/admin-schedule.css` - Schedule view styles
 
@@ -115,7 +115,7 @@ This document summarizes all changes made to simplify the booking categories sys
 - Enhanced form validation and error messaging
 
 ### Administrative Efficiency
-- Streamlined teacher management without unnecessary age group complexity
+- Streamlined provider management without unnecessary age group complexity
 - Clearer schedule overview with improved visual layout
 - Better organized codebase with proper separation of concerns
 - Reduced code duplication and improved maintainability
@@ -130,10 +130,10 @@ This document summarizes all changes made to simplify the booking categories sys
 
 Before deploying to production, ensure to test:
 
-1. **Teacher Management:**
-   - Creating new teachers with gender selection
-   - Editing existing teacher availability
-   - Deleting teachers and proper cleanup
+1. **Provider Management:**
+   - Creating new providers with gender selection
+   - Editing existing provider availability
+   - Deleting providers and proper cleanup
 
 2. **Booking Flow:**
    - Customer checkout with new gender/age fields

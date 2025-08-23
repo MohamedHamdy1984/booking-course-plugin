@@ -1,7 +1,7 @@
 Perfect! Now I have a clear understanding of the requirements. Let me create a comprehensive development plan for the `soob-plugin`. Based on your answers, I understand that:
 
 1. Customers can book multiple time slots in a single order
-2. Admin manually assigns teachers after orders are placed
+2. Admin manually assigns providers after orders are placed
 3. No automatic slot reservation - admin handles conflicts manually
 
 Here's the detailed development plan:
@@ -19,13 +19,13 @@ soob-plugin/
 │   ├── class-deactivator.php        # Plugin deactivation
 │   ├── class-database.php           # Database operations
 │   ├── models/
-│   │   ├── class-teacher.php        # Teacher model
+│   │   ├── class-provider.php        # Provider model
 │   │   ├── class-time-slot.php      # Time slot model
 │   │   └── class-booking.php        # Booking model
 │   ├── services/
 │   │   ├── class-timezone-service.php    # Timezone handling
 │   │   ├── class-booking-service.php     # Booking logic
-│   │   └── class-teacher-service.php     # Teacher management
+│   │   └── class-provider-service.php     # Provider management
 │   └── utilities/
 │       ├── class-validator.php      # Input validation
 │       ├── class-sanitizer.php      # Data sanitization
@@ -33,15 +33,15 @@ soob-plugin/
 ├── admin/
 │   ├── class-admin.php              # Admin interface controller
 │   ├── pages/
-│   │   ├── class-teachers-page.php  # Teachers management
+│   │   ├── class-providers-page.php  # Providers management
 │   │   ├── class-bookings-page.php  # Bookings management
 │   │   └── class-settings-page.php  # Plugin settings
 │   ├── partials/
-│   │   ├── teacher-form.php         # Teacher add/edit form
+│   │   ├── provider-form.php         # Provider add/edit form
 │   │   ├── booking-list.php         # Bookings table
 │   │   └── time-slots-manager.php   # Time slots interface
 │   └── js/
-│       ├── admin-teachers.js        # Teachers page JS
+│       ├── admin-providers.js        # Providers page JS
 │       ├── admin-bookings.js        # Bookings page JS
 │       └── time-slots.js            # Time slots management
 ├── public/
@@ -73,8 +73,8 @@ soob-plugin/
 ## 2. Database Schema Design
 
 ```sql
--- Teachers table
-CREATE TABLE {prefix}soob_teachers (
+-- Providers table
+CREATE TABLE {prefix}soob_providers (
     id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
     user_id bigint(20) unsigned NOT NULL,
     name varchar(255) NOT NULL,
@@ -91,10 +91,10 @@ CREATE TABLE {prefix}soob_teachers (
     KEY status (status)
 );
 
--- Teacher availability slots
-CREATE TABLE {prefix}soob_teacher_availability (
+-- Provider availability slots
+CREATE TABLE {prefix}soob_provider_availability (
     id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-    teacher_id bigint(20) unsigned NOT NULL,
+    provider_id bigint(20) unsigned NOT NULL,
     day_of_week tinyint(1) NOT NULL, -- 0=Sunday, 1=Monday, etc.
     start_time time NOT NULL,
     end_time time NOT NULL,
@@ -102,9 +102,9 @@ CREATE TABLE {prefix}soob_teacher_availability (
     is_active tinyint(1) DEFAULT 1,
     created_at datetime DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    KEY teacher_id (teacher_id),
+    KEY provider_id (provider_id),
     KEY day_of_week (day_of_week),
-    FOREIGN KEY (teacher_id) REFERENCES {prefix}soob_teachers(id) ON DELETE CASCADE
+    FOREIGN KEY (provider_id) REFERENCES {prefix}soob_providers(id) ON DELETE CASCADE
 );
 
 -- Bookings table (linked to WooCommerce orders)
@@ -113,7 +113,7 @@ CREATE TABLE {prefix}soob_bookings (
     order_id bigint(20) unsigned NOT NULL,
     product_id bigint(20) unsigned NOT NULL,
     customer_id bigint(20) unsigned NOT NULL,
-    teacher_id bigint(20) unsigned NULL, -- Assigned by admin later
+    provider_id bigint(20) unsigned NULL, -- Assigned by admin later
     customer_timezone varchar(50) NOT NULL,
     customer_gender enum('man','woman','child') NOT NULL,
     selected_slots longtext NOT NULL, -- JSON array of selected time slots
@@ -124,16 +124,16 @@ CREATE TABLE {prefix}soob_bookings (
     PRIMARY KEY (id),
     KEY order_id (order_id),
     KEY customer_id (customer_id),
-    KEY teacher_id (teacher_id),
+    KEY provider_id (provider_id),
     KEY booking_status (booking_status),
-    FOREIGN KEY (teacher_id) REFERENCES {prefix}soob_teachers(id) ON DELETE SET NULL
+    FOREIGN KEY (provider_id) REFERENCES {prefix}soob_providers(id) ON DELETE SET NULL
 );
 
 -- Scheduled sessions (individual time slots from bookings)
 CREATE TABLE {prefix}soob_sessions (
     id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
     booking_id bigint(20) unsigned NOT NULL,
-    teacher_id bigint(20) unsigned NULL,
+    provider_id bigint(20) unsigned NULL,
     session_date date NOT NULL,
     start_time time NOT NULL,
     end_time time NOT NULL,
@@ -145,25 +145,25 @@ CREATE TABLE {prefix}soob_sessions (
     updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     KEY booking_id (booking_id),
-    KEY teacher_id (teacher_id),
+    KEY provider_id (provider_id),
     KEY session_date (session_date),
     KEY session_status (session_status),
     FOREIGN KEY (booking_id) REFERENCES {prefix}soob_bookings(id) ON DELETE CASCADE,
-    FOREIGN KEY (teacher_id) REFERENCES {prefix}soob_teachers(id) ON DELETE SET NULL
+    FOREIGN KEY (provider_id) REFERENCES {prefix}soob_providers(id) ON DELETE SET NULL
 );
 ```
 
 ## 3. Major Components & Features
 
 ### Core Models
-- **Teacher Model**: Manages teacher data, availability, and capabilities
+- **Provider Model**: Manages provider data, availability, and capabilities
 - **Booking Model**: Handles customer bookings and order integration
 - **TimeSlot Model**: Manages time slot data and availability logic
 - **Session Model**: Individual scheduled sessions
 
 ### Services Layer
 - **BookingService**: Core booking logic and validation
-- **TeacherService**: Teacher management and assignment
+- **ProviderService**: Provider management and assignment
 - **TimezoneService**: Timezone conversion and handling
 - **NotificationService**: Email/SMS notifications (future)
 
@@ -174,10 +174,10 @@ CREATE TABLE {prefix}soob_sessions (
 - **AJAX Handler**: Real-time slot availability
 
 ### Admin Components
-- **Teachers Management**: CRUD operations for teachers
-- **Bookings Dashboard**: Order management and teacher assignment
-- **Availability Manager**: Teacher schedule configuration
-- **Reports**: Booking analytics and teacher performance
+- **Providers Management**: CRUD operations for providers
+- **Bookings Dashboard**: Order management and provider assignment
+- **Availability Manager**: Provider schedule configuration
+- **Reports**: Booking analytics and provider performance
 
 ## 4. WordPress Hooks & APIs Integration
 
@@ -220,8 +220,8 @@ register_deactivation_hook(__FILE__, 'cleanup_plugin_data');
 do_action('soob_before_booking_save', $booking_data);
 do_action('soob_after_booking_created', $booking_id);
 
-// Teacher assignment hooks
-do_action('soob_teacher_assigned', $booking_id, $teacher_id);
+// Provider assignment hooks
+do_action('soob_provider_assigned', $booking_id, $provider_id);
 do_action('soob_session_scheduled', $session_id);
 ```
 
@@ -235,8 +235,8 @@ do_action('soob_session_scheduled', $session_id);
 - **Form Validation**: Client-side validation before submission
 
 ### Backend (Admin)
-- **Teacher Management**: CRUD operations for teachers and availability
-- **Booking Management**: View, assign teachers, manage bookings
+- **Provider Management**: CRUD operations for providers and availability
+- **Booking Management**: View, assign providers, manage bookings
 - **Order Integration**: Link bookings to WooCommerce orders
 - **Session Scheduling**: Create individual sessions from bookings
 - **Reporting**: Analytics and performance tracking
@@ -270,7 +270,7 @@ class Validator {
 class Sanitizer {
     public static function sanitizeBookingData($data);
     public static function sanitizeTimeSlot($slot);
-    public static function sanitizeTeacherData($teacher_data);
+    public static function sanitizeProviderData($provider_data);
 }
 ```
 
@@ -279,7 +279,7 @@ class Sanitizer {
 class DatabaseHelper {
     public static function insertBooking($booking_data);
     public static function updateBookingStatus($booking_id, $status);
-    public static function getAvailableTeachers($criteria);
+    public static function getAvailableProviders($criteria);
     public static function getBookingsByStatus($status);
 }
 ```
@@ -290,7 +290,7 @@ class DatabaseHelper {
 **Deliverables:**
 - Plugin structure and main files
 - Database schema creation
-- Basic models (Teacher, Booking, TimeSlot)
+- Basic models (Provider, Booking, TimeSlot)
 - Plugin activation/deactivation hooks
 
 **Key Files:**
@@ -301,15 +301,15 @@ class DatabaseHelper {
 
 ### Phase 2: Admin Dashboard (Week 2-3)
 **Deliverables:**
-- Teachers management interface
-- Teacher availability configuration
+- Providers management interface
+- Provider availability configuration
 - Basic settings page
 - Admin menu integration
 
 **Key Files:**
 - [`admin/class-admin.php`](admin/class-admin.php:1)
-- [`admin/pages/class-teachers-page.php`](admin/pages/class-teachers-page.php:1)
-- [`admin/partials/teacher-form.php`](admin/partials/teacher-form.php:1)
+- [`admin/pages/class-providers-page.php`](admin/pages/class-providers-page.php:1)
+- [`admin/partials/provider-form.php`](admin/partials/provider-form.php:1)
 
 ### Phase 3: Frontend Booking UI (Week 3-4)
 **Deliverables:**
@@ -338,7 +338,7 @@ class DatabaseHelper {
 ### Phase 5: Booking Management (Week 5-6)
 **Deliverables:**
 - Admin bookings dashboard
-- Teacher assignment interface
+- Provider assignment interface
 - Session scheduling system
 - Order status integration
 
@@ -388,16 +388,16 @@ graph TB
     end
     
     subgraph "Admin Dashboard"
-        N[Teachers Management] --> O[Teacher CRUD]
+        N[Providers Management] --> O[Provider CRUD]
         N --> P[Availability Manager]
         Q[Bookings Dashboard] --> R[Order Integration]
-        Q --> S[Teacher Assignment]
+        Q --> S[Provider Assignment]
         Q --> T[Session Scheduling]
     end
     
     subgraph "Database"
-        U[(Teachers)]
-        V[(Teacher Availability)]
+        U[(Providers)]
+        V[(Provider Availability)]
         W[(Bookings)]
         X[(Sessions)]
         Y[(WooCommerce Orders)]
@@ -429,14 +429,14 @@ I've created a comprehensive development plan for the `soob-plugin` WordPress pl
 - WordPress coding standards compliance
 
 **2. Database Schema Design**
-- 4 custom tables: teachers, teacher availability, bookings, and sessions
+- 4 custom tables: providers, provider availability, bookings, and sessions
 - Proper foreign key relationships and indexing
 - Support for timezone handling and booking status tracking
 
 **3. Major Components & Features**
 - **Frontend**: WooCommerce checkout integration with timezone selector, gender/age selection, and interactive time slot cards with weekday tabs
-- **Backend**: Admin dashboard for teacher management, booking oversight, and session scheduling
-- **Services**: Booking logic, teacher assignment, and timezone conversion utilities
+- **Backend**: Admin dashboard for provider management, booking oversight, and session scheduling
+- **Services**: Booking logic, provider assignment, and timezone conversion utilities
 
 **4. WordPress Integration Strategy**
 - WooCommerce hooks for checkout integration and order processing
@@ -446,17 +446,17 @@ I've created a comprehensive development plan for the `soob-plugin` WordPress pl
 
 **5. Technical Implementation Details**
 - Multiple time slots per order support
-- Admin-managed teacher assignment workflow
+- Admin-managed provider assignment workflow
 - No automatic slot reservation (admin handles conflicts)
 - Tailwind CSS for modern UI components
 - Comprehensive validation and sanitization
 
 **6. 7-Phase Implementation Plan**
 - **Phase 1**: Core foundation and database setup
-- **Phase 2**: Admin dashboard and teacher management
+- **Phase 2**: Admin dashboard and provider management
 - **Phase 3**: Frontend booking UI components
 - **Phase 4**: Booking logic and AJAX functionality
-- **Phase 5**: Booking management and teacher assignment
+- **Phase 5**: Booking management and provider assignment
 - **Phase 6**: Styling and UX polish with Tailwind CSS
 - **Phase 7**: Testing, optimization, and documentation
 

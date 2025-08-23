@@ -107,9 +107,9 @@ class SOOB_Admin_Schedule {
         // Check if there's any availability data
         if (empty($availability_data)) {
             echo '<div class="soob-no-data">';
-            echo '<h3>' . __('No teachers available', 'soob-plugin') . '</h3>';
-            echo '<p>' . sprintf(__('There are currently no active teachers available for %s.', 'soob-plugin'), $this->get_audience_label($audience)) . '</p>';
-            echo '<p><a href="' . admin_url('admin.php?page=soob-teachers&action=add') . '" class="button button-primary">' . __('Add Teacher', 'soob-plugin') . '</a></p>';
+            echo '<h3>' . __('No providers available', 'soob-plugin') . '</h3>';
+            echo '<p>' . sprintf(__('There are currently no active providers available for %s.', 'soob-plugin'), $this->get_audience_label($audience)) . '</p>';
+            echo '<p><a href="' . admin_url('admin.php?page=soob-providers&action=add') . '" class="button button-primary">' . __('Add Provider', 'soob-plugin') . '</a></p>';
             echo '</div>';
             return;
         }
@@ -179,7 +179,7 @@ class SOOB_Admin_Schedule {
     private function get_availability_for_audience($audience, $display_timezone = 'UTC') {
         global $wpdb;
         
-        $table = $wpdb->prefix . 'soob_teachers';
+        $table = $wpdb->prefix . 'soob_providers';
         
         // Validate audience
         if (!in_array($audience, ['male', 'female'])) {
@@ -193,7 +193,7 @@ class SOOB_Admin_Schedule {
             $audience
         );
         
-        $teachers = $wpdb->get_results($query);
+        $providers = $wpdb->get_results($query);
         
         // Handle database errors
         if ($wpdb->last_error) {
@@ -201,19 +201,19 @@ class SOOB_Admin_Schedule {
             return array();
         }
         
-        // If no teachers found, return empty array
-        if (empty($teachers)) {
+        // If no providers found, return empty array
+        if (empty($providers)) {
             return array();
         }
         
         $combined_availability = array();
         
-        foreach ($teachers as $teacher) {
-            if (empty($teacher->availability)) {
+        foreach ($providers as $provider) {
+            if (empty($provider->availability)) {
                 continue;
             }
             
-            $availability = json_decode($teacher->availability, true);
+            $availability = json_decode($provider->availability, true);
             
             // Skip if JSON decode failed or not an array
             if (!is_array($availability)) {
@@ -365,9 +365,9 @@ class SOOB_Admin_Schedule {
     private function get_audience_label($audience) {
         switch ($audience) {
             case 'male':
-                return __('male teachers', 'soob-plugin');
+                return __('male providers', 'soob-plugin');
             case 'female':
-                return __('female teachers', 'soob-plugin');
+                return __('female providers', 'soob-plugin');
             default:
                 return __('this audience', 'soob-plugin');
         }

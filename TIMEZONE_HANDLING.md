@@ -9,7 +9,7 @@ This document outlines the comprehensive timezone handling system implemented in
 ### 1. UTC Storage
 - **All times are stored in UTC in the database**
 - This ensures consistency and eliminates timezone-related data corruption
-- Both teacher availability and booking times follow this principle
+- Both provider availability and booking times follow this principle
 
 ### 2. Display Timezone Conversion
 - Times are converted from UTC to the appropriate display timezone when shown to users
@@ -17,7 +17,7 @@ This document outlines the comprehensive timezone handling system implemented in
 - Customer checkout uses auto-detected or manually selected timezone
 
 ### 3. Weekly Recurring Patterns
-- Teacher availability uses weekly recurring patterns (Sunday-Saturday)
+- Provider availability uses weekly recurring patterns (Sunday-Saturday)
 - No specific calendar dates for availability - only day-of-week and time
 - Actual bookings will have specific dates when implemented
 
@@ -49,7 +49,7 @@ function autoDetectTimezone() {
 
 ### Backend (Admin Interfaces)
 
-#### Teacher Availability Management
+#### Provider Availability Management
 ```php
 // Convert admin input to UTC before storage
 private function convert_availability_to_utc($availability, $admin_timezone) {
@@ -85,7 +85,7 @@ private function convert_availability_from_utc($availability, $display_timezone)
 
 ## Database Schema
 
-### Teacher Availability Storage
+### Provider Availability Storage
 ```sql
 -- Example of how availability is stored in UTC
 availability = {
@@ -111,7 +111,7 @@ customer_timezone = "America/New_York"     -- For display conversion
 3. **Slot Display**: Available slots shown in user's timezone
 4. **Booking Storage**: Selected time converted to UTC before storage
 
-### 2. Admin Teacher Management
+### 2. Admin Provider Management
 1. **Timezone Selection**: Admin selects their timezone for input convenience
 2. **Time Input**: Admin enters times in their local timezone
 3. **UTC Conversion**: Times automatically converted to UTC before storage
@@ -132,14 +132,14 @@ customer_timezone = "America/New_York"     -- For display conversion
 - [`public/class-soob-checkout.php`](public/class-soob-checkout.php): UTC conversion logic
 
 #### Admin Files
-- [`admin/class-soob-admin-teachers.php`](admin/class-soob-admin-teachers.php): Timezone input and UTC conversion
+- [`admin/class-soob-admin-providers.php`](admin/class-soob-admin-providers.php): Timezone input and UTC conversion
 - [`admin/class-soob-admin-schedule.php`](admin/class-soob-admin-schedule.php): Schedule display with timezone conversion
 - [`assets/js/admin-schedule.js`](assets/js/admin-schedule.js): AJAX handling with timezone parameter
 - [`assets/css/admin-schedule.css`](assets/css/admin-schedule.css): Styling for schedule grid
 
 #### Core Files
 - [`includes/class-soob-woocommerce.php`](includes/class-soob-woocommerce.php): Expanded timezone options
-- [`includes/class-soob-teacher.php`](includes/class-soob-teacher.php): UTC storage methods
+- [`includes/class-soob-provider.php`](includes/class-soob-provider.php): UTC storage methods
 
 ### Key Methods
 
@@ -171,7 +171,7 @@ loadScheduleForAudience(audience, timezone)
 - **Fallback**: Manual selection available if auto-detection fails
 
 ### 2. UTC Storage Verification
-- **Test**: Create teacher availability in different admin timezones
+- **Test**: Create provider availability in different admin timezones
 - **Expected**: All times stored consistently in UTC in database
 - **Verification**: Direct database inspection shows UTC times
 
@@ -181,7 +181,7 @@ loadScheduleForAudience(audience, timezone)
 - **Edge Cases**: Handle daylight saving time transitions
 
 ### 4. Weekly Pattern Consistency
-- **Test**: Teacher availability spans multiple days/timezones
+- **Test**: Provider availability spans multiple days/timezones
 - **Expected**: Weekly pattern maintained regardless of timezone
 - **Verification**: Same availability shows consistently across timezones
 
@@ -201,7 +201,7 @@ loadScheduleForAudience(audience, timezone)
 
 ### 4. Performance Optimization
 - Consider caching converted availability data
-- Optimize AJAX calls for large teacher datasets
+- Optimize AJAX calls for large provider datasets
 
 ## Troubleshooting
 
@@ -236,7 +236,7 @@ error_log('Display time: ' . $display_time->format('Y-m-d H:i:s'));
 #### 3. Database Inspection
 ```sql
 -- Verify UTC storage
-SELECT availability FROM wp_soob_teachers WHERE id = 1;
+SELECT availability FROM wp_soob_providers WHERE id = 1;
 ```
 
 ## Conclusion

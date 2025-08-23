@@ -23,7 +23,7 @@ class SOOB_Booking {
             array(
                 'order_id' => intval($data['order_id']),
                 'customer_id' => intval($data['customer_id']),
-                'teacher_id' => isset($data['teacher_id']) ? intval($data['teacher_id']) : null,
+                'provider_id' => isset($data['provider_id']) ? intval($data['provider_id']) : null,
                 'timezone' => sanitize_text_field($data['timezone']),
                 'customer_gender' => sanitize_text_field($data['customer_gender']),
                 'customer_age' => intval($data['customer_age']),
@@ -71,8 +71,8 @@ class SOOB_Booking {
         $update_data = array();
         $update_format = array();
         
-        if (isset($data['teacher_id'])) {
-            $update_data['teacher_id'] = intval($data['teacher_id']);
+        if (isset($data['provider_id'])) {
+            $update_data['provider_id'] = intval($data['provider_id']);
             $update_format[] = '%d';
         }
         
@@ -150,9 +150,9 @@ class SOOB_Booking {
             $where_values[] = $filters['date_to'];
         }
         
-        if (!empty($filters['teacher_id'])) {
-            $where_conditions[] = "teacher_id = %d";
-            $where_values[] = $filters['teacher_id'];
+        if (!empty($filters['provider_id'])) {
+            $where_conditions[] = "provider_id = %d";
+            $where_values[] = $filters['provider_id'];
         }
         
         if (!empty($filters['customer_gender'])) {

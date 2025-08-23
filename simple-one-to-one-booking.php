@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Simple One-to-One Booking
  * Plugin URI: https://example.com/simple-one-to-one-booking
- * Description: Book one-to-one sessions with any provider (teacher, therapist, coach) via WooCommerce checkout with timezone-aware scheduling.
+ * Description: Book one-to-one sessions with any provider (provider, therapist, coach) via WooCommerce checkout with timezone-aware scheduling.
  * Version: 1.0.0
  * Author: Your Name
  * Author URI: https://example.com
@@ -160,14 +160,14 @@ class SOOB_Plugin
     {
         // Core includes
         $this->safe_require(SOOB_PLUGIN_PATH . 'includes/class-soob-database.php');
-        $this->safe_require(SOOB_PLUGIN_PATH . 'includes/class-soob-teacher.php');
+        $this->safe_require(SOOB_PLUGIN_PATH . 'includes/class-soob-provider.php');
         $this->safe_require(SOOB_PLUGIN_PATH . 'includes/class-soob-booking.php');
         $this->safe_require(SOOB_PLUGIN_PATH . 'includes/class-soob-woocommerce.php');
 
         // Admin includes
         if (is_admin()) {
             $this->safe_require(SOOB_PLUGIN_PATH . 'admin/class-soob-admin.php');
-            $this->safe_require(SOOB_PLUGIN_PATH . 'admin/class-soob-admin-teachers.php');
+            $this->safe_require(SOOB_PLUGIN_PATH . 'admin/class-soob-admin-providers.php');
             $this->safe_require(SOOB_PLUGIN_PATH . 'admin/class-soob-admin-schedule.php');
         }
 
