@@ -47,160 +47,22 @@ jQuery(document).ready(function($) {
         }
     });
     
-    // Enhanced auto-fetch timezone with Cairo-specific fixes
-    // This handles both new providers and existing providers with missing timezone
-    function autoFetchProviderTimezone() {
-        var $timezoneField = $('#provider_timezone');
-        var currentValue = $timezoneField.val();
-        
-        console.log('Starting timezone auto-detection...');
-        console.log('Current timezone field value:', currentValue);
-        
-        // Enhanced logic: Also override if current value is UTC but browser detects something more specific
-        var shouldDetect = false;
-        
-        if (!currentValue || currentValue === '') {
-            shouldDetect = true;
-            console.log('Field is empty, will auto-detect');
-        } else if (currentValue === 'UTC') {
-            // If current value is UTC but browser can detect a more specific timezone, override it
-            if (typeof Intl !== 'undefined' && Intl.DateTimeFormat) {
-                try {
-                    var browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                    if (browserTimezone && browserTimezone !== 'UTC') {
-                        shouldDetect = true;
-                        console.log('Current value is UTC but browser detected more specific timezone:', browserTimezone);
-                    }
-                } catch (e) {
-                    console.log('Could not detect browser timezone for UTC override check');
-                }
-            }
-        }
-        
-        if (shouldDetect) {
-            var detectedTimezone = null;
-            var detectedOffset = null;
-            
-            // First try: Browser timezone detection using Intl API
-            if (typeof Intl !== 'undefined' && Intl.DateTimeFormat) {
-                try {
-                    detectedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                    console.log('Browser detected timezone:', detectedTimezone);
-                    
-                    // Get the current offset for this timezone
-                    var now = new Date();
-                    var offsetMinutes = -now.getTimezoneOffset();
-                    detectedOffset = offsetMinutes / 60;
-                    console.log('Current timezone offset (hours):', detectedOffset);
-                    console.log('Expected for Cairo (Africa/Cairo): +3 hours');
-                    
-                } catch (e) {
-                    console.warn('Browser timezone detection failed:', e.message);
-                }
-            } else {
-                console.warn('Intl API not available');
-            }
-            
-            // Second try: JavaScript Date object timezone offset (enhanced for Cairo)
-            if (!detectedTimezone) {
-                try {
-                    var offset = -new Date().getTimezoneOffset() / 60;
-                    console.log('Fallback: Detected offset from Date object:', offset);
-                    
-                    // Enhanced mapping for common Middle East/Africa timezones
-                    var offsetToTimezone = {
-                        '3': 'Africa/Cairo',      // Egypt Standard Time (UTC+3) - CAIRO FIX
-                        '2': 'Europe/Berlin',     // Central European Time
-                        '1': 'Europe/London',     // British Summer Time / Central European Time
-                        '0': 'UTC',               // UTC
-                        '-5': 'America/New_York', // Eastern Time
-                        '-8': 'America/Los_Angeles' // Pacific Time
-                    };
-                    
-                    if (offsetToTimezone[offset.toString()]) {
-                        detectedTimezone = offsetToTimezone[offset.toString()];
-                        console.log('Mapped offset ' + offset + ' to timezone:', detectedTimezone);
-                    } else {
-                        console.log('No mapping found for offset:', offset, 'using UTC');
-                        detectedTimezone = 'UTC';
-                    }
-                } catch (e) {
-                    console.warn('Offset timezone detection failed:', e.message);
-                }
-            }
-            
-            // Final fallback: UTC
-            if (!detectedTimezone) {
-                detectedTimezone = 'UTC';
-                console.log('Using final fallback timezone: UTC');
-            }
-            
-            // Debug: Show all available options in dropdown
-            console.log('Available timezone options in dropdown:');
-            $timezoneField.find('option').each(function(index, option) {
-                if ($(option).val().includes('Cairo') || $(option).val().includes('Africa') || $(option).val() === detectedTimezone) {
-                    console.log('  - ' + $(option).val() + ' (' + $(option).text() + ')');
+    // Timezone detection helpers removed in favor of SOOBTimezone UMD module.
+    // No local detect/apply/alert helpers are defined here.
+    
+    // Execute timezone detection using SOOBTimezone UMD module on page load
+    (function() {
+        var selectEl = document.getElementById('provider_timezone');
+        if (window.SOOBTimezone && selectEl) {
+            window.SOOBTimezone.applyToSelect(selectEl, {
+                overrideIfEmpty: true,
+                overrideIfUTC: true,
+                onFail: function () {
+                    window.SOOBTimezone.ui.showInlineAlert(selectEl, window.SOOBTimezone.STRINGS.DETECT_FAIL);
                 }
             });
-            
-            // Validate that the detected timezone exists in the dropdown options
-            var $option = $timezoneField.find('option[value="' + detectedTimezone + '"]');
-            if ($option.length > 0) {
-                $timezoneField.val(detectedTimezone);
-                console.log('✓ Successfully set provider timezone to:', detectedTimezone);
-                
-                // Trigger change event to update availability display if needed
-                $timezoneField.trigger('change');
-                
-                // Show success message to user
-                showTimezoneDetectionMessage('success', 'Timezone auto-detected: ' + detectedTimezone);
-            } else {
-                console.warn('✗ Detected timezone "' + detectedTimezone + '" not found in dropdown options');
-                
-                // Try to find Cairo specifically as a fallback for Middle East users
-                var $cairoOption = $timezoneField.find('option[value*="Cairo"], option[value*="africa/cairo"], option[value*="Africa/Cairo"]');
-                if ($cairoOption.length > 0) {
-                    var cairoValue = $cairoOption.first().val();
-                    $timezoneField.val(cairoValue);
-                    console.log('✓ Using Cairo timezone fallback:', cairoValue);
-                    showTimezoneDetectionMessage('success', 'Using Cairo timezone: ' + cairoValue);
-                } else {
-                    // Final fallback to UTC
-                    $timezoneField.val('UTC');
-                    console.warn('✗ No suitable timezone found. Using UTC fallback.');
-                    showTimezoneDetectionMessage('warning', 'Could not detect your timezone. Please select manually.');
-                }
-            }
-        } else {
-            console.log('Provider timezone already set and not overriding:', currentValue);
-            
-            // Still show debug info even when not overriding
-            if (typeof Intl !== 'undefined' && Intl.DateTimeFormat) {
-                try {
-                    var browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                    var offset = -new Date().getTimezoneOffset() / 60;
-                    console.log('For reference - Browser detected:', browserTimezone, 'with offset UTC' + (offset >= 0 ? '+' : '') + offset);
-                } catch (e) {
-                    console.log('Could not get browser timezone for reference');
-                }
-            }
         }
-    }
-    
-    // Show timezone detection message to user
-    function showTimezoneDetectionMessage(type, message) {
-        var messageClass = 'notice-' + type;
-        var $message = $('<div class="notice ' + messageClass + ' is-dismissible"><p>' + message + '</p></div>');
-        $('.wrap h1').after($message);
-        
-        // Auto-dismiss after 5 seconds
-        setTimeout(function() {
-            $message.fadeOut();
-        }, 5000);
-    }
-    
-    // Execute auto-fetch on page load
-    autoFetchProviderTimezone();
+    })();
     
     // Select all/none functionality for availability
     $('.soob-day-column').each(function() {

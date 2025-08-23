@@ -27,13 +27,11 @@ class SOOB_Admin_Providers {
      * Enqueue scripts and styles for providers page
      */
     public function enqueue_scripts() {
-        // Enqueue admin providers styles if needed
+        // Enqueue admin providers styles
         wp_enqueue_style('soob-admin-providers', SOOB_PLUGIN_URL . 'assets/css/admin-providers.css', array(), SOOB_PLUGIN_VERSION);
-        
-        // Enqueue admin providers JavaScript if needed
-        wp_enqueue_script('soob-admin-providers', SOOB_PLUGIN_URL . 'assets/js/admin-providers.js', array('jquery'), SOOB_PLUGIN_VERSION, true);
-        
-        // Localize script for AJAX with unique variable name
+
+        // Do NOT enqueue JS here. Script is registered and enqueued with proper dependencies in SOOB_Admin.
+        // We only localize data onto the already registered handle.
         wp_localize_script('soob-admin-providers', 'soob_providers_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('soob_admin_nonce'),
@@ -191,76 +189,40 @@ class SOOB_Admin_Providers {
                     
                     
                     <tr>
-                       <th scope="row">
-                           <label for="provider_timezone"><?php _e('Timezone', 'soob-plugin'); ?> *</label>
-                       </th>
-                       <td>
-                           <select id="provider_timezone" name="provider_timezone" required>
-                               <option value=""><?php _e('Select Timezone', 'soob-plugin'); ?></option>
-                               <?php
-                               // Enhanced auto-fetch timezone with Cairo/Middle East detection
-                               $auto_timezone = SOOB_Provider::get_provider_timezone();
-                               
-                               // Debug log the detected timezone
-                               error_log('SOOB Admin: Auto-detected timezone for new provider: ' . $auto_timezone);
-                               
-                               $woocommerce = new SOOB_WooCommerce();
-                               $timezones = $woocommerce->get_timezone_options();
-                               
-                               // Debug: Check if Africa/Cairo is in the options
-                               $cairo_available = array_key_exists('Africa/Cairo', $timezones);
-                               error_log('SOOB Admin: Africa/Cairo available in timezone options: ' . ($cairo_available ? 'YES' : 'NO'));
-                               
-                               foreach ($timezones as $value => $label) {
-                                   // Pre-select the auto-detected timezone for new providers
-                                   $selected = ($value === $auto_timezone) ? 'selected' : '';
-                                   echo '<option value="' . esc_attr($value) . '" ' . $selected . '>' . esc_html($label) . '</option>';
-                                   
-                                   // Debug: Log Cairo option if found
-                                   if (strpos($value, 'Cairo') !== false) {
-                                       error_log('SOOB Admin: Found Cairo timezone option: ' . $value . ' - ' . $label);
-                                   }
-                               }
-                               ?>
-                           </select>
-                           <p class="description"><?php
-                               printf(__('Timezone auto-detected: %s. Change if needed. This affects the provider\'s availability schedule.', 'soob-plugin'),
-                                      '<strong>' . esc_html($auto_timezone) . '</strong>');
-                           ?></p>
-                           
-                           <!-- Debug info for Cairo timezone issue -->
-                           <?php if (WP_DEBUG): ?>
-                           <div style="margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 4px; font-size: 12px;">
-                               <strong>Debug Info:</strong><br>
-                               Auto-detected: <?php echo esc_html($auto_timezone); ?><br>
-                               User Agent Timezone: <span id="js-detected-timezone">Loading...</span><br>
-                               Browser Offset: <span id="js-detected-offset">Loading...</span><br>
-                               Cairo Available: <?php echo $cairo_available ? 'Yes' : 'No'; ?>
-                               
-                               <script>
-                               // Show browser detection info for debugging
-                               jQuery(document).ready(function($) {
-                                   if (typeof Intl !== 'undefined') {
-                                       try {
-                                           var browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                                           $('#js-detected-timezone').text(browserTz);
-                                           
-                                           var offset = -new Date().getTimezoneOffset() / 60;
-                                           $('#js-detected-offset').text('UTC' + (offset >= 0 ? '+' : '') + offset);
-                                       } catch(e) {
-                                           $('#js-detected-timezone').text('Detection failed');
-                                           $('#js-detected-offset').text('Detection failed');
-                                       }
-                                   } else {
-                                       $('#js-detected-timezone').text('Intl API not available');
-                                       $('#js-detected-offset').text('Intl API not available');
-                                   }
-                               });
-                               </script>
-                           </div>
-                           <?php endif; ?>
-                       </td>
-                   </tr>
+                        <th scope="row">
+                            <label for="provider_timezone"><?php _e('Timezone', 'soob-plugin'); ?> *</label>
+                        </th>
+                        <td>
+                            <select id="provider_timezone" name="provider_timezone" required>
+                                <option value=""><?php _e('Select Timezone', 'soob-plugin'); ?></option>
+                                <?php
+                                // Build timezone list from IANA identifiers, sorted by current UTC offset (cached daily)
+                                $selected_tz = isset($_POST['provider_timezone']) ? sanitize_text_field($_POST['provider_timezone']) : '';
+                                $zoneOffsets = $this->get_sorted_timezones_today();
+                                foreach ($zoneOffsets as $row) {
+                                    $seconds = (int) $row['offset'];
+                                    $sign = $seconds >= 0 ? '+' : '-';
+                                    $abs = abs($seconds);
+                                    $hours = floor($abs / 3600);
+                                    $minutes = floor(($abs % 3600) / 60);
+
+                                    if ($seconds === 0) {
+                                        $offset_label = 'UTC';
+                                    } else {
+                                        $offset_label = $minutes
+                                            ? sprintf('UTC%s%02d:%02d', $sign, $hours, $minutes)
+                                            : sprintf('UTC%s%d', $sign, $hours);
+                                    }
+
+                                    $val = $row['id'];
+                                    $sel = selected($selected_tz, $val, false);
+                                    echo '<option value="' . esc_attr($val) . '" ' . $sel . '>(' . esc_html($offset_label) . ') ' . esc_html($val) . '</option>';
+                                }
+                                ?>
+                            </select>
+                            <p class="description"><?php _e('Select the provider timezone. This affects the provider\'s availability schedule.', 'soob-plugin'); ?></p>
+                        </td>
+                    </tr>
                     
                     <tr>
                         <th scope="row">
@@ -371,20 +333,36 @@ class SOOB_Admin_Providers {
                             <select id="provider_timezone" name="provider_timezone" required>
                                 <option value=""><?php _e('Select Timezone', 'soob-plugin'); ?></option>
                                 <?php
-                                // Get current provider timezone with auto-fetch fallbacks if missing
+                                // Build timezone list from IANA identifiers, sorted by current UTC offset (cached daily)
                                 $current_timezone = SOOB_Provider::get_provider_timezone($provider_id);
-                                
-                                $woocommerce = new SOOB_WooCommerce();
-                                $timezones = $woocommerce->get_timezone_options();
-                                foreach ($timezones as $value => $label) {
-                                    // Use fallback timezone if provider timezone is missing from database
-                                    $provider_tz = !empty($provider->timezone) ? $provider->timezone : $current_timezone;
-                                    $selected = ($provider_tz === $value) ? 'selected' : '';
-                                    echo '<option value="' . esc_attr($value) . '" ' . $selected . '>' . esc_html($label) . '</option>';
+                                $selected_tz = isset($_POST['provider_timezone'])
+                                    ? sanitize_text_field($_POST['provider_timezone'])
+                                    : (!empty($provider->timezone) ? $provider->timezone : $current_timezone);
+
+                                $zoneOffsets = $this->get_sorted_timezones_today();
+
+                                foreach ($zoneOffsets as $row) {
+                                    $seconds = (int) $row['offset'];
+                                    $sign = $seconds >= 0 ? '+' : '-';
+                                    $abs = abs($seconds);
+                                    $hours = floor($abs / 3600);
+                                    $minutes = floor(($abs % 3600) / 60);
+
+                                    if ($seconds === 0) {
+                                        $offset_label = 'UTC';
+                                    } else {
+                                        $offset_label = $minutes
+                                            ? sprintf('UTC%s%02d:%02d', $sign, $hours, $minutes)
+                                            : sprintf('UTC%s%d', $sign, $hours);
+                                    }
+
+                                    $val = $row['id'];
+                                    $sel = selected($selected_tz, $val, false);
+                                    echo '<option value="' . esc_attr($val) . '" ' . $sel . '>(' . esc_html($offset_label) . ') ' . esc_html($val) . '</option>';
                                 }
                                 ?>
                             </select>
-                            <p class="description"><?php _e('Provider timezone with auto-fallback. This affects the availability schedule display.', 'soob-plugin'); ?></p>
+                            <p class="description"><?php _e('Select the provider timezone. This affects the availability schedule display.', 'soob-plugin'); ?></p>
                         </td>
                     </tr>
                     
@@ -470,15 +448,21 @@ class SOOB_Admin_Providers {
         if (!isset($_POST['save_provider']) || !wp_verify_nonce($_POST['soob_provider_nonce'], 'soob_save_provider')) {
             return;
         }
+
+        // Capability check for admin actions
+        if (!current_user_can('manage_woocommerce')) {
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Insufficient permissions.', 'soob-plugin') . '</p></div>';
+            return;
+        }
         
         // Get and validate timezone from form submission
         $provider_timezone = sanitize_text_field($_POST['provider_timezone']);
-        
-        // Validate timezone using timezone_identifiers_list() before saving
-        if (!SOOB_Provider::is_valid_timezone($provider_timezone)) {
-            // Fallback to auto-detected timezone if submitted timezone is invalid
-            $provider_timezone = SOOB_Provider::get_provider_timezone();
-            error_log("Invalid timezone submitted in form. Using fallback: " . $provider_timezone);
+
+        // Validate timezone strictly against IANA list
+        $iana_list = timezone_identifiers_list();
+        if (!in_array($provider_timezone, $iana_list, true)) {
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Invalid timezone selected. Please choose a valid option.', 'soob-plugin') . '</p></div>';
+            return;
         }
         
         // Convert availability times from admin's selected timezone to UTC before saving
@@ -636,5 +620,42 @@ class SOOB_Admin_Providers {
         }
         
         return $display_availability;
+    }
+
+    /**
+     * Get sorted timezone offsets list for today, cached via transient (12 hours).
+     * @return array Array of ['id' => IANA, 'offset' => int seconds], sorted by offset asc then id asc.
+     */
+    private function get_sorted_timezones_today() {
+        // get/set transient 'soob_tz_offsets_{Ymd}'
+        $key = 'soob_tz_offsets_' . gmdate('Ymd');
+        $data = get_transient($key);
+        if ($data !== false && is_array($data)) {
+            return $data;
+        }
+
+        $zones = timezone_identifiers_list();
+        $nowUtc = new DateTime('now', new DateTimeZone('UTC'));
+        $zoneOffsets = array();
+
+        foreach ($zones as $z) {
+            try {
+                $tzObj = new DateTimeZone($z);
+                $offset = $tzObj->getOffset($nowUtc);
+                $zoneOffsets[] = array('id' => $z, 'offset' => $offset);
+            } catch (Exception $e) {
+                // Skip invalid zone if any
+            }
+        }
+
+        usort($zoneOffsets, function($a, $b) {
+            if ($a['offset'] === $b['offset']) {
+                return strcmp($a['id'], $b['id']);
+            }
+            return $a['offset'] - $b['offset'];
+        });
+
+        set_transient($key, $zoneOffsets, 12 * HOUR_IN_SECONDS);
+        return $zoneOffsets;
     }
 }

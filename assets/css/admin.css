@@ -142,6 +142,13 @@
     border: 1px solid #bee5eb;
 }
 
+/* Inline timezone notice container (used by SOOBTimezone.ui.showInlineAlert) */
+.soob-tz-inline-notice {
+    margin-top: 6px;
+    display: block;
+    font-size: 12px;
+}
+
 /* Loading states */
 .soob-loading {
     text-align: center;

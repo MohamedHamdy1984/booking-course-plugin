@@ -4,6 +4,26 @@
 
 jQuery(document).ready(function($) {
     'use strict';
+
+    // Utility: simple debounce
+    function debounce(fn, wait) {
+        var timer;
+        return function() {
+            var ctx = this, args = arguments;
+            clearTimeout(timer);
+            timer = setTimeout(function() { fn.apply(ctx, args); }, wait);
+        };
+    }
+
+    // i18n helper: read from soob_admin_ajax.strings with fallback
+    function t(key, fallback) {
+        try {
+            if (window.soob_admin_ajax && window.soob_admin_ajax.strings && window.soob_admin_ajax.strings[key]) {
+                return window.soob_admin_ajax.strings[key];
+            }
+        } catch (e) {}
+        return fallback;
+    }
     
     // Schedule overview - time slot tooltips
     $('.soob-time-slot').on('mouseenter', function() {
@@ -44,13 +64,13 @@ jQuery(document).ready(function($) {
         $('.bulkactions').toggle(checkedCount > 0);
     }
     
-    // Search functionality
-    $('#provider-search-input').on('keyup', function() {
+    // Search functionality (debounced)
+    $('#provider-search-input').on('keyup', debounce(function() {
         var value = $(this).val().toLowerCase();
         $('.wp-list-table tbody tr').filter(function() {
             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
         });
-    });
+    }, 250));
     
     // Statistics refresh
     $('.soob-stat-card').on('click', function() {
@@ -80,9 +100,9 @@ jQuery(document).ready(function($) {
         e.preventDefault();
         
         var mediaUploader = wp.media({
-            title: 'Select Provider Photo',
+            title: t('select_photo', 'Select Provider Photo'),
             button: {
-                text: 'Use this photo'
+                text: t('use_photo', 'Use this photo')
             },
             multiple: false
         });
@@ -113,7 +133,7 @@ jQuery(document).ready(function($) {
                     },
                     success: function(response) {
                         if (response.success) {
-                            showNotice('success', 'Order updated successfully');
+                            showNotice('success', t('saved', 'Order updated successfully'));
                         }
                     }
                 });
@@ -126,7 +146,7 @@ jQuery(document).ready(function($) {
     // Utility function to show notices
     function showNotice(type, message) {
         var noticeClass = 'soob-notice soob-notice-' + type;
-        var $notice = $('<div class="' + noticeClass + '">' + message + '</div>');
+        var $notice = $('<div class="' + noticeClass + '" role="alert" aria-live="polite">' + message + '</div>');
         
         $('.wrap h1').after($notice);
         
@@ -143,7 +163,7 @@ jQuery(document).ready(function($) {
     }
     
     // Keyboard shortcuts
-    $(document).on('keydown', function(e) {
+    $(document).on('keydown.soob-global', function(e) {
         // Ctrl/Cmd + S to save
         if ((e.ctrlKey || e.metaKey) && e.which === 83) {
             e.preventDefault();
@@ -212,20 +232,20 @@ jQuery(document).ready(function($) {
                             
                             // Check if table is empty
                             if ($('.soob-bookings-table tbody tr').length === 0) {
-                                $('.soob-bookings-list').html('<p>' + 'No bookings found.' + '</p>');
+                                $('.soob-bookings-list').html('<p>' + t('no_bookings', 'No bookings found.') + '</p>');
                             }
                         });
                     } else {
                         // Remove loading state and show error
                         $row.removeClass('deleting');
-                        $button.prop('disabled', false).text('Delete');
+                        $button.prop('disabled', false).text(t('delete', 'Delete'));
                         showNotice('error', response.data || soob_admin_ajax.strings.error);
                     }
                 },
                 error: function() {
                     // Remove loading state and show error
                     $row.removeClass('deleting');
-                    $button.prop('disabled', false).text('Delete');
+                    $button.prop('disabled', false).text(t('delete', 'Delete'));
                     showNotice('error', soob_admin_ajax.strings.error);
                 }
             });
@@ -249,14 +269,14 @@ jQuery(document).ready(function($) {
         });
     }
     
-    // Enhanced search functionality for bookings
-    $('#booking-search-input').on('keyup', function() {
+    // Enhanced search functionality for bookings (debounced)
+    $('#booking-search-input').on('keyup', debounce(function() {
         var value = $(this).val().toLowerCase();
         $('.soob-bookings-table tbody tr').filter(function() {
             var text = $(this).text().toLowerCase();
             $(this).toggle(text.indexOf(value) > -1);
         });
-    });
+    }, 250));
     
     // Bulk actions for bookings (future enhancement)
     $('.soob-bookings-table #cb-select-all-1').on('change', function() {
@@ -273,8 +293,8 @@ jQuery(document).ready(function($) {
             '<h3>' + title + '</h3>' +
             '<p>' + message + '</p>' +
             '<div class="button-group">' +
-                '<button class="button button-secondary soob-cancel-btn">Cancel</button>' +
-                '<button class="button button-primary soob-confirm-btn">Confirm</button>' +
+                '<button class="button button-secondary soob-cancel-btn">' + t('cancel', 'Cancel') + '</button>' +
+                '<button class="button button-primary soob-confirm-btn">' + t('confirm', 'Confirm') + '</button>' +
             '</div>'
         );
         
@@ -362,6 +382,8 @@ jQuery(document).ready(function($) {
     
     // Cleanup on page unload
     $(window).on('beforeunload', function() {
+        // Unbind namespaced keyboard shortcuts
+        $(document).off('keydown.soob-global keydown.soob-editor');
         stopAutoRefresh();
     });
     
@@ -416,7 +438,7 @@ jQuery(document).ready(function($) {
             
             // Show "no sessions" message if no sessions left
             if ($('.soob-session-row').length === 0) {
-                $container.append('<p class="soob-no-sessions">' + 'No sessions scheduled yet.' + '</p>');
+                $container.append('<p class="soob-no-sessions">' + t('no_sessions', 'No sessions scheduled yet.') + '</p>');
             }
         }, 300);
     });
@@ -452,7 +474,7 @@ jQuery(document).ready(function($) {
         // Validate client name
         var $clientName = $('#client_name');
         if ($clientName.val().trim() === '') {
-            showFieldError($clientName, 'Cient name is required.');
+            showFieldError($clientName, t('client_name_required', 'Client name is required.'));
             hasErrors = true;
         }
         
@@ -460,7 +482,7 @@ jQuery(document).ready(function($) {
         var $age = $('#customer_age');
         var age = parseInt($age.val());
         if (isNaN(age) || age < 1 || age > 100) {
-            showFieldError($age, 'Please enter a valid age between 1 and 100.');
+            showFieldError($age, t('age_invalid', 'Please enter a valid age between 1 and 100.'));
             hasErrors = true;
         }
         
@@ -481,7 +503,7 @@ jQuery(document).ready(function($) {
                 }, 500);
             }
             
-            showNotice('error', 'Please correct the errors below and try again.');
+            showNotice('error', t('fix_errors', 'Please correct the errors below and try again.'));
         }
     });
     
@@ -521,11 +543,11 @@ jQuery(document).ready(function($) {
         
         // Validate specific fields
         if ($field.attr('id') === 'client_name' && $field.val().trim() === '') {
-            showFieldError($field, 'Cient name is required.');
+            showFieldError($field, t('client_name_required', 'Client name is required.'));
         } else if ($field.attr('id') === 'customer_age') {
             var age = parseInt($field.val());
             if (isNaN(age) || age < 1 || age > 100) {
-                showFieldError($field, 'Please enter a valid age between 1 and 100.');
+                showFieldError($field, t('age_invalid', 'Please enter a valid age between 1 and 100.'));
             }
         }
     });
@@ -542,7 +564,7 @@ jQuery(document).ready(function($) {
         
         if (startTime && endTime && startTime >= endTime) {
             $row.find('.soob-session-start-time, .soob-session-end-time').addClass('soob-field-error');
-            $row.find('.soob-session-end-time').after('<span class="soob-error-message">End time must be after start time.</span>');
+            $row.find('.soob-session-end-time').after('<span class="soob-error-message">' + t('end_after_start', 'End time must be after start time.') + '</span>');
         }
     });
     
@@ -557,7 +579,7 @@ jQuery(document).ready(function($) {
     });
     
     // Keyboard shortcuts for booking editor
-    $(document).on('keydown', function(e) {
+    $(document).on('keydown.soob-editor', function(e) {
         // Only on booking edit page
         if (!$('.soob-edit-booking-page').length) return;
         
@@ -608,7 +630,7 @@ jQuery(document).ready(function($) {
         
         $(window).on('beforeunload', function() {
             if (formChanged) {
-                return 'You have unsaved changes. Are you sure you want to leave?';
+                return t('unsaved_changes', 'You have unsaved changes. Are you sure you want to leave?');
             }
         });
         

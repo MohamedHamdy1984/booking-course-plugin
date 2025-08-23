@@ -176,7 +176,29 @@ class SOOB_Admin
                 break;
                 
             case 'soob-booking_page_soob-providers':
-                // Load providers-specific assets
+                // Register timezone module from plugin root (no dependencies)
+                wp_register_script(
+                    'soob-timezone',
+                    SOOB_PLUGIN_URL . 'assets/js/soob-timezone.js',
+                    array(),
+                    defined('SOOB_PLUGIN_VERSION') ? SOOB_PLUGIN_VERSION : '1.0.0',
+                    true
+                );
+
+                // Register admin-providers with dependency on soob-timezone and jQuery
+                wp_register_script(
+                    'soob-admin-providers',
+                    SOOB_PLUGIN_URL . 'assets/js/admin-providers.js',
+                    array('jquery', 'soob-timezone'),
+                    defined('SOOB_PLUGIN_VERSION') ? SOOB_PLUGIN_VERSION : '1.0.0',
+                    true
+                );
+
+                // Enqueue in correct order: first timezone module, then admin-providers
+                wp_enqueue_script('soob-timezone');
+                wp_enqueue_script('soob-admin-providers');
+
+                // Load providers-specific assets (CSS and localization only; no JS enqueue here)
                 if ($this->providers_admin) {
                     $this->providers_admin->enqueue_scripts();
                 }
@@ -489,12 +511,18 @@ class SOOB_Admin
         $customer = get_user_by('id', $booking->customer_id);
         $customer_name = $customer ? $customer->display_name : __('Guest', 'soob-plugin');
         
-        // Get order info
+        // Get order info (guarded by WooCommerce presence and safe checks)
         $purchase_date = __('Unknown', 'soob-plugin');
-        if (function_exists('wc_get_order')) {
-            $order = wc_get_order($booking->order_id);
-            if ($order) {
-                $purchase_date = $order->get_date_created()->format('M j, Y');
+        if (class_exists('WooCommerce') && function_exists('wc_get_order')) {
+            $order_id = absint($booking->order_id);
+            if ($order_id > 0) {
+                $order = wc_get_order($order_id);
+                if ($order instanceof WC_Order) {
+                    $date_created = $order->get_date_created();
+                    if ($date_created) {
+                        $purchase_date = $date_created->format('M j, Y');
+                    }
+                }
             }
         }
         
@@ -787,6 +815,16 @@ class SOOB_Admin
      */
     private function handle_booking_save($booking_id)
     {
+        // Capability and nonce checks
+        if (!current_user_can('manage_woocommerce')) {
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Insufficient permissions.', 'soob-plugin') . '</p></div>';
+            return;
+        }
+        if (empty($_POST['soob_booking_nonce']) || !wp_verify_nonce($_POST['soob_booking_nonce'], 'soob_save_booking_' . $booking_id)) {
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Security check failed.', 'soob-plugin') . '</p></div>';
+            return;
+        }
+
         // Validate and sanitize input
         $client_name = sanitize_text_field($_POST['client_name']);
         $customer_gender = sanitize_text_field($_POST['customer_gender']);
